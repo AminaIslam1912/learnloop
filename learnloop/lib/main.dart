@@ -1,9 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:learnloop/person/UserProfile.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: UserProfile(
+        loggedInUserId: 'user123', // Replace with the actual logged-in user ID
+        profileUserId: 'user123', // Replace with the actual profile owner ID
+      ),
+    );
+  }
+
+}
+
+/*
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -123,3 +141,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+
+ */
