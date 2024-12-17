@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white, // Background color of the splash screen
       body: Container(
-         decoration: BoxDecoration(
+         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/background_app.png'), // Background image
             fit: BoxFit.cover,
@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 'assets/Writing practice.png', // Path to your splash screen image
                 height: 200, // Adjust the height as needed
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'LearnLoop',
                 style: TextStyle(

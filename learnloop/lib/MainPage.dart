@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'request_sent.dart';
+import 'home_page.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -10,7 +11,8 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    Center(child: Text('Home Page')), // Home page placeholder
+   // Center(child: Text('Home Page')), // Home page placeholder
+    HomePage(),
     RequestPage(),                    // Requests page
     Center(child: Text('Messages')),  // Messages page placeholder
     Center(child: Text('Profile')),   // Profile page placeholder
