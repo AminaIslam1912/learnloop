@@ -22,9 +22,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Background color of the splash screen
+      backgroundColor: Colors.black, // Background color of the splash screen
       body: Container(
-         decoration: const BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/background_app.png'), // Background image
             fit: BoxFit.cover,
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 200, // Adjust the height as needed
               ),
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 'LearnLoop',
                 style: TextStyle(
                   fontSize: 32,

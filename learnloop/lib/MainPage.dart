@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'request_sent.dart';
-import 'home_page.dart';
+import 'homelander/home_page.dart';
 
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
@@ -11,7 +13,7 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-   // Center(child: Text('Home Page')), // Home page placeholder
+    // Center(child: Text('Home Page')), // Home page placeholder
     HomePage(),
     RequestPage(),                    // Requests page
     Center(child: Text('Messages')),  // Messages page placeholder
@@ -22,12 +24,14 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background_app.png'), // Background image
-            fit: BoxFit.cover,
-          ),
-        ),
+        color: Colors.black,
+
+        // decoration: const BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage('assets/background_app.png'), // Background image
+        //     fit: BoxFit.cover,
+        //   ),
+        // ),
         child: _pages[_currentIndex],
       ),
       bottomNavigationBar: Container(
@@ -42,19 +46,19 @@ class _MainPageState extends State<MainPage> {
           items: [
             BottomNavigationBarItem(
               icon: _buildIcon(Icons.home, isSelected: _currentIndex == 0),
-              label: "",
+              label: "Home",
             ),
             BottomNavigationBarItem(
               icon: _buildIcon(Icons.people, isSelected: _currentIndex == 1),
-              label: "",
+              label: "Swap",
             ),
             BottomNavigationBarItem(
               icon: _buildIcon(Icons.message, isSelected: _currentIndex == 2),
-              label: "",
+              label: "Chat",
             ),
             BottomNavigationBarItem(
               icon: _buildIcon(Icons.person, isSelected: _currentIndex == 3),
-              label: "",
+              label: "Profile",
             ),
           ],
           showSelectedLabels: false,
