@@ -1,50 +1,61 @@
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+
+
 
 class SkillsEditPage extends StatefulWidget {
   final List<String> skills;
+  final int profileUserId;
 
-  const SkillsEditPage({super.key, required this.skills});
+  const SkillsEditPage({super.key, required this.skills, required this.profileUserId});
 
   @override
-  _SkillsEditPageState createState() => _SkillsEditPageState();
+  State<SkillsEditPage> createState() => _SkillsEditPageState();
 }
 
 class _SkillsEditPageState extends State<SkillsEditPage> {
   late List<String> skills;
 
-  List<String> displayedSkills = [];
-
-
-
   @override
   void initState() {
     super.initState();
     skills = widget.skills;
-    displayedSkills = widget.skills;
+  }
+
+  Future<void> _updateSkillsInDatabase() async {
+    try {
+      await SupabaseConfig.client
+          .from('users')
+          .update({'skills': skills}) // Update database with new skills list
+          .eq('id', widget.profileUserId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Skills updated successfully!")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error updating skills: $e")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController skillController = TextEditingController();
+    //TextEditingController skillController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit Skills"),
         actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.check),
-          //   onPressed: () => Navigator.pop(context, skills), // Save and return
-          // ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
               final newSkill = await _addSkillDialog();
               if (newSkill != null && newSkill.isNotEmpty) {
                 setState(() {
-                  widget.skills.add(newSkill);
-                  displayedSkills = widget.skills;
+                  skills.add(newSkill);
                 });
+                await _updateSkillsInDatabase();  // Update in database
               }
             },
           ),
@@ -54,16 +65,6 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: skillController,
-              decoration: const InputDecoration(labelText: "Add Skill"),
-              onSubmitted: (value) {
-                setState(() {
-                  skills.add(value);
-                  skillController.clear();
-                });
-              },
-            ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -73,10 +74,11 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
                     title: Text(skills[index]),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() {
                           skills.removeAt(index); // Remove skill
                         });
+                        await _updateSkillsInDatabase();  // Update in database
                       },
                     ),
                   );
@@ -123,7 +125,7 @@ class SkillsDetailPage extends StatefulWidget {
   const SkillsDetailPage({super.key, required this.skills, required this.isOwner});
 
   @override
-  _SkillsDetailPageState createState() => _SkillsDetailPageState();
+  State<SkillsDetailPage> createState() => _SkillsDetailPageState();
 }
 
 class _SkillsDetailPageState extends State<SkillsDetailPage> {
@@ -152,22 +154,6 @@ class _SkillsDetailPageState extends State<SkillsDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Skills"),
-        // actions: widget.isOwner
-        //     ? [
-        //   IconButton(
-        //     icon: Icon(Icons.add),
-        //     onPressed: () async {
-        //       final newSkill = await _addSkillDialog();
-        //       if (newSkill != null && newSkill.isNotEmpty) {
-        //         setState(() {
-        //           widget.skills.add(newSkill);
-        //           displayedSkills = widget.skills;
-        //         });
-        //       }
-        //     },
-        //   ),
-        // ]
-        // : null,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -192,17 +178,6 @@ class _SkillsDetailPageState extends State<SkillsDetailPage> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(displayedSkills[index]),
-                    // trailing: widget.isOwner
-                    //     ? IconButton(
-                    //   icon: const Icon(Icons.delete),
-                    //   onPressed: () {
-                    //     setState(() {
-                    //       widget.skills.remove(displayedSkills[index]);
-                    //       displayedSkills = widget.skills;
-                    //     });
-                    //   },
-                    // )
-                    //     : null,
                   );
                 },
               ),
@@ -213,27 +188,4 @@ class _SkillsDetailPageState extends State<SkillsDetailPage> {
     );
   }
 
-  // Future<String?> _addSkillDialog() async {
-  //   TextEditingController skillController = TextEditingController();
-  //   return showDialog<String>(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text("Add Skill"),
-  //       content: TextField(
-  //         controller: skillController,
-  //         decoration: const InputDecoration(hintText: "Enter new skill"),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("Cancel"),
-  //         ),
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context, skillController.text),
-  //           child: const Text("Add"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

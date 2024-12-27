@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 
 class UserFeedback extends StatefulWidget {
-  const UserFeedback({super.key});
+  final int profileUserId;
+
+  const UserFeedback({super.key, required this.profileUserId});
 
   @override
   State<UserFeedback> createState() => _UserFeedbackState();
@@ -10,52 +13,68 @@ class UserFeedback extends StatefulWidget {
 
 class _UserFeedbackState extends State<UserFeedback> {
   TextEditingController searchController = TextEditingController();
-
-  // Sample feedback data
-  final List<Map<String, dynamic>> feedbackData = [
-    {
-      "profilePicture": "https://via.placeholder.com/150", // Replace with actual image URLs
-      "name": "John Doe",
-      "rating": 4.5,
-      "topic": "Customer Service",
-      "description": "Great service, very helpful!"
-    },
-    {
-      "profilePicture": "https://via.placeholder.com/150",
-      "name": "Jane Smith",
-      "rating": 5.0,
-      "topic": "Delivery Experience",
-      "description": "Fast delivery and excellent packaging!"
-    },
-    {
-      "profilePicture": "https://via.placeholder.com/150",
-      "name": "Mike Johnson",
-      "rating": 3.0,
-      "topic": "Product Quality",
-      "description": "The product was okay, but could be better."
-    },
-  ];
-
   List<Map<String, dynamic>> filteredFeedback = [];
+  List<Map<String, dynamic>> feedbackData = [];
+  bool isLoading = true;
+
+  final SupabaseClient supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
-    filteredFeedback = List.from(feedbackData); // Initialize with all feedback
+    fetchFeedback();
   }
 
-
-
+  // Filter feedback based on search query
   void _filterFeedback(String query) {
     setState(() {
       filteredFeedback = feedbackData
-          .where((feedback) =>
-          feedback['topic'].toString().toLowerCase().contains(query.toLowerCase()))
-          .toList(); // Convert the result to a list after filtering
+          .where((feedback) => feedback['topic']
+          .toString()
+          .toLowerCase()
+          .contains(query.toLowerCase()))
+          .toList();
     });
   }
 
+  Future<void> fetchFeedback() async {
+    try {
+      final response = await supabase
+          .from('users')
+          .select('userFeedback')
+          .eq('id', widget.profileUserId)
+          .single();
 
+      if (response != null && response['userFeedback'] != null) {
+        List<dynamic> userFeedbacks = response['userFeedback'];
+
+        for (var feedbackItem in userFeedbacks) {
+          final feedbackId = feedbackItem['id'];
+          final userResponse = await supabase
+              .from('users')
+              .select('name')
+              .eq('id', feedbackId)
+              .single();
+
+          feedbackItem['name'] = userResponse['name'];
+        }
+
+        setState(() {
+          feedbackData = userFeedbacks.cast<Map<String, dynamic>>();
+          filteredFeedback = feedbackData; // Set filteredFeedback to all initially
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +83,11 @@ class _UserFeedbackState extends State<UserFeedback> {
         title: const Text('Feedback'),
         backgroundColor: Colors.blue,
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : feedbackData.isEmpty
+          ? const Center(child: Text('No feedback available'))
+          : Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -75,13 +98,13 @@ class _UserFeedbackState extends State<UserFeedback> {
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
-              onChanged: _filterFeedback,
+              onChanged: _filterFeedback, // Call _filterFeedback when text changes
             ),
           ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(8.0),
-              itemCount: filteredFeedback.length,
+              itemCount: filteredFeedback.length, // Use filteredFeedback length
               itemBuilder: (context, index) {
                 final feedback = filteredFeedback[index];
                 return Card(
@@ -91,8 +114,8 @@ class _UserFeedbackState extends State<UserFeedback> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(feedback['profilePicture'] as String),
+                        const CircleAvatar(
+                          backgroundImage: AssetImage("assets/moha.jpg"),
                           radius: 30,
                         ),
                         const SizedBox(width: 10),
@@ -101,7 +124,7 @@ class _UserFeedbackState extends State<UserFeedback> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                feedback['name'] as String,
+                                feedback['name'] ?? 'Unknown',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -110,7 +133,7 @@ class _UserFeedbackState extends State<UserFeedback> {
                               Row(
                                 children: [
                                   Text(
-                                    feedback['rating'].toString(),
+                                    feedback['rating']?.toString() ?? '0.0',
                                     style: const TextStyle(color: Colors.grey),
                                   ),
                                   const SizedBox(width: 5),
@@ -118,14 +141,14 @@ class _UserFeedbackState extends State<UserFeedback> {
                                 ],
                               ),
                               Text(
-                                feedback['topic'] as String,
+                                feedback['topic'] ?? 'No topic',
                                 style: const TextStyle(
                                   fontStyle: FontStyle.italic,
                                   color: Colors.blueAccent,
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Text(feedback['description'] as String),
+                              Text(feedback['description'] ?? 'No description'),
                             ],
                           ),
                         ),
@@ -136,12 +159,12 @@ class _UserFeedbackState extends State<UserFeedback> {
               },
             ),
           ),
-        ]
-
+        ],
       ),
     );
   }
 }
+
 
 
 

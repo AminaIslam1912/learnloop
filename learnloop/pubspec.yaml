@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   url_launcher: ^6.0.20
   animated_text_kit: ^4.2.2
+  supabase_flutter: ^1.0.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
