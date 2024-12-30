@@ -34,7 +34,7 @@ class _UserProfileState extends State<UserProfile>
   bool get isOwner =>
       widget.loggedInUserId == widget.profileUserId; // Check ownership
   String bio = "";
-  double rating = 4.0; // Default rating
+  double rating = 0; // Default rating
   String occupation = "";
   String location = "";
   List<String> achievements = [];
@@ -71,6 +71,42 @@ class _UserProfileState extends State<UserProfile>
           skills = List<String>.from(response['skills'] ?? []);
         });
       }
+
+      // Calculate average rating from user feedback
+      final feedbackResponse = await SupabaseConfig.client
+          .from('users')
+          .select('userFeedback')
+          .eq('id', widget.profileUserId)
+          .single();
+
+      if (feedbackResponse != null &&
+          feedbackResponse['userFeedback'] != null) {
+        List<dynamic> userFeedbacks = feedbackResponse['userFeedback'];
+        double totalRating = 0;
+        int feedbackCount = 0;
+
+        for (var feedbackItem in userFeedbacks) {
+          if (feedbackItem['rating'] != null) {
+            totalRating += feedbackItem['rating'];
+            print("rating : $feedbackItem['rating']");
+            feedbackCount++;
+          }
+        }
+        print("total $totalRating");
+
+        double calculatedRating = feedbackCount > 0 ? totalRating / feedbackCount : 0;
+
+        // Update rating in the database
+        await SupabaseConfig.client
+            .from('users')
+            .update({'rating': calculatedRating})
+            .eq('id', widget.profileUserId);
+
+        setState(() {
+          rating = calculatedRating;
+        });
+      }
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching data: $e")),
@@ -82,33 +118,19 @@ class _UserProfileState extends State<UserProfile>
     }
   }
 
-  // Animation controller for slide-in effect
-  late AnimationController _controller;
-  //late Animation<Offset> _offsetAnimation;
+
 
   @override
   void initState() {
     super.initState();
     fetchUserData();
 
-    // Animation setup
-    // _controller = AnimationController(
-    //   duration: const Duration(milliseconds: 500),
-    //   vsync: this,
-    // );
-    // _offsetAnimation = Tween<Offset>(
-    //   begin: const Offset(1.0, 0.0),
-    //   end: Offset.zero,
-    // ).animate(CurvedAnimation(
-    //   parent: _controller,
-    //   curve: Curves.easeInOut,
-    // ));
-    // _controller.forward();
+
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+
     super.dispose();
   }
 

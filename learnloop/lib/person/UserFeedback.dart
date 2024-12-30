@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'UserProfile.dart';
+
 
 class UserFeedback extends StatefulWidget {
   final int profileUserId;
@@ -76,6 +78,18 @@ class _UserFeedbackState extends State<UserFeedback> {
     }
   }
 
+  void navigateToUserProfile(int userId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserProfile(
+          loggedInUserId: widget.profileUserId,
+          profileUserId: userId,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,52 +121,57 @@ class _UserFeedbackState extends State<UserFeedback> {
               itemCount: filteredFeedback.length, // Use filteredFeedback length
               itemBuilder: (context, index) {
                 final feedback = filteredFeedback[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const CircleAvatar(
-                          backgroundImage: AssetImage("assets/moha.jpg"),
-                          radius: 30,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                feedback['name'] ?? 'Unknown',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    feedback['rating']?.toString() ?? '0.0',
-                                    style: const TextStyle(color: Colors.grey),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  const Icon(Icons.star, color: Colors.yellow, size: 16),
-                                ],
-                              ),
-                              Text(
-                                feedback['topic'] ?? 'No topic',
-                                style: const TextStyle(
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.blueAccent,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(feedback['description'] ?? 'No description'),
-                            ],
+                return GestureDetector(
+                  onTap: () {
+                    navigateToUserProfile(feedback['id']);
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const CircleAvatar(
+                            backgroundImage: AssetImage("assets/moha.jpg"),
+                            radius: 30,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  feedback['name'] ?? 'Unknown',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      feedback['rating']?.toString() ?? '0.0',
+                                      style: const TextStyle(color: Colors.grey),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    const Icon(Icons.star, color: Colors.yellow, size: 16),
+                                  ],
+                                ),
+                                Text(
+                                  feedback['topic'] ?? 'No topic',
+                                  style: const TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(feedback['description'] ?? 'No description'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
