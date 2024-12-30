@@ -174,8 +174,12 @@ class _UserProfileState extends State<UserProfile>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  FullScreenImage(imagePath: profilePicture),
+                              // builder: (context) =>
+                              //     FullScreenImage(imagePath: profilePicture),
+                              builder: (context) => FullScreenImage(
+                                imagePath: profilePicture,
+                                isNetworkImage: profilePicture.startsWith('https://'),
+                              ),
                             ),
                           );
                         },

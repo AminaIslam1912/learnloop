@@ -343,7 +343,7 @@ class _EditProfileState extends State<EditProfile> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => FullScreenImage(
-                              imagePath: profilePicture,
+                              imagePath: profilePicture, isNetworkImage: profilePicture.startsWith('https://'),
                             ),
                           ),
                         );
