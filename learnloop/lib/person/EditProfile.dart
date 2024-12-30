@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import 'Achievement.dart';
 import 'FullScreenImage.dart';
@@ -38,54 +40,18 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _occupationController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
+  final picker = ImagePicker();
+
+
+
+
   @override
   void initState() {
     super.initState();
     fetchUserData();
   }
 
-  // Future<void> fetchUserData() async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //
-  //   try {
-  //     final response = await SupabaseConfig.client
-  //         .from('users')
-  //         .select()
-  //         .eq('id', widget.profileUserId)
-  //         .single();
-  //
-  //     if (response != null) {
-  //       setState(() {
-  //         name = response['name'] ?? "";
-  //         email = response['email'] ?? "";
-  //         bio = response['bio'] ?? "";
-  //         occupation = response['occupation'] ?? "";
-  //         location = response['location'] ?? "";
-  //         profilePicture = response['profile_picture'] ?? "assets/moha.jpg";
-  //         achievements = List<String>.from(response['achievements'] ?? []);
-  //         skills = List<String>.from(response['skills'] ?? []);
-  //       });
-  //
-  //       // Set the initial values for controllers
-  //       _nameController.text = name;
-  //       _emailController.text = email;
-  //       _bioController.text = bio;
-  //       _occupationController.text = occupation;
-  //       _locationController.text = location;
-  //
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text("Error fetching data: $e")),
-  //     );
-  //   } finally {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
+
 
 
   Future<void> saveProfile() async {
@@ -215,6 +181,92 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
+  Future<void> uploadProfilePicture() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() => isLoading = true);
+
+      try {
+        // File name for the uploaded image
+        final fileName = '${widget.profileUserId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+        // Convert the file path string to a File object
+        File file = File(pickedFile.path);
+
+        // Upload the image to Supabase Storage
+        final response = await Supabase.instance.client.storage
+            .from('profile_picture') // Bucket name
+            .upload(fileName, file); // Pass the File object
+
+        if (response.error != null) {
+          throw response.error!.message;
+        }
+
+        // Get the public URL of the uploaded image
+        final publicUrl = Supabase.instance.client.storage
+            .from('profile_picture')
+            .getPublicUrl(fileName);
+
+        // Update the user's profile picture URL in the database
+        await Supabase.instance.client
+            .from('users')
+            .update({'profile_picture': publicUrl})
+            .eq('id', widget.profileUserId);
+
+        setState(() {
+          profilePicture = publicUrl;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile picture updated!")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error uploading picture: $e")),
+        );
+      } finally {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+
+
+  Future<void> deleteProfilePicture() async {
+    setState(() => isLoading = true);
+
+    try {
+      // Remove profile picture from storage (if previously uploaded)
+      if (profilePicture.startsWith('https://')) {
+        final fileName = profilePicture.split('/').last; // Extract file name
+        await Supabase.instance.client.storage
+            .from('profile_picture')
+            .remove([fileName]);
+      }
+
+      // Update the database to set profile picture to default
+      await Supabase.instance.client
+          .from('users')
+          .update({'profile_picture': null})
+          .eq('id', widget.profileUserId);
+
+      setState(() {
+        profilePicture = "assets/moha.jpg"; // Reset to default
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Profile picture deleted!")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting picture: $e")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
   Future<void> fetchUserData() async {
     setState(() {
       isLoading = true;
@@ -277,6 +329,7 @@ class _EditProfileState extends State<EditProfile> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
+        padding: const EdgeInsets.all(8.0),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -285,21 +338,29 @@ class _EditProfileState extends State<EditProfile> {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FullScreenImage(
-                            imagePath: profilePicture,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FullScreenImage(
+                              imagePath: profilePicture,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage: AssetImage(profilePicture),
-                    ),
+                        );
+                      },
+                      // child: CircleAvatar(
+                      //   radius: 50,
+                      //   backgroundImage: AssetImage(profilePicture),
+                      // ),
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage: profilePicture.startsWith('https://')
+                            ? NetworkImage(profilePicture)
+                            : AssetImage(profilePicture) as ImageProvider,
+                      )
+
                   ),
+
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -312,6 +373,19 @@ class _EditProfileState extends State<EditProfile> {
                         ),
                       ),
                     ),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: uploadProfilePicture,
+                    child: const Text("Upload Picture"),
+                  ),
+                  ElevatedButton(
+                    onPressed: deleteProfilePicture,
+                    child: const Text("Delete Picture"),
                   ),
                 ],
               ),
@@ -391,4 +465,8 @@ class _EditProfileState extends State<EditProfile> {
       ),
     );
   }
+}
+
+extension on String {
+  get error => null;
 }

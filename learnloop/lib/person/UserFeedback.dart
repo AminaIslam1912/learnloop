@@ -54,11 +54,13 @@ class _UserFeedbackState extends State<UserFeedback> {
           final feedbackId = feedbackItem['id'];
           final userResponse = await supabase
               .from('users')
-              .select('name')
+              .select('name, profile_picture') // Correct way to select multiple fields
               .eq('id', feedbackId)
               .single();
 
+
           feedbackItem['name'] = userResponse['name'];
+          feedbackItem['profile_picture'] = userResponse['profile_picture'];
         }
 
         setState(() {
@@ -132,8 +134,11 @@ class _UserFeedbackState extends State<UserFeedback> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const CircleAvatar(
-                            backgroundImage: AssetImage("assets/moha.jpg"),
+                          CircleAvatar(
+                            // Use the profile picture URL if available, otherwise fall back to a default image
+                            backgroundImage: feedback['profile_picture'] != null
+                                ? NetworkImage(feedback['profile_picture'])
+                                : const AssetImage("assets/moha.jpg") as ImageProvider,
                             radius: 30,
                           ),
                           const SizedBox(width: 10),
@@ -183,7 +188,3 @@ class _UserFeedbackState extends State<UserFeedback> {
     );
   }
 }
-
-
-
-

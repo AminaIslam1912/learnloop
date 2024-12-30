@@ -28,7 +28,7 @@ class _UserProfileState extends State<UserProfile>
     with SingleTickerProviderStateMixin {
   String name = "";
   String email = ""; //mrittikasaigal@gmail.com
-  String profilePicture = "assets/moha.jpg";
+  String profilePicture =  "assets/moha.jpg";
   bool isEditMode = false;
   bool isLoading = false;
   bool get isOwner =>
@@ -39,6 +39,8 @@ class _UserProfileState extends State<UserProfile>
   String location = "";
   List<String> achievements = [];
   List<String> skills = []; // Default skills
+
+
 
 
 
@@ -71,6 +73,7 @@ class _UserProfileState extends State<UserProfile>
           skills = List<String>.from(response['skills'] ?? []);
         });
       }
+
 
       // Calculate average rating from user feedback
       final feedbackResponse = await SupabaseConfig.client
@@ -119,7 +122,6 @@ class _UserProfileState extends State<UserProfile>
   }
 
 
-
   @override
   void initState() {
     super.initState();
@@ -128,11 +130,6 @@ class _UserProfileState extends State<UserProfile>
 
   }
 
-  @override
-  void dispose() {
-
-    super.dispose();
-  }
 
   Future<void> _launchEmail(String email) async {
     final Uri emailUri = Uri(
@@ -183,11 +180,17 @@ class _UserProfileState extends State<UserProfile>
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundImage: AssetImage(profilePicture),
-                          ),
+                            padding: const EdgeInsets.all(1.0),
+                            // child: CircleAvatar(
+                            //   radius: 50,
+                            //   backgroundImage: AssetImage(profilePicture),
+                            // ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage: profilePicture.startsWith('https://')
+                                  ? NetworkImage(profilePicture)
+                                  : AssetImage(profilePicture) as ImageProvider,
+                            )
                         ),
                       ),
                       Column(
@@ -238,8 +241,7 @@ class _UserProfileState extends State<UserProfile>
                               MaterialPageRoute(
                                 builder: (context) =>
                                     EditProfile(
-                                      loggedInUserId:
-                                      widget.loggedInUserId, // Replace with the actual logged-in user ID
+                                      loggedInUserId: widget.loggedInUserId,
                                       profileUserId: widget.profileUserId,
                                     ),
                               ),
