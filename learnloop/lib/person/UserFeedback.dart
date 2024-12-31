@@ -160,7 +160,7 @@ class _UserFeedbackState extends State<UserFeedback> {
                                       style: const TextStyle(color: Colors.grey),
                                     ),
                                     const SizedBox(width: 5),
-                                    const Icon(Icons.star, color: Colors.yellow, size: 16),
+                                    Icon(Icons.star, color: Colors.yellow[700], size: 16),
                                   ],
                                 ),
                                 Text(
