@@ -122,11 +122,17 @@ import 'package:flutter/material.dart';
 
 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../login.dart';
 import 'about_us.dart';
 import '../sign_up.dart';
+import 'community/Community_ui.dart';
 import 'fun_challenge.dart';
 
 class HomePage extends StatefulWidget {
+  final User? user;
+
+  const HomePage({Key? key, this.user}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -174,6 +180,33 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     },
   ];
 
+
+  void _checkSession() async {
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (session != null) {
+      // User is logged in
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => CommunityUI(user: session.user)),
+      // );
+    //  CommunityUI(user: session.user);
+      setState(() {
+        _tabController.index = 1;
+        CommunityUI(user: session.user);// Navigate to Community tab
+      });
+    } else {
+      // User is not logged in
+      //SignUpPage();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SignUpPage()),
+      );
+
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -182,35 +215,42 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     // Tab navigation listeners
     _tabController.addListener(() {
       if (_tabController.index == 1) {
-        _openSignUpScreen();
+        // if(widget.user!=null){
+        //   CommunityUI();
+        // }else{
+        //   SignUpPage();
+        // }
+        _checkSession();
+
       } else if (_tabController.index == 2) {
-        _openFunChallengeScreen();
+        FunChallengeScreen();
       } else if (_tabController.index == 3) {
-        _openAboutScreen();
+        AboutScreen();
       }
     });
   }
 
-  void _openSignUpScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SignUpPage()),
-    );
-  }
+  // void _openSignUpScreen() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const SignUpPage()),
+  //   );
+  // }
 
-  void _openFunChallengeScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const FunChallengeScreen()),
-    );
-  }
+  // Widget _openFunChallengeScreen() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const FunChallengeScreen()),
+  //   );
+  //  // Navigator.pushReplacementNamed(context, '/home/funChallenge');
+  // }
 
-  void _openAboutScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AboutScreen()),
-    );
-  }
+  // void _openAboutScreen() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const AboutScreen()),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -258,9 +298,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               controller: _tabController,
               children: [
                 _buildCourseSections(),
-                const Center(child: Text("Community Section", style: TextStyle(color: Colors.white))),
-                const Center(child: Text("Fun Challenge Section", style: TextStyle(color: Colors.white))),
-                const Center(child: Text("About Section", style: TextStyle(color: Colors.white))),
+               // const Center(child: Text("Community Section", style: TextStyle(color: Colors.white))),
+                const CommunityUI(),
+               // const Center(child: Text("Fun Challenge Section", style: TextStyle(color: Colors.white))),
+                FunChallengeScreen(),
+               // const Center(child: Text("About Section", style: TextStyle(color: Colors.white))),
+                const AboutScreen()
               ],
             ),
           ),

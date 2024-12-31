@@ -1,7 +1,9 @@
+import 'package:learnloop/homelander/community/Community_ui.dart';
 import 'package:learnloop/homelander/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 //import 'home_page.dart'; // Replace with your actual home page or dashboard after login
+import 'MainPage.dart';
 import 'sign_up.dart';
 
 class LoginPage extends StatefulWidget {
@@ -40,14 +42,23 @@ class _LoginPageState extends State<LoginPage> {
           'Login failed: ${response.session?.error?.message ?? "Unknown error"}';
         });
         return;
+      }else{
+        // Login is successful
+        final user = response.user; // Get the user info
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context)=>MainPage(user:user),// Pass user info to CommunityUI
+          ),
+        );
       }
 
       //  Navigate to the home page (or any page after successful login)
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) =>  HomePage()),
-      );
-      //Navigator.pop(context);
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) =>  const CommunityUI()),
+      // );
+   //   Navigator.pop(context);
 
 
       print("login successful");

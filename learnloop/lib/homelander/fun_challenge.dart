@@ -12,12 +12,13 @@ class FunChallengeScreen extends StatelessWidget {
           "Fun Challenge",
           style: TextStyle(color: Colors.green, fontSize: 24),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back to the Course UI
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //  //   Navigator.pop(context); // Navigate back to the Course UI
+        //     Navigator.pushReplacementNamed(context,'/main');
+        //   },
+        // ),
       ),
       body: Container(
         color: Colors.black,
@@ -61,17 +62,17 @@ class FunChallengeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.white,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.group), label: "Group"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: Colors.black,
+      //   selectedItemColor: Colors.green,
+      //   unselectedItemColor: Colors.white,
+      //   items: const [
+      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.group), label: "Group"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+      //   ],
+      // ),
     );
   }
 

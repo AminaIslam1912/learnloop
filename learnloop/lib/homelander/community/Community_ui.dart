@@ -1,12 +1,17 @@
 import 'package:learnloop/homelander/community/problemsolvers.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 //import 'graphics.dart';
 //import 'problemsolvers.dart'; // Import the new screen
+import '../../MainPage.dart';
 import 'graphics.dart';
 import '../home_page.dart'; // Import the CourseUI screen
 
 class CommunityUI extends StatefulWidget {
-  const CommunityUI({super.key});
+  final User? user;
+  //const CommunityUI({super.key});
+  const CommunityUI({Key? key, this.user}) : super(key: key);
+
 
   @override
   _CommunityUIState createState() => _CommunityUIState();
@@ -39,7 +44,7 @@ class _CommunityUIState extends State<CommunityUI> {
         // Navigate to the CourseUI screen when back button is pressed
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => MainPage()),
         );
         return false; // Prevent default back button action
       },
@@ -82,17 +87,17 @@ class _CommunityUIState extends State<CommunityUI> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.black,
-          selectedItemColor: Colors.green,
-          unselectedItemColor: Colors.white,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.group), label: "Group"),
-            BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          ],
-        ),
+        // bottomNavigationBar: BottomNavigationBar(
+        //   backgroundColor: Colors.black,
+        //   selectedItemColor: Colors.green,
+        //   unselectedItemColor: Colors.white,
+        //   items: const [
+        //     BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+        //     BottomNavigationBarItem(icon: Icon(Icons.group), label: "Group"),
+        //     BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
+        //     BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        //   ],
+        // ),
       ),
     );
   }

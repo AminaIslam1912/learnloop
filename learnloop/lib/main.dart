@@ -101,6 +101,7 @@ class MyApp extends StatelessWidget {
         '/home/about': (context) => AboutScreen(),
         '/login':(context)=>LoginPage(),
         '/sign_up':(context)=>SignUpPage(),
+         //'/home/fun':(context)=>FunChallengeScreen()
       },
     );
   }

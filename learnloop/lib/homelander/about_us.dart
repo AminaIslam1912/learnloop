@@ -16,12 +16,13 @@ class AboutScreen extends StatelessWidget {
             color: Colors.green,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //    // Navigator.pop(context); // Navigate back to the previous screen
+        //     Navigator.pushReplacementNamed(context, '/main');
+        //   },
+        // ),
       ),
       body: Container(
         color: Colors.black,
@@ -43,6 +44,7 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
         ),
+
       ),
     );
   }
