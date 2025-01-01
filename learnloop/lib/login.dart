@@ -45,6 +45,17 @@ class _LoginPageState extends State<LoginPage> {
       }else{
         // Login is successful
         final user = response.user; // Get the user info
+      //  Print all user info
+      //   print('User Info:');
+      //   print('ID: ${user?.id}');
+      //   print('Email: ${user?.email}');
+      //   print('Created At: ${user?.createdAt}');
+      //   print('Updated At: ${user?.updatedAt}');
+      //  print('User Metadata: ${user?.userMetadata}');
+     //   print('App Metadata: ${user?.appMetadata}');
+
+        print("loooooooooogin success");
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

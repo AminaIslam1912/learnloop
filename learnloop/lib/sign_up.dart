@@ -69,6 +69,19 @@ class _SignUpPageState extends State<SignUpPage> {
       ])
           .select();
 
+      final userResponse = await Supabase.instance.client
+          .from('users')
+          .insert([
+        {
+         // 'user_id': user?.id, // Storing the UUID in the new column
+          'name': username,
+          'email': email,
+         // 'created_at': DateTime.now().toUtc().toIso8601String(),
+         // 'password': password
+        }
+      ])
+          .select();
+
 
       if (profileResponse == null) {
         setState(() {

@@ -19,7 +19,7 @@ class _RequestPageState extends State<RequestPage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF264E70),
+        backgroundColor: Color(0xFF009252),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -190,7 +190,7 @@ class ReceivedRequestsTab extends StatelessWidget {
         padding: EdgeInsets.all(16),
         children: [
           buildReceivedCard(
-            name: "Robbie Harrison",
+            name: "Farzana",
             role: "Musician",
             experience: "5 years",
             stats: {"likes": "3k+", "followers": "65+"},
@@ -198,7 +198,7 @@ class ReceivedRequestsTab extends StatelessWidget {
           ),
           SizedBox(height: 16),
           buildReceivedCard(
-            name: "Jessamine Mumtaz",
+            name: "Mrittika",
             role: "Designer",
             experience: "4 years",
             stats: {"likes": "258", "followers": "23"},

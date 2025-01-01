@@ -34,10 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/Writing practice.png', // Path to your splash screen image
-                height: 200, // Adjust the height as needed
-              ),
+
               const SizedBox(height: 20),
               const Text(
                 'LearnLoop',
