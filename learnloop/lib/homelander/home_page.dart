@@ -275,7 +275,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         ],
       ),
-      drawer: _buildSettingsDrawer(),
+      drawer: _buildSettingsDrawer(context),
       body: Column(
         children: [
           Container(
@@ -378,7 +378,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildSettingsDrawer() {
+  // Widget _buildSettingsDrawer() {
+  //   return Drawer(
+  //     child: Container(
+  //       color: Colors.black.withOpacity(0.5),
+  //       child: ListView(
+  //         padding: EdgeInsets.zero,
+  //         children: [
+  //           DrawerHeader(
+  //             decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
+  //             child: const Text(
+  //               'Settings',
+  //               style: TextStyle(color: Colors.white, fontSize: 24),
+  //             ),
+  //           ),
+  //           // Drawer options here
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+
+  Widget _buildSettingsDrawer(BuildContext context) {
+   // bool isDarkMode;
     return Drawer(
       child: Container(
         color: Colors.black.withOpacity(0.5),
@@ -386,18 +409,74 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue.withOpacity(0.7)),
+              decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
               child: const Text(
                 'Settings',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
-            // Drawer options here
+
+
+
+
+
+            ListTile(
+              leading: Icon(Icons.lock, color: Colors.white),
+              title: Text('Change Password', style: TextStyle(color: Colors.white)),
+              onTap: () {
+              //  Navigator.pushNamed(context, '/change-password');
+              },
+            ),
+
+
+
+            ListTile(
+              leading: Icon(Icons.help_outline, color: Colors.white),
+              title: Text('FAQ', style: TextStyle(color: Colors.white)),
+              onTap: () {
+             //   Navigator.pushNamed(context, '/faq');
+              },
+            ),
+
+
+            ListTile(
+              leading: Icon(Icons.feedback, color: Colors.white),
+              title: Text('Send Feedback', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                // Redirect to feedback form
+              },
+            ),
+
+            // Logout option
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.white),
+              title: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () async {
+                try {
+                  await Supabase.instance.client.auth.signOut();
+                  print('Logged out successfully');
+                  // Navigate to the login page after logout
+                  Navigator.pushReplacementNamed(context, '/sign_up');
+                } catch (e) {
+                  print('Logout exception: $e');
+                  // Optionally show a toast/snackbar for logout failure
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to log out. Please try again.')),
+                  );
+                }
+              },
+            ),
+
           ],
         ),
       ),
     );
   }
+
+
 }
 
 class CourseCard extends StatelessWidget {
