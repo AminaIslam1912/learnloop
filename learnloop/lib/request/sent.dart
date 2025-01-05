@@ -473,17 +473,6 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
     }
   }
 
-  // void navigateToUserProfile(int userId) {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => UserProfile(
-  //         loggedInUserId: _userId!,
-  //         profileUserId: userId,
-  //       ),
-  //     ),
-  //   );
-  // }
 
 
   void navigateToUserProfile(int userId) {

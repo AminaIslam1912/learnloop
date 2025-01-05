@@ -267,12 +267,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           style: TextStyle(color: Colors.white),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.settings, color: Colors.white),
+          //   onPressed: () {
+          //     Scaffold.of(context).openDrawer();
+          //   },
+          // ),
         ],
       ),
       drawer: _buildSettingsDrawer(context),

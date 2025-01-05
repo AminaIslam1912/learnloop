@@ -738,16 +738,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
     );
   }
 
-  // void navigateToUserProfile(int userId) {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => UserProfile(
-  //         loggedInUserId: _userId!,
-  //         profileUserId: userId,
-  //       ),
-  //     ),
-  //   );
+
 
 
 
@@ -820,7 +811,10 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
                 children: actionButtons.map((btn) {
                   return Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        if (btn == "Accept") {
+                          await handleAcceptAction(userId);
+                        }
                         // Handle button actions
                       },
                       style: ElevatedButton.styleFrom(
@@ -840,6 +834,45 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
         ),
       ),
     );
+  }
+
+  Future<void> handleAcceptAction(int friendId) async {
+    try {
+      if (_userId == null) {
+        print('User ID is null. Cannot accept request.');
+        return;
+      }
+
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('friends')
+          .eq('id', _userId!)
+          .single();
+
+      List<dynamic> currentFriends = response['friends'] ?? [];
+
+      // Ensure no duplicates
+      if (currentFriends.any((friend) => friend['id'] == friendId)) {
+        print('Friend already exists in the list.');
+        return;
+      }
+
+      // Add the new friend
+      currentFriends.add({'id': friendId});
+
+      // Update the friends column
+      await Supabase.instance.client
+          .from('users')
+          .update({'friends': currentFriends})
+          .eq('id', _userId!);
+
+      print('Friend added successfully.');
+      setState(() {
+        receivedProfiles.removeWhere((profile) => profile['id'] == friendId);
+      });
+    } catch (error) {
+      print('Error accepting request: $error');
+    }
   }
 }
 
