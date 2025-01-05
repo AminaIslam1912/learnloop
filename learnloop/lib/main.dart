@@ -93,14 +93,14 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
-        '/main': (context) => MainPage(),
+        '/main': (context) => const MainPage(),
         // Add other routes as needed
         // '/home/suggested': (context) => SuggestedForYou(),
-        '/home/community': (context) => CommunityUI(),
-        '/home/funChallenge': (context) =>  FunChallengeScreen(),
-        '/home/about': (context) => AboutScreen(),
-        '/login':(context)=>LoginPage(),
-        '/sign_up':(context)=>SignUpPage(),
+        '/home/community': (context) => const CommunityUI(),
+        '/home/funChallenge': (context) =>  const FunChallengeScreen(),
+        '/home/about': (context) => const AboutScreen(),
+        '/login':(context)=>const LoginPage(),
+        '/sign_up':(context)=>const SignUpPage(),
          //'/home/fun':(context)=>FunChallengeScreen()
       },
     );
