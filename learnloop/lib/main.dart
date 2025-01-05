@@ -62,6 +62,8 @@ class MyApp extends StatelessWidget {
 
 import 'package:learnloop/supabase_config.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'UserProvider.dart';
 import 'homelander/community/Community_ui.dart';
 import 'homelander/about_us.dart';
 import 'homelander/fun_challenge.dart';
@@ -77,7 +79,16 @@ void main() async {
 
   // Initialize Supabase with the SupabaseConfig class
   await SupabaseConfig.initialize();
-  runApp(const MyApp());
+ // runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()), // Add UserProvider
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

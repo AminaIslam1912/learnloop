@@ -1,9 +1,11 @@
 import 'package:learnloop/homelander/community/Community_ui.dart';
 import 'package:learnloop/homelander/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 //import 'home_page.dart'; // Replace with your actual home page or dashboard after login
 import 'MainPage.dart';
+import 'UserProvider.dart';
 import 'sign_up.dart';
 
 class LoginPage extends StatefulWidget {
@@ -53,15 +55,19 @@ class _LoginPageState extends State<LoginPage> {
       //   print('Updated At: ${user?.updatedAt}');
       //  print('User Metadata: ${user?.userMetadata}');
      //   print('App Metadata: ${user?.appMetadata}');
-
+        // Set the user in the provider
+        context.read<UserProvider>().setUser(user!);
         print("loooooooooogin success");
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context)=>MainPage(user:user),// Pass user info to CommunityUI
-          ),
-        );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context)=>MainPage(user:user),// Pass user info to MainPage
+        //   ),
+        // );
+
+        // Navigate to the main page
+        Navigator.pushReplacementNamed(context, '/main');
       }
 
       //  Navigate to the home page (or any page after successful login)

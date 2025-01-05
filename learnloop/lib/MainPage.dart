@@ -240,25 +240,153 @@
 //
 
 
+
+
+
+
+//without using provider
+
+
+// import 'package:flutter/material.dart';
+// import 'package:learnloop/person/UserProfile.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'request/request_sent.dart';
+// import 'homelander/home_page.dart';
+// import 'homelander/community/Community_ui.dart'; // Your community page
+//
+// class MainPage extends StatefulWidget {
+//   final User?user;
+//   const MainPage({Key? key, this.user}) : super(key: key);
+//
+//     // print('User Info:');
+//     // print('ID: ${user?.id}');
+//     // print('Email: ${user?.email}');
+//     // print('Created At: ${user?.createdAt}');
+//     // print('Updated At: ${user?.updatedAt}');
+//
+//   //const MainPage({super.key});
+//
+//
+//   @override
+//   _MainPageState createState() => _MainPageState();
+// }
+//
+// class _MainPageState extends State<MainPage> {
+//   int _currentIndex = 0;
+//
+//   final PageController _pageController = PageController();
+//   int? _userId; // To store the fetched user ID
+//
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//
+//     fetchUserId(); // Fetch user ID on initialization
+//
+//
+//     // Print user information
+//     if (widget.user != null) {
+//       print('User Info:');
+//       print('ID: ${widget.user!.id}');
+//       print('Email: ${widget.user!.email}');
+//       print('Created At: ${widget.user!.createdAt}');
+//       print('Updated At: ${widget.user!.updatedAt}');
+//     } else {
+//       print('No user information available.');
+//     }
+//   }
+//
+//
+//   Future<void> fetchUserId() async {
+//     if (widget.user == null) return;
+//
+//     try {
+//       // Query the `users` table for the user with the corresponding email
+//       final response = await Supabase.instance.client
+//           .from('users')
+//           .select('id')
+//           .eq('email', widget.user!.email as Object)
+//           .single(); // `.single()` fetches a single row
+//
+//       if (response != null  && response['id'] is int) {
+//         setState(() {
+//           _userId = response['id']; // Store the fetched ID
+//         });
+//         print('Fetched User ID: $_userId');
+//       } else {
+//         print('No user found with email ${widget.user!.email}');
+//       }
+//     } catch (error) {
+//       print('Error fetching user ID: $error');
+//     }
+//   }
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: PageView(
+//         controller: _pageController,
+//         onPageChanged: (index) {
+//           setState(() {
+//             _currentIndex = index;
+//           });
+//         },
+//         children: [
+//           HomePage(),
+//           RequestPage(),
+//           Center(child: Text('Messages')), // Messages page placeholder
+//           //Center(child: Text('Profile')),
+//
+//
+//
+//           _userId == null
+//               ? Center(child: CircularProgressIndicator()) // Show a loading indicator while fetching
+//               : UserProfile(
+//             loggedInUserId: _userId!,
+//             profileUserId: _userId!,
+//           ),
+//         ],
+//       ),
+//       bottomNavigationBar: BottomNavigationBar(
+//         backgroundColor: Colors.black,
+//         selectedItemColor: Colors.green,
+//         unselectedItemColor: Colors.white,
+//         currentIndex: _currentIndex,
+//         onTap: (index) {
+//           setState(() {
+//             _currentIndex = index;
+//           });
+//           _pageController.jumpToPage(index);
+//         },
+//         items: const [
+//           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+//           BottomNavigationBarItem(icon: Icon(Icons.group), label: "Request"),
+//           BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
+//           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+
+
+//using provider
+
 import 'package:flutter/material.dart';
 import 'package:learnloop/person/UserProfile.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'request_sent.dart';
+import 'package:provider/provider.dart'; // Import provider package
+import 'UserProvider.dart';
+import 'request/request_sent.dart';
 import 'homelander/home_page.dart';
-import 'homelander/community/Community_ui.dart'; // Your community page
+import 'homelander/community/Community_ui.dart';
+
 
 class MainPage extends StatefulWidget {
-  final User?user;
-  const MainPage({Key? key, this.user}) : super(key: key);
-
-    // print('User Info:');
-    // print('ID: ${user?.id}');
-    // print('Email: ${user?.email}');
-    // print('Created At: ${user?.createdAt}');
-    // print('Updated At: ${user?.updatedAt}');
-
-  //const MainPage({super.key});
-
+  const MainPage({Key? key}) : super(key: key);
 
   @override
   _MainPageState createState() => _MainPageState();
@@ -266,58 +394,45 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-
   final PageController _pageController = PageController();
   int? _userId; // To store the fetched user ID
-
 
   @override
   void initState() {
     super.initState();
-
     fetchUserId(); // Fetch user ID on initialization
-
-
-    // Print user information
-    if (widget.user != null) {
-      print('User Info:');
-      print('ID: ${widget.user!.id}');
-      print('Email: ${widget.user!.email}');
-      print('Created At: ${widget.user!.createdAt}');
-      print('Updated At: ${widget.user!.updatedAt}');
-    } else {
-      print('No user information available.');
-    }
   }
 
-
   Future<void> fetchUserId() async {
-    if (widget.user == null) return;
+    final user = context.read<UserProvider>().user; // Get the user from Provider
+
+    if (user == null) return;
 
     try {
       // Query the `users` table for the user with the corresponding email
       final response = await Supabase.instance.client
           .from('users')
           .select('id')
-          .eq('email', widget.user!.email as Object)
+          .eq('email', user.email as Object)
           .single(); // `.single()` fetches a single row
 
-      if (response != null  && response['id'] is int) {
+      if (response != null && response['id'] is int) {
         setState(() {
           _userId = response['id']; // Store the fetched ID
         });
         print('Fetched User ID: $_userId');
       } else {
-        print('No user found with email ${widget.user!.email}');
+        print('No user found with email ${user.email}');
       }
     } catch (error) {
       print('Error fetching user ID: $error');
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user; // Watch the user from Provider
+
     return Scaffold(
       body: PageView(
         controller: _pageController,
@@ -327,15 +442,13 @@ class _MainPageState extends State<MainPage> {
           });
         },
         children: [
-          HomePage(),
+          const HomePage(),
           RequestPage(),
-          Center(child: Text('Messages')), // Messages page placeholder
-          //Center(child: Text('Profile')),
-
-
-
+          const Center(child: Text('Messages')), // Messages page placeholder
           _userId == null
-              ? Center(child: CircularProgressIndicator()) // Show a loading indicator while fetching
+              ? const Center(
+            child: CircularProgressIndicator(),
+          ) // Show a loading indicator while fetching
               : UserProfile(
             loggedInUserId: _userId!,
             profileUserId: _userId!,

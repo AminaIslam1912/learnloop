@@ -1,88 +1,152 @@
 import 'package:flutter/material.dart';
+
+// class HomePage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         backgroundColor: Colors.black,
+//         elevation: 2,
+//         actions: [
+//           IconButton(
+//             icon: const Icon(Icons.settings, color: Colors.black),
+//             onPressed: () {
+//               Scaffold.of(context).openDrawer(); // Opens the settings drawer
+//             },
+//           ),
+//         ],
+//       ),
+//       body: Container(
+//         decoration: const BoxDecoration(
+//           image: DecorationImage(
+//             image: AssetImage('assets/background_app.png'), // Background image
+//             fit: BoxFit.cover,
+//           ),
+//         ),
+//         child: Center(
+//           child: const Text(
+//             'Welcome to Home Page',
+//             style: TextStyle(
+//               fontSize: 24,
+//               color: Colors.white,
+//             ),
+//           ),
+//         ),
+//       ),
+//       drawer: _buildSettingsDrawer(),
+//     );
+//   }
+//
+//   Widget _buildSettingsDrawer() {
+//     return Drawer(
+//       child: Container(
+//         decoration: BoxDecoration(
+//           color: Colors.black.withOpacity(0.5), // Transparent color
+//         ),
+//         child: ListView(
+//           padding: EdgeInsets.zero,
+//           children: [
+//             DrawerHeader(
+//               decoration: BoxDecoration(
+//                 color: Colors.blue.withOpacity(0.7), // Semi-transparent header
+//               ),
+//               child: const Text(
+//                 'Settings',
+//                 style: TextStyle(color: Colors.white, fontSize: 24),
+//               ),
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.person, color: Colors.white),
+//               title: const Text('Personal Details', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle Personal Details navigation
+//               },
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.group, color: Colors.white),
+//               title: const Text('Community', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle Community navigation
+//               },
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.notifications, color: Colors.white),
+//               title: const Text('Notifications', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle Notifications navigation
+//               },
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.schedule, color: Colors.white),
+//               title: const Text('Time Table', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle Time Table navigation
+//               },
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.history, color: Colors.white),
+//               title: const Text('History', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle History navigation
+//               },
+//             ),
+//             SwitchListTile(
+//               title: const Text('Theme', style: TextStyle(color: Colors.white)),
+//               value: false,
+//               onChanged: (value) {
+//                 // Handle theme toggle
+//               },
+//               activeColor: Colors.white,
+//             ),
+//             const Divider(color: Colors.white), // Divider color adjusted for visibility
+//             ListTile(
+//               leading: const Icon(Icons.help, color: Colors.white),
+//               title: const Text('Help and Feedback', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle Help navigation
+//               },
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.logout, color: Colors.white),
+//               title: const Text('Log Out', style: TextStyle(color: Colors.white)),
+//               onTap: () {
+//                 // Handle Log Out
+//               },
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../login.dart';
 import 'about_us.dart';
 import '../sign_up.dart';
 import 'community/Community_ui.dart';
 import 'fun_challenge.dart';
-import 'dynamic_screen.dart';
 
 class HomePage extends StatefulWidget {
   final User? user;
 
   const HomePage({Key? key, this.user}) : super(key: key);
   @override
-  State<HomePage> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String searchQuery = '';
-  Map<int, String> courseImages = {};
-  bool isLoading = true;
-
-  Future<void> _fetchCourseImages() async {
-    try {
-      final data = await Supabase.instance.client
-          .from('course')
-          .select('id, course_image');
-
-      if (mounted) {
-        setState(() {
-          for (final course in data) {
-            courseImages[course['id']] = course['course_image'];
-          }
-          isLoading = false;
-        });
-      }
-    } catch (error) {
-      debugPrint("Error fetching courses: $error");
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
-
-  void _checkSession() async {
-    try {
-      final session = Supabase.instance.client.auth.currentSession;
-
-      if (session != null) {
-        if (mounted) {
-          setState(() {
-            _tabController.index = 1;
-          });
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CommunityUI(user: session.user),
-            ),
-          );
-        }
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SignUpPage()),
-        );
-      }
-    } catch (e) {
-      debugPrint("Error checking session: $e");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const SignUpPage()),
-      );
-    }
-  }
 
   final List<Map<String, dynamic>> courseSections = [
     {
       "title": "Free Courses",
       "courses": [
-        {"image": "assets/Quran.jpg", "title": "Quran Recitation", "isFree": true, "id": 1},
-        {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
-        {"image": "assets/digitalmarketing.jpeg", "title": "Digital Marketing", "isFree": true, "id": 6},
+        {"image": "assets/Quran.jpg", "title": "Quran Recitation", "isFree": true},
+        {"image": "assets/python.jpg", "title": "Python", "isFree": true},
+        {"image": "assets/digitalmarketing.jpeg", "title": "Digital Marketing", "isFree": true},
       ],
     },
     {
@@ -91,17 +155,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         {
           "category": "Programming",
           "courses": [
-            {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
-            {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false, "id": null},
-            {"image": "assets/java.jpeg", "title": "Java Programming", "isFree": true, "id": 4},
+            {"image": "assets/python.jpg", "title": "Python", "isFree": true},
+            {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false},
+            {"image": "assets/java.jpeg", "title": "Java Programming", "isFree": true}
           ],
         },
         {
           "category": "Web Development",
           "courses": [
-            {"image": "assets/js.jpg", "title": "Frontend Basics", "isFree": true, "id": 5},
-            {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false, "id": null},
-            {"image": "assets/node.png", "title": "NodeJS", "isFree": true, "id": 3},
+            {"image": "assets/js.jpg", "title": "Frontend Basics", "isFree": true},
+            {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false},
+            {"image": "assets/node.png", "title": "NodeJS", "isFree": false},
           ],
         },
       ],
@@ -109,82 +173,98 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     {
       "title": "Paid Courses",
       "courses": [
-        {"image": "assets/gd.jpeg", "title": "Graphics Design", "isFree": false, "id": null},
-        {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false, "id": null},
-        {"image": "assets/singer.jpeg", "title": "Music", "isFree": false, "id": null},
+        {"image": "assets/gd.jpeg", "title": "Graphics Design", "isFree": false},
+        {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false},
+        {"image": "assets/singer.jpeg", "title": "Music", "isFree": false},
       ],
     },
   ];
+
+
+  void _checkSession() async {
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (session != null) {
+      // User is logged in
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => CommunityUI(user: session.user)),
+      // );
+    //  CommunityUI(user: session.user);
+      setState(() {
+        _tabController.index = 1;
+        CommunityUI(user: session.user);// Navigate to Community tab
+      });
+    } else {
+      // User is not logged in
+      //SignUpPage();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SignUpPage()),
+      );
+
+    }
+  }
+
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _fetchCourseImages();
 
+    // Tab navigation listeners
     _tabController.addListener(() {
       if (_tabController.index == 1) {
+        // if(widget.user!=null){
+        //   CommunityUI();
+        // }else{
+        //   SignUpPage();
+        // }
         _checkSession();
+
+      } else if (_tabController.index == 2) {
+        FunChallengeScreen();
+      } else if (_tabController.index == 3) {
+        AboutScreen();
       }
     });
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  // void _openSignUpScreen() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const SignUpPage()),
+  //   );
+  // }
 
-  List<Map<String, dynamic>> _searchCourses(String query) {
-    List<Map<String, dynamic>> matchingCourses = [];
-    List<Map<String, dynamic>> relevantCourses = [];
+  // Widget _openFunChallengeScreen() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const FunChallengeScreen()),
+  //   );
+  //  // Navigator.pushReplacementNamed(context, '/home/funChallenge');
+  // }
 
-    for (var section in courseSections) {
-      if (section.containsKey("categories")) {
-        for (var category in section["categories"]) {
-          for (var course in category["courses"]) {
-            if (course["title"].toLowerCase().contains(query.toLowerCase())) {
-              matchingCourses.add(course);
-            } else if (query.isNotEmpty) {
-              relevantCourses.add(course);
-            }
-          }
-        }
-      } else {
-        for (var course in section["courses"]) {
-          if (course["title"].toLowerCase().contains(query.toLowerCase())) {
-            matchingCourses.add(course);
-          } else if (query.isNotEmpty) {
-            relevantCourses.add(course);
-          }
-        }
-      }
-    }
-
-    return matchingCourses.isNotEmpty ? matchingCourses : relevantCourses;
-  }
+  // void _openAboutScreen() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const AboutScreen()),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final searchResults = _searchCourses(searchQuery);
-
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 2,
-        title: TextField(
-          decoration: const InputDecoration(
+        title: const TextField(
+          decoration: InputDecoration(
             hintText: "Search courses...",
             hintStyle: TextStyle(color: Colors.white54),
             border: InputBorder.none,
           ),
-          style: const TextStyle(color: Colors.white),
-          onChanged: (value) {
-            setState(() {
-              searchQuery = value;
-            });
-          },
+          style: TextStyle(color: Colors.white),
         ),
         actions: [
           IconButton(
@@ -196,9 +276,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ],
       ),
       drawer: _buildSettingsDrawer(),
-      body: searchQuery.isNotEmpty
-          ? _buildSearchResults(searchResults)
-          : Column(
+      body: Column(
         children: [
           Container(
             color: Colors.black,
@@ -220,42 +298,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               controller: _tabController,
               children: [
                 _buildCourseSections(),
+               // const Center(child: Text("Community Section", style: TextStyle(color: Colors.white))),
                 const CommunityUI(),
+               // const Center(child: Text("Fun Challenge Section", style: TextStyle(color: Colors.white))),
                 FunChallengeScreen(),
-                const AboutScreen(),
+               // const Center(child: Text("About Section", style: TextStyle(color: Colors.white))),
+                const AboutScreen()
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResults(List<Map<String, dynamic>> results) {
-    return SingleChildScrollView(
-      child: Column(
-        children: results.map((course) {
-          return InkWell(
-            onTap: () {
-              if (course["id"] != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DynamicScreen(courseId: course["id"]!),
-                  ),
-                );
-              }
-            },
-            child: CourseCard(
-              image: course["id"] != null && courseImages.containsKey(course["id"])
-                  ? courseImages[course["id"]]!
-                  : course["image"],
-              title: course["title"],
-              isFree: course["isFree"],
-              useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
-            ),
-          );
-        }).toList(),
       ),
     );
   }
@@ -271,11 +323,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 alignment: Alignment.centerLeft,
                 child: Text(
                   section["title"],
-                  style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white
-                  ),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
             ),
@@ -287,11 +335,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     alignment: Alignment.centerLeft,
                     child: Text(
                       category["category"],
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white
-                      ),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                   ),
                 ),
@@ -302,25 +346,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     itemCount: category["courses"].length,
                     itemBuilder: (context, index) {
                       final course = category["courses"][index];
-                      return InkWell(
-                        onTap: () {
-                          if (course["id"] != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DynamicScreen(courseId: course["id"]!),
-                              ),
-                            );
-                          }
-                        },
-                        child: CourseCard(
-                          image: course["id"] != null && courseImages.containsKey(course["id"])
-                              ? courseImages[course["id"]]!
-                              : course["image"],
-                          title: course["title"],
-                          isFree: course["isFree"],
-                          useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
-                        ),
+                      return CourseCard(
+                        image: course["image"],
+                        title: course["title"],
+                        isFree: course["isFree"],
                       );
                     },
                   ),
@@ -334,25 +363,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   itemCount: section["courses"].length,
                   itemBuilder: (context, index) {
                     final course = section["courses"][index];
-                    return InkWell(
-                      onTap: () {
-                        if (course["id"] != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DynamicScreen(courseId: course["id"]!),
-                            ),
-                          );
-                        }
-                      },
-                      child: CourseCard(
-                        image: course["id"] != null && courseImages.containsKey(course["id"])
-                            ? courseImages[course["id"]]!
-                            : course["image"],
-                        title: course["title"],
-                        isFree: course["isFree"],
-                        useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
-                      ),
+                    return CourseCard(
+                      image: course["image"],
+                      title: course["title"],
+                      isFree: course["isFree"],
                     );
                   },
                 ),
@@ -378,6 +392,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
+            // Drawer options here
           ],
         ),
       ),
@@ -389,14 +404,12 @@ class CourseCard extends StatelessWidget {
   final String image;
   final String title;
   final bool isFree;
-  final bool useNetworkImage;
 
   const CourseCard({
     super.key,
     required this.image,
     required this.title,
     required this.isFree,
-    this.useNetworkImage = false,
   });
 
   @override
@@ -412,11 +425,8 @@ class CourseCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: useNetworkImage ? NetworkImage(image) : AssetImage(image) as ImageProvider,
+                image: AssetImage(image),
                 fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  debugPrint('Error loading image: $exception');
-                },
               ),
             ),
           ),
