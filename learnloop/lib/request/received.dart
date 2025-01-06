@@ -676,6 +676,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
 
       for (var i in requestReceivedJson) {
         final id = i['id'];
+        final status=i['status'];
 
         if (id is int) {
           final userResponse = await Supabase.instance.client
@@ -689,6 +690,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
             'name': userResponse['name'],
             'profile_picture': userResponse['profile_picture'],
             'ratings': userResponse['rating'] ?? 'N/A',
+            'status':status,
           });
         } else {
           print('Invalid ID in request_received: $id');
@@ -731,7 +733,8 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
             ratings: profile['ratings']?.toString() ?? 'N/A',
             profileImageUrl: profile['profile_picture'] ??
                 'https://via.placeholder.com/150',
-            actionButtons: ["Accept", "Delete"],
+            actionButtons: ["Accept", "Decline"],
+            status:profile['status'],
           );
         },
       ),
@@ -771,6 +774,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
     required List<String> actionButtons,
     required String profileImageUrl,
     required String ratings,
+    required String status,
   }) {
     return GestureDetector(
       onTap: () {
@@ -816,13 +820,16 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
                           await handleAcceptAction(userId);
                         }
                         // Handle button actions
+                        else if (btn == "Decline") {
+                          await handleDeclineAction(userId);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: btn == "Delete"
+                        backgroundColor: btn == "Decline"
                             ? Color(0xFFFDA89C)
                             : Color(0xFF679186),
                         foregroundColor:
-                        btn == "Delete" ? Colors.black : Colors.white,
+                        btn == "Decline" ? Colors.black : Colors.white,
                       ),
                       child: Text(btn),
                     ),
@@ -866,7 +873,79 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
           .update({'friends': currentFriends})
           .eq('id', _userId!);
 
-      print('Friend added successfully.');
+      //print('Friend added successfully.');
+      print('Friend added to the current user\'s list successfully.');
+
+      // Fetch the friend's current friends list
+      final friendResponse = await Supabase.instance.client
+          .from('users')
+          .select('friends')
+          .eq('id', friendId)
+          .single();
+
+      List<dynamic> friendFriends = friendResponse['friends'] ?? [];
+
+      // Ensure no duplicates in the friend's friends list
+      if (!friendFriends.any((friend) => friend['id'] == _userId)) {
+        // Add the logged-in user to the friend's friends list
+        friendFriends.add({'id': _userId!});
+
+        // Update the friend's friends list
+        await Supabase.instance.client
+            .from('users')
+            .update({'friends': friendFriends})
+            .eq('id', friendId);
+
+
+        // Update status in request_sent and request_received
+        final requestReceivedResponse = await Supabase.instance.client
+            .from('users')
+            .select('request_received')
+            .eq('id', _userId!)
+            .single();
+
+        List<dynamic> requestReceived =
+            requestReceivedResponse['request_received'] ?? [];
+       // requestReceived.removeWhere((entry) => entry['id'] == friendId);
+
+        requestReceived = requestReceived.map((entry) {
+          if (entry['id'] == _userId) {
+            entry['status'] = 'accepted'; // Update the status
+          }
+          return entry;
+        }).toList();
+
+        await Supabase.instance.client
+            .from('users')
+            .update({'request_received': requestReceived})
+            .eq('id', _userId!);
+
+
+
+        final requestSentResponse = await Supabase.instance.client
+            .from('users')
+            .select('request_sent')
+            .eq('id', friendId)
+            .single();
+
+        List<dynamic> requestSent = requestSentResponse['request_sent'] ?? [];
+        requestSent = requestSent.map((entry) {
+          if (entry['id'] == _userId) {
+            entry['status'] = 'accepted'; // Update the status
+          }
+          return entry;
+        }).toList();
+
+        await Supabase.instance.client
+            .from('users')
+            .update({'request_sent': requestSent})
+            .eq('id', friendId);
+
+        print('Logged-in user added to the friend\'s list successfully.');
+      } else {
+        print('Logged-in user already exists in the friend\'s list.');
+      }
+
       setState(() {
         receivedProfiles.removeWhere((profile) => profile['id'] == friendId);
       });
@@ -874,6 +953,65 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
       print('Error accepting request: $error');
     }
   }
+
+  Future<void> handleDeclineAction(int friendId) async {
+    try {
+      if (_userId == null) {
+        print('User ID is null. Cannot decline request.');
+        return;
+      }
+
+      // Update status in request_received
+      final requestReceivedResponse = await Supabase.instance.client
+          .from('users')
+          .select('request_received')
+          .eq('id', _userId!)
+          .single();
+
+      List<dynamic> requestReceived =
+          requestReceivedResponse['request_received'] ?? [];
+      requestReceived = requestReceived.map((entry) {
+        if (entry['id'] == friendId) {
+          entry['status'] = 'declined'; // Update the status
+        }
+        return entry;
+      }).toList();
+
+      await Supabase.instance.client
+          .from('users')
+          .update({'request_received': requestReceived})
+          .eq('id', _userId!);
+
+      // Update status in request_sent
+      final requestSentResponse = await Supabase.instance.client
+          .from('users')
+          .select('request_sent')
+          .eq('id', friendId)
+          .single();
+
+      List<dynamic> requestSent = requestSentResponse['request_sent'] ?? [];
+      requestSent = requestSent.map((entry) {
+        if (entry['id'] == _userId) {
+          entry['status'] = 'declined'; // Update the status
+        }
+        return entry;
+      }).toList();
+
+      await Supabase.instance.client
+          .from('users')
+          .update({'request_sent': requestSent})
+          .eq('id', friendId);
+
+      setState(() {
+        receivedProfiles.removeWhere((profile) => profile['id'] == friendId);
+      });
+
+      print('Friend request declined.');
+    } catch (error) {
+      print('Error declining request: $error');
+    }
+  }
+
 }
 
 

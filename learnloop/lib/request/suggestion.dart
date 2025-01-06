@@ -440,7 +440,7 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           .single();
 
       List<dynamic> requestSent = response['request_sent'] ?? [];
-      requestSent.add({'id': profileId});
+      requestSent.add({'id': profileId,'status': 'pending'});
 
       await supabase
           .from('users')
@@ -455,7 +455,7 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           .single();
 
       List<dynamic> requestReceived = response2['request_received'] ?? [];
-      requestReceived.add({'id': _userId});
+      requestReceived.add({'id': _userId, 'status': 'pending'});
 
       await supabase
           .from('users')

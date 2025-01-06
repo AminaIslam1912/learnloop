@@ -441,6 +441,7 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
       // Loop through each ID in `requestSentJson`
       for (var i in requestSentJson) {
         final id = i['id'];
+        final status = i['status']; // Fetch the status
 
         // Fetch user details for the current ID
         final userResponse = await Supabase.instance.client
@@ -455,6 +456,7 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
           'name': userResponse['name'],
           'profile_picture': userResponse['profile_picture'],
           'ratings': userResponse['rating'] ?? 'N/A',
+          'status': status, // Include status
         });
       }
 
@@ -519,6 +521,7 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
             ratings: profile['ratings']?.toString() ?? 'N/A',
             profileImageUrl: profile['profile_picture'] ??
                 'https://via.placeholder.com/150',
+            status: profile['status']
           );
         },
       ),
@@ -532,6 +535,7 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
     required Map<String, String> stats,
     required String profileImageUrl,
     required String ratings,
+    required String status,
   }) {
     return GestureDetector(
       onTap: () {
@@ -559,6 +563,12 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white)),
                     Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
+                    SizedBox(height: 8),
+                    Text("Status: $status",
+                        style: TextStyle(
+                            color: status == "declined"
+                                ? Colors.red
+                                : Colors.green)),
                   ],
                 ),
               ),
