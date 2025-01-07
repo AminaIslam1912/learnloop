@@ -377,6 +377,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:learnloop/person/UserProfile.dart';
+import 'package:learnloop/sign_up.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart'; // Import provider package
 import 'UserProvider.dart';
@@ -401,6 +402,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     fetchUserId(); // Fetch user ID on initialization
+    _checkSession();
   }
 
   Future<void> fetchUserId() async {
@@ -429,16 +431,68 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+
+  void _checkSessionAndNavigate(int index) {
+    final user = context.read<UserProvider>().user; // Get the user from Provider
+
+    if (index == 3) {
+      if (user == null) {
+        // Redirect to login if no session is found
+        Navigator.pushReplacementNamed(context, '/login');
+      } else if (_userId == null) {
+        // Show loading feedback if user ID is still being fetched
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Loading user profile, please wait..."),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        // Navigate to the Profile page if everything is valid
+        setState(() {
+          _currentIndex = index;
+        });
+        _pageController.jumpToPage(index);
+      }
+    } else {
+      // Navigate to other pages directly
+      setState(() {
+        _currentIndex = index;
+      });
+      _pageController.jumpToPage(index);
+    }
+  }
+
+  void _checkSession() async {
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (session != null && session.user != null) {
+      // User is logged in
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.setUser(session.user!); // Update the user in the provider
+    } else {
+      // User is not logged in, redirect to SignUpPage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SignUpPage()),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>().user; // Watch the user from Provider
+    final isUserLoggedIn = Provider.of<UserProvider>(context).isLoggedIn;
+
 
     return Scaffold(
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
-            _currentIndex = index;
+           _currentIndex = index;
+           // _checkSessionAndNavigate(index); // Check session when page changes
           });
         },
         children: [
@@ -446,13 +500,16 @@ class _MainPageState extends State<MainPage> {
           RequestPage(),
           const Center(child: Text('Messages')), // Messages page placeholder
           _userId == null
-              ? const Center(
+        //isUserLoggedIn
+              ?  const Center(
             child: CircularProgressIndicator(),
           ) // Show a loading indicator while fetching
-              : UserProfile(
+              : isUserLoggedIn? UserProfile(
             loggedInUserId: _userId!,
             profileUserId: _userId!,
-          ),
+          ): const Center(
+            child: CircularProgressIndicator(),
+          ) ,
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

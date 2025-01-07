@@ -245,7 +245,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       } else if (_tabController.index == 2) {
 
-        const FunChallengeScreen();
+         FunChallengeScreen();
 
       } else if (_tabController.index == 3) {
 

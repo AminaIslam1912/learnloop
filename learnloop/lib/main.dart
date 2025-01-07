@@ -116,4 +116,8 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+  Future<void> _loadSession(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.loadSession(); // Load the session into the UserProvider
+  }
 }
