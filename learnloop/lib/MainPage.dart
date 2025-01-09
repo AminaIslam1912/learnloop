@@ -402,7 +402,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     fetchUserId(); // Fetch user ID on initialization
-    _checkSession();
+  //  _checkSession();
   }
 
   Future<void> fetchUserId() async {
