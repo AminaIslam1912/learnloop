@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isLoading = false;
   String _errorMessage = '';
+  bool _isPasswordVisible = false;
 
   Future<void> _login() async {
     final email = _emailController.text;
@@ -130,12 +131,13 @@ class _LoginPageState extends State<LoginPage> {
                     hintStyle: const TextStyle(color: Colors.white70),
 
                   ),
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
                 const Text('Password', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText:  !_isPasswordVisible,
                   decoration:InputDecoration(hintText: 'Enter Password',
                     filled: true,
                     fillColor: Colors.grey[850],
@@ -149,6 +151,19 @@ class _LoginPageState extends State<LoginPage> {
                           color: Color(0xFF009252), width: 2),
                     ),
                     hintStyle: const TextStyle(color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),

@@ -20,6 +20,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool _isLoading = false;
   String _errorMessage = '';
+  bool _isPasswordVisible = false; // Track password visibility
+  bool _isConfirmPasswordVisible = false; // Track confirm password visibility
 
   Future<void> _signUp() async {
     final username = _usernameController.text;
@@ -73,7 +75,7 @@ class _SignUpPageState extends State<SignUpPage> {
           .from('users')
           .insert([
         {
-         // 'user_id': user?.id, // Storing the UUID in the new column
+          'sup_id': user?.id, // Storing the UUID in the new column
           'name': username,
           'email': email,
          // 'created_at': DateTime.now().toUtc().toIso8601String(),
@@ -170,13 +172,14 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     hintStyle: const TextStyle(color: Colors.white70),
                   ),
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
                 const Text(
                     'Password', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     hintText: 'Enter Password',
                     filled: true,
@@ -191,6 +194,19 @@ class _SignUpPageState extends State<SignUpPage> {
                           color: Color(0xFF009252), width: 2),
                     ),
                     hintStyle: const TextStyle(color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -198,7 +214,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _confirmPasswordController,
-                  obscureText: true,
+                  obscureText: !_isConfirmPasswordVisible,
                   decoration: InputDecoration(
                     hintText: 'Re-enter Password',
                     filled: true,
@@ -213,6 +229,19 @@ class _SignUpPageState extends State<SignUpPage> {
                           color: Color(0xFF009252), width: 2),
                     ),
                     hintStyle: const TextStyle(color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),

@@ -122,6 +122,7 @@ import 'package:flutter/material.dart';
 
 
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../all_feedback/app_feedback.dart';
 import '../login.dart';
@@ -573,12 +574,61 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               labelColor: Colors.green,
               unselectedLabelColor: Colors.white,
               indicatorColor: Colors.green,
-              tabs: const [
-                Tab(text: "Suggested for You"),
-                Tab(text: "Community"),
-                Tab(text: "Fun Challenge"),
-                Tab(text: "About"),
+              tabs: [
+                Tab(
+                  child: Marquee(
+                    blankSpace: 25,
+                    text: "Suggested for You", // The text that will scroll
+                    style: TextStyle(color: Colors.green), // Text style
+                    // velocity: 30, // Speed of the scrolling
+                    // pauseAfterRound: Duration(seconds: 1), // Pause after each cycle
+                    // scrollAxis: Axis.horizontal, // Scroll horizontally
+                    // crossAxisAlignment: CrossAxisAlignment.start, // Align text
+                    // blankSpace: 50, // Space between repetitions (optional)
+                    // startPadding: 10, // Padding before starting the scroll (optional)
+                    // accelerationDuration: Duration(seconds: 1), // Speed acceleration (optional)
+                    // accelerationCurve: Curves.linear, // Acceleration curve (optional)
+                  ),
+                ),
+                Tab(
+                  child: Marquee(
+                    text: "Community",
+                    blankSpace: 72,
+                    style: TextStyle(color: Colors.green),
+                    // velocity: 30,
+                    // pauseAfterRound: Duration(seconds: 1),
+                    // scrollAxis: Axis.horizontal,
+                  ),
+                ),
+                Tab(
+                  child: Marquee(
+                    text: "Fun Challenge",
+                    blankSpace: 72,
+                    style: const TextStyle(color: Colors.green),
+                    // velocity: 30,
+                    // pauseAfterRound: Duration(seconds: 1),
+                    // scrollAxis: Axis.horizontal,
+                  ),
+                ),
+                Tab(
+                  child: Marquee(
+
+                    text: "About",
+                    blankSpace: 72,
+                    style: TextStyle(color: Colors.green),
+                    // velocity: 30,
+                    // pauseAfterRound: Duration(seconds: 1),
+                    // scrollAxis: Axis.horizontal,
+                  ),
+                ),
               ],
+              // tabs:
+              // const [
+              //   Tab(text: "Suggested for You"),
+              //   Tab(text: "Community"),
+              //   Tab(text: "Fun Challenge"),
+              //   Tab(text: "About"),
+              // ],
             ),
           ),
           Expanded(
