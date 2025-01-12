@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "758285029726",
+    "project_id": "learnloopchat",
+    "storage_bucket": "learnloopchat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758285029726:android:c0e9cc8f4c5b19d3dd3fcf",
+        "android_client_info": {
+          "package_name": "learn.loop.learnloop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq03xLeX0JUGVRDx3S-kKCg-unW_qa0XM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

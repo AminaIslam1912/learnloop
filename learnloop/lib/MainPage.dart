@@ -381,6 +381,7 @@ import 'package:learnloop/sign_up.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart'; // Import provider package
 import 'UserProvider.dart';
+import 'chat/screen/ChatPage.dart';
 import 'request/request_sent.dart';
 import 'homelander/home_page.dart';
 import 'homelander/community/Community_ui.dart';
@@ -498,7 +499,8 @@ class _MainPageState extends State<MainPage> {
         children: [
           const HomePage(),
           RequestPage(),
-          const Center(child: Text('Messages')), // Messages page placeholder
+         // const Center(child: Text('Messages')), // Messages page placeholder
+          ChatPage(),
           _userId == null
         //isUserLoggedIn
               ?  const Center(

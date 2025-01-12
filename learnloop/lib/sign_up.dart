@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:learnloop/login.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -42,6 +43,18 @@ class _SignUpPageState extends State<SignUpPage> {
     });
 
     try {
+
+      // Sign up the user with Firebase Authentication
+      UserCredential firebaseUser = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      if (firebaseUser.user == null) {
+        throw Exception('Firebase sign-up failed');
+      }
+
+      final firebaseUserId = firebaseUser.user!.uid;
+
+
       // Sign up the user with Supabase authentication
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
@@ -66,7 +79,8 @@ class _SignUpPageState extends State<SignUpPage> {
           'name': username,
           'email': email,
           'created_at': DateTime.now().toUtc().toIso8601String(),
-          'password': password
+          'password': password,
+         // 'fire_id': firebaseUserId,
         }
       ])
           .select();
@@ -80,6 +94,7 @@ class _SignUpPageState extends State<SignUpPage> {
           'email': email,
          // 'created_at': DateTime.now().toUtc().toIso8601String(),
          // 'password': password
+          'fire_id': firebaseUserId,
         }
       ])
           .select();

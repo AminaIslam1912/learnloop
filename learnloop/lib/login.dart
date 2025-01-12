@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:learnloop/homelander/community/Community_ui.dart';
 import 'package:learnloop/homelander/home_page.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,74 @@ class _LoginPageState extends State<LoginPage> {
   String _errorMessage = '';
   bool _isPasswordVisible = false;
 
+  // Future<void> _login() async {
+  //   final email = _emailController.text;
+  //   final password = _passwordController.text;
+  //
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = '';
+  //   });
+  //
+  //   try {
+  //     // Perform login using Supabase
+  //     final response = await Supabase.instance.client.auth.signInWithPassword(
+  //       email: email,
+  //       password: password,
+  //     );
+  //
+  //     if (response.session == null) {
+  //       setState(() {
+  //         _errorMessage =
+  //         'Login failed: ${response.session?.error?.message ?? "Unknown error"}';
+  //       });
+  //       return;
+  //     }else{
+  //       // Login is successful
+  //       final user = response.user; // Get the user info
+  //     //  Print all user info
+  //     //   print('User Info:');
+  //     //   print('ID: ${user?.id}');
+  //     //   print('Email: ${user?.email}');
+  //     //   print('Created At: ${user?.createdAt}');
+  //     //   print('Updated At: ${user?.updatedAt}');
+  //     //  print('User Metadata: ${user?.userMetadata}');
+  //    //   print('App Metadata: ${user?.appMetadata}');
+  //       // Set the user in the provider
+  //       context.read<UserProvider>().setUser(user!);
+  //       print("loooooooooogin success");
+  //
+  //       // Navigator.pushReplacement(
+  //       //   context,
+  //       //   MaterialPageRoute(
+  //       //     builder: (context)=>MainPage(user:user),// Pass user info to MainPage
+  //       //   ),
+  //       // );
+  //
+  //       // Navigate to the main page
+  //       Navigator.pushReplacementNamed(context, '/main');
+  //     }
+  //
+  //     //  Navigate to the home page (or any page after successful login)
+  //     // Navigator.pushReplacement(
+  //     //   context,
+  //     //   MaterialPageRoute(builder: (context) =>  const CommunityUI()),
+  //     // );
+  //  //   Navigator.pop(context);
+  //
+  //
+  //     print("login successful");
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = 'An unexpected error occurred: $e';
+  //     });
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
+
   Future<void> _login() async {
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -33,53 +102,39 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Perform login using Supabase
-      final response = await Supabase.instance.client.auth.signInWithPassword(
+      // Login with Supabase
+      final supabaseResponse = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      if (response.session == null) {
+      if (supabaseResponse.session == null) {
         setState(() {
           _errorMessage =
-          'Login failed: ${response.session?.error?.message ?? "Unknown error"}';
+          'Supabase login failed: ${supabaseResponse.session?.error?.message ?? "Unknown error"}';
+          return;
         });
-        return;
-      }else{
-        // Login is successful
-        final user = response.user; // Get the user info
-      //  Print all user info
-      //   print('User Info:');
-      //   print('ID: ${user?.id}');
-      //   print('Email: ${user?.email}');
-      //   print('Created At: ${user?.createdAt}');
-      //   print('Updated At: ${user?.updatedAt}');
-      //  print('User Metadata: ${user?.userMetadata}');
-     //   print('App Metadata: ${user?.appMetadata}');
-        // Set the user in the provider
-        context.read<UserProvider>().setUser(user!);
-        print("loooooooooogin success");
-
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context)=>MainPage(user:user),// Pass user info to MainPage
-        //   ),
-        // );
-
-        // Navigate to the main page
-        Navigator.pushReplacementNamed(context, '/main');
       }
 
-      //  Navigate to the home page (or any page after successful login)
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) =>  const CommunityUI()),
-      // );
-   //   Navigator.pop(context);
+      // Login with Firebase
+      try {
+        final firebaseUser = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
 
+        print("Firebase login successful: ${firebaseUser.user?.email}");
+      } catch (firebaseError) {
+        print('Firebase login failed: $firebaseError');
+        throw Exception('Firebase login failed: $firebaseError');
+      }
 
-      print("login successful");
+      // If both logins succeed, proceed to the main page
+      final user = supabaseResponse.user;
+      context.read<UserProvider>().setUser(user!);
+
+      // Navigate to the main page
+      Navigator.pushReplacementNamed(context, '/main');
     } catch (e) {
       setState(() {
         _errorMessage = 'An unexpected error occurred: $e';
@@ -90,6 +145,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -72,6 +72,8 @@ import 'sign_up.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'landing_page.dart';
 import 'MainPage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized before running the app
@@ -80,6 +82,8 @@ void main() async {
   // Initialize Supabase with the SupabaseConfig class
   await SupabaseConfig.initialize();
  // runApp(const MyApp());
+  await Firebase.initializeApp();
+
 
   runApp(
     MultiProvider(

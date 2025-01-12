@@ -43,6 +43,12 @@ dependencies:
   webview_flutter: ^4.10.0
   fluttertoast: ^8.1.7
   marquee: ^2.3.0
+  firebase_core: ^3.7.0
+  firebase_auth: ^5.4.0
+  cloud_firestore: ^5.6.1
+  firebase_storage: ^12.4.0
+  intl: ^0.20.1
+
 
 dev_dependencies:
   flutter_test:
