@@ -609,6 +609,8 @@ class ChatPage extends StatelessWidget {
           .eq('fire_id', currentUser?.uid as Object)
           .single();
 
+      print(response);
+
       if (response == null || response['fire_id'] == null) {
         throw Exception('No matching user found in Supabase for the current Firebase user');
       }
@@ -623,6 +625,7 @@ class ChatPage extends StatelessWidget {
   // Fetch the friends list of the current user from Supabase
   Future<List<int>> fetchFriends() async {
     try {
+      String? id = currentUser?.uid;
       final fireId = await getCurrentUserFireId();
       if (fireId == null) throw Exception('Current user fire_id not found');
 
@@ -630,12 +633,14 @@ class ChatPage extends StatelessWidget {
       final response = await supabaseClient
           .from('users')
           .select('friends')
-          .eq('fire_id', fireId)
+          .eq('fire_id', id as Object )
           .single();
-
+      //print(response);
       if (response == null || response['friends'] == null) {
         throw Exception('No friends found for the current user');
       }
+
+      //print(response);
 
       // Parse the friends JSON field to extract friend IDs
       final friendsJson = response['friends'] as List<dynamic>;
@@ -647,26 +652,59 @@ class ChatPage extends StatelessWidget {
   }
 
   // Fetch friend details from Supabase `users` table including `fire_id`
+  // Future<List<Map<String, dynamic>>> fetchFriendDetails(List<int> friendIds) async {
+  //   try {
+  //
+  //     //print()
+  //     if (friendIds.isEmpty) return [];
+  //     print(friendIds);
+  //     int id = 16;
+  //     final supabaseClient = Supabase.instance.client;
+  //     final response = await supabaseClient
+  //         .from('users')
+  //         .select('id, name, profile_picture, fire_id')
+  //         .eq('id', id);
+  //     print(response);
+  //     if (response == null || response.isEmpty) {
+  //       throw Exception('No friend details found in Supabase');
+  //     }
+  //
+  //     return List<Map<String, dynamic>>.from(response as List<dynamic>);
+  //   } catch (e) {
+  //     print('Error fetching friend details: $e');
+  //     return [];
+  //   }
+  // }
+
+  // Fetch friend details from Supabase `users` table including `fire_id`
   Future<List<Map<String, dynamic>>> fetchFriendDetails(List<int> friendIds) async {
     try {
+      // Return an empty list if no friend IDs are provided
       if (friendIds.isEmpty) return [];
 
       final supabaseClient = Supabase.instance.client;
-      final response = await supabaseClient
-          .from('users')
-          .select('id, name, profile_picture, fire_id')
-          .in_('id', friendIds);
+      List<Map<String, dynamic>> friendDetails = [];
 
-      if (response == null || response.isEmpty) {
-        throw Exception('No friend details found in Supabase');
+      // Iterate over each friend ID in the list
+      for (int friendId in friendIds) {
+        final response = await supabaseClient
+            .from('users')
+            .select('id, name, profile_picture, fire_id')
+            .eq('id', friendId)
+            .maybeSingle(); // Fetch a single record or null
+
+        if (response != null) {
+          friendDetails.add(Map<String, dynamic>.from(response));
+        }
       }
 
-      return List<Map<String, dynamic>>.from(response as List<dynamic>);
+      return friendDetails;
     } catch (e) {
       print('Error fetching friend details: $e');
       return [];
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -699,6 +737,7 @@ class ChatPage extends StatelessWidget {
                   return Center(child: Text('Error: ${friendIdsSnapshot.error}'));
                 }
                 final friendIds = friendIdsSnapshot.data!;
+                print(friendIds);
                 return FutureBuilder<List<Map<String, dynamic>>>(
                   future: fetchFriendDetails(friendIds),
                   builder: (context, friendsSnapshot) {
@@ -709,6 +748,7 @@ class ChatPage extends StatelessWidget {
                       return Center(child: Text('Error: ${friendsSnapshot.error}'));
                     }
                     final friends = friendsSnapshot.data!;
+                    print(friends);
                     return ListView.builder(
                       itemCount: friends.length,
                       itemBuilder: (context, index) {
@@ -718,16 +758,17 @@ class ChatPage extends StatelessWidget {
                         final profilePicture = friend['profile_picture'] ?? '';
 
                         return ListTile(
-                          leading: CircleAvatar(
+                          leading:
+                          CircleAvatar(
                             backgroundImage: profilePicture.isNotEmpty
-                                ? NetworkImage(profilePicture)
+                                ? const AssetImage("PICforREGISTRATION.png")
                                 : null,
                             child: profilePicture.isEmpty
                                 ? Icon(Icons.person, size: 30)
                                 : null,
                           ),
                           title: Text(friendName ?? 'Unknown'),
-                          subtitle: Text('Tap to chat'),
+                         subtitle: Text('Tap to chat'),
                           onTap: () {
                             Navigator.push(
                               context,

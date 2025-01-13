@@ -130,8 +130,8 @@ class _ChatInterfaceState extends State<ChatInterface> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: isSender
-                              ? Colors.blue[100]
-                              : Colors.grey[300],
+                              ? Colors.black
+                              : Colors.black,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(message['message']),
