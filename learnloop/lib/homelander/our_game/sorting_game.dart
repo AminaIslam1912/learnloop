@@ -176,22 +176,15 @@
 
 import 'package:flutter/material.dart';
 
-class GridPuzzleGame extends StatelessWidget {
+
+class SortingGame extends StatefulWidget {
+  const SortingGame({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: PuzzleScreen(),
-    );
-  }
+  State<SortingGame> createState() => _PuzzleScreenState();
 }
 
-class PuzzleScreen extends StatefulWidget {
-  @override
-  State<PuzzleScreen> createState() => _PuzzleScreenState();
-}
-
-class _PuzzleScreenState extends State<PuzzleScreen> {
+class _PuzzleScreenState extends State<SortingGame> {
   List<List<int>> grid = [];
   int emptyRow = 3, emptyCol = 3;
 
@@ -305,7 +298,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
         padding: const EdgeInsets.only(top: 16.0),
         child: Column(
           children: [
-            Spacer(), // Adds space above the grid
+            const Spacer(), // Adds space above the grid
             Expanded(
               flex: 6,
               child: GridView.builder(
@@ -320,7 +313,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                     onTap: () => _moveTile(row, col),
                     child: Container(
                       margin: const EdgeInsets.all(4),
-                      color: grid[row][col] == 0 ? Colors.grey : Colors.blue,
+                      color: grid[row][col] == 0 ? Colors.grey : Colors.green,
                       child: Center(
                         child: Text(
                           grid[row][col] == 0 ? '' : grid[row][col].toString(),
@@ -332,12 +325,13 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                 },
               ),
             ),
-            Spacer(flex: 1),
+            const Spacer(flex: 1),
             ElevatedButton(
               onPressed: _shuffleGrid,
-              child: const Text("Shuffle"),
+              child: const Text("Shuffle",style: TextStyle(backgroundColor: Colors.blue),),
+
             ),
-            Spacer(flex: 2),
+            const Spacer(flex: 2),
           ],
         ),
       ),

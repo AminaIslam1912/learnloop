@@ -380,7 +380,16 @@ class _SpeedReadingScreenState extends State<SpeedReadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Speed Reading Challenge'),
+        title: const Text(
+          'Speed Reading Challenge',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 4, // Slight shadow for AppBar
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -388,63 +397,190 @@ class _SpeedReadingScreenState extends State<SpeedReadingScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Time Left: $_timeLeft seconds',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Center(
+              child: Text(
+                'Time Left: $_timeLeft seconds',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             if (_isReading) ...[
               const Text(
                 'Passage:',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
               ),
               const SizedBox(height: 10),
-              Text(
-                _passages[_currentIndex]['text']!,
-                style: const TextStyle(fontSize: 18),
+              Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Text(
+                  _passages[_currentIndex]['text']!,
+                  style: const TextStyle(fontSize: 18, height: 1.5),
+                ),
               ),
             ] else ...[
               const Text(
                 'Comprehension Question:',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
               ),
               const SizedBox(height: 10),
               Text(
                 _passages[_currentIndex]['question']!,
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18, height: 1.5),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               TextField(
                 controller: _answerController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Your Answer',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
+                style: const TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _checkAnswer,
-                child: const Text('Submit Answer'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Submit Answer',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
               if (_isAnswered) ...[
-                const SizedBox(height: 10),
-                Text(
-                  _isCorrect ? 'Correct!' : 'Incorrect. Try Again.',
-                  style: TextStyle(
-                    color: _isCorrect ? Colors.green : Colors.red,
-                    fontSize: 18,
+                const SizedBox(height: 20),
+                Center(
+                  child: Text(
+                    _isCorrect ? 'Correct!' : 'Incorrect. Try Again.',
+                    style: TextStyle(
+                      color: _isCorrect ? Colors.green : Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ],
             if (!_isReading)
-              ElevatedButton(
-                onPressed: _nextPassage,
-                child: const Text('Next Passage'),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _nextPassage,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Next Passage',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
           ],
         ),
       ),
     );
   }
+
+
+// @override
+// Widget build(BuildContext context) {
+//   return Scaffold(
+//     appBar: AppBar(
+//       title: const Text('Speed Reading Challenge'),
+//     ),
+//     body: Padding(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'Time Left: $_timeLeft seconds',
+//             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+//           ),
+//           const SizedBox(height: 20),
+//           if (_isReading) ...[
+//             const Text(
+//               'Passage:',
+//               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+//             ),
+//             const SizedBox(height: 10),
+//             Text(
+//               _passages[_currentIndex]['text']!,
+//               style: const TextStyle(fontSize: 18),
+//             ),
+//           ] else ...[
+//             const Text(
+//               'Comprehension Question:',
+//               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+//             ),
+//             const SizedBox(height: 10),
+//             Text(
+//               _passages[_currentIndex]['question']!,
+//               style: const TextStyle(fontSize: 18),
+//             ),
+//             const SizedBox(height: 10),
+//             TextField(
+//               controller: _answerController,
+//               decoration: const InputDecoration(
+//                 labelText: 'Your Answer',
+//                 border: OutlineInputBorder(),
+//               ),
+//             ),
+//             const SizedBox(height: 10),
+//             ElevatedButton(
+//               onPressed: _checkAnswer,
+//               child: const Text('Submit Answer'),
+//             ),
+//             if (_isAnswered) ...[
+//               const SizedBox(height: 10),
+//               Text(
+//                 _isCorrect ? 'Correct!' : 'Incorrect. Try Again.',
+//                 style: TextStyle(
+//                   color: _isCorrect ? Colors.green : Colors.red,
+//                   fontSize: 18,
+//                 ),
+//               ),
+//             ],
+//           ],
+//           if (!_isReading)
+//             ElevatedButton(
+//               onPressed: _nextPassage,
+//               child: const Text('Next Passage'),
+//             ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 }

@@ -122,6 +122,7 @@ import 'package:flutter/material.dart';
 
 
 import 'package:flutter/material.dart';
+import 'package:learnloop/homelander/faq_screen.dart';
 import 'package:marquee/marquee.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../all_feedback/app_feedback.dart';
@@ -319,7 +320,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           "category": "Programming",
           "courses": [
             {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
-            {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false, "id": null},
+            {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false, "id": 7},
             {"image": "assets/java.jpeg", "title": "Java Programming", "isFree": true, "id": 4},
           ],
         },
@@ -327,7 +328,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           "category": "Web Development",
           "courses": [
             {"image": "assets/js.jpg", "title": "Frontend Basics", "isFree": true, "id": 5},
-            {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false, "id": null},
+            {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false, "id": 8},
             {"image": "assets/node.png", "title": "NodeJS", "isFree": true, "id": 3},
           ],
         },
@@ -336,9 +337,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     {
       "title": "Paid Courses",
       "courses": [
-        {"image": "assets/gd.jpeg", "title": "Graphics Design", "isFree": false, "id": null},
-        {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false, "id": null},
-        {"image": "assets/singer.jpeg", "title": "Music", "isFree": false, "id": null},
+        {"image": "assets/gd.jpeg", "title": "Graphics Design", "isFree": false, "id": 9},
+        {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false, "id": 10},
+        {"image": "assets/singer.jpeg", "title": "Music", "isFree": false, "id": 11},
       ],
     },
   ];
@@ -996,6 +997,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               title: Text('FAQ', style: TextStyle(color: Colors.white)),
               onTap: () {
              //   Navigator.pushNamed(context, '/faq');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder : (context) => const FAQScreen())
+                );
               },
             ),
 

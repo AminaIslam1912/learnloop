@@ -906,7 +906,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
 
         List<dynamic> requestReceived =
             requestReceivedResponse['request_received'] ?? [];
-       // requestReceived.removeWhere((entry) => entry['id'] == friendId);
+        requestReceived.removeWhere((entry) => entry['id'] == friendId);
 
         requestReceived = requestReceived.map((entry) {
           if (entry['id'] == _userId) {
@@ -970,6 +970,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
 
       List<dynamic> requestReceived =
           requestReceivedResponse['request_received'] ?? [];
+      requestReceived.removeWhere((entry) => entry['id'] == friendId);
       requestReceived = requestReceived.map((entry) {
         if (entry['id'] == friendId) {
           entry['status'] = 'declined'; // Update the status

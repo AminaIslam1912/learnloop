@@ -131,7 +131,7 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
                             buildSuggestedCard(
                               userId: profile['id'], // Pass the user's ID
                               name: profile['name'] ?? 'Unknown',
-                              ratings: profile['ratings']?.toString() ?? 'N/A',
+                              ratings: profile['rating']?.toString() ?? 'N/A',
                               profileImageUrl: profile['profile_picture'] ??
                                   'https://via.placeholder.com/150',
                             ),

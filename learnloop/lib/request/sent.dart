@@ -381,16 +381,43 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
     }
   }
 
+  // Future<void> fetchUserId() async {
+  //   try {
+  //     final user = context.read<UserProvider>().user; // Get the user from Provider
+  //
+  //     if (user == null) {
+  //       print('No logged-in user found.');
+  //       return;
+  //     }
+  //
+  //     // Query the `users` table for the user ID
+  //     final response = await Supabase.instance.client
+  //         .from('users')
+  //         .select('id')
+  //         .eq('email', user.email as Object)
+  //         .single();
+  //
+  //     if (response != null && response['id'] is int) {
+  //       setState(() {
+  //         _userId = response['id'];
+  //       });
+  //       print('Fetched User ID: $_userId');
+  //     } else {
+  //       print('No user found with email ${user.email}');
+  //     }
+  //   } catch (error) {
+  //     print('Error fetching user ID: $error');
+  //   }
+  // }
+
   Future<void> fetchUserId() async {
     try {
-      final user = context.read<UserProvider>().user; // Get the user from Provider
-
+      final user = context.read<UserProvider>().user;
       if (user == null) {
         print('No logged-in user found.');
         return;
       }
 
-      // Query the `users` table for the user ID
       final response = await Supabase.instance.client
           .from('users')
           .select('id')
@@ -398,8 +425,10 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
           .single();
 
       if (response != null && response['id'] is int) {
-        setState(() {
-          _userId = response['id'];
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            _userId = response['id'];
+          });
         });
         print('Fetched User ID: $_userId');
       } else {
@@ -429,8 +458,10 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
 
       if (requestSentJson == null || requestSentJson.isEmpty) {
         print('No sent requests found.');
-        setState(() {
-          isLoading = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            isLoading = false;
+          });
         });
         return;
       }
@@ -443,34 +474,44 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
         final id = i['id'];
         final status = i['status']; // Fetch the status
 
-        // Fetch user details for the current ID
-        final userResponse = await Supabase.instance.client
-            .from('users')
-            .select('id, name, profile_picture, rating') // Select the required fields
-            .eq('id', id)
-            .single();
+        if(id is int){
+          // Fetch user details for the current ID
+          final userResponse = await Supabase.instance.client
+              .from('users')
+              .select('id, name, profile_picture, rating') // Select the required fields
+              .eq('id', id)
+              .single();
 
-        // Add the fetched details to the profiles list
-        profiles.add({
-          'id': userResponse['id'],
-          'name': userResponse['name'],
-          'profile_picture': userResponse['profile_picture'],
-          'ratings': userResponse['rating'] ?? 'N/A',
-          'status': status, // Include status
-        });
+          // Add the fetched details to the profiles list
+          profiles.add({
+            'id': userResponse['id'],
+            'name': userResponse['name'],
+            'profile_picture': userResponse['profile_picture'],
+            'ratings': userResponse['rating'] ?? 'N/A',
+            'status': status, // Include status
+          });
+        } else {
+          print('Invalid ID in request_sent: $id');
+        }
+
+
+
       }
-
-      // Update the state with the fetched profiles
-      setState(() {
-        sentProfiles = profiles;
-        isLoading = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Update the state with the fetched profiles
+        setState(() {
+          sentProfiles = profiles;
+          isLoading = false;
+        });
       });
 
       print('Fetched Profiles: $sentProfiles');
     } catch (error) {
       print('Error fetching sent requests: $error');
-      setState(() {
-        isLoading = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          isLoading = false;
+        });
       });
     }
   }
@@ -516,9 +557,9 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
           return buildSentCard(
             userId: userId,
             name: profile['name'] ?? 'Unknown',
-            role: 'Unknown', // Replace with appropriate role if available
+           // role: profile['occupation'], // Replace with appropriate role if available
             stats: {},
-            ratings: profile['ratings']?.toString() ?? 'N/A',
+            ratings: profile['rating']?.toString() ?? 'N/A',
             profileImageUrl: profile['profile_picture'] ??
                 'https://via.placeholder.com/150',
             status: profile['status']
@@ -531,7 +572,7 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
   Widget buildSentCard({
     required int userId,
     required String name,
-    required String role,
+   // required String role,
     required Map<String, String> stats,
     required String profileImageUrl,
     required String ratings,
@@ -562,7 +603,7 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white)),
-                    Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
+                   // Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
                     SizedBox(height: 8),
                     Text("Status: $status",
                         style: TextStyle(

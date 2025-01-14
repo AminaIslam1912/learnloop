@@ -1,20 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-// Required for SystemNavigator.pop()
-
-
-class ChallengingMathPuzzleApp extends StatelessWidget {
-  const ChallengingMathPuzzleApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MathPuzzleGame(),
-    );
-  }
-}
 
 class MathPuzzleGame extends StatefulWidget {
   const MathPuzzleGame({super.key});
@@ -45,35 +31,6 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
     timer?.cancel();
     super.dispose();
   }
-
-  // void generateProblem() {
-  //   setState(() {
-  //     num1 = random.nextInt(isHardMode ? 50 : 20) + 1;
-  //     num2 = random.nextInt(isHardMode ? 50 : 20) + 1;
-  //     int op = random.nextInt(4); // Random operator
-  //
-  //     switch (op) {
-  //       case 0:
-  //         operator = '+';
-  //         correctAnswer = num1 + num2;
-  //         break;
-  //       case 1:
-  //         operator = '-';
-  //         correctAnswer = num1 - num2;
-  //         break;
-  //       case 2:
-  //         operator = '*';
-  //         correctAnswer = num1 * num2;
-  //         break;
-  //       case 3:
-  //         operator = '/';
-  //         correctAnswer = (num1 / num2).floor();
-  //         num1 = correctAnswer * num2; // Adjust for clean division
-  //         break;
-  //     }
-  //     timerCount = 10; // Reset timer
-  //   });
-  // }
 
   void generateProblem() {
     setState(() {
@@ -179,7 +136,7 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Math Puzzle'),
-        backgroundColor: isHardMode ? Colors.red : Colors.teal,
+        backgroundColor: isHardMode ? Colors.green : Colors.teal,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

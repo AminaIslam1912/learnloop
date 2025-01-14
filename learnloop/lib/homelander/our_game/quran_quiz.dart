@@ -249,24 +249,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-class QuranQuizGame extends StatelessWidget {
-  const QuranQuizGame({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: QuizSelectionScreen(),
-    );
-  }
-}
 
-class QuizSelectionScreen extends StatelessWidget {
+class QuranQuiz extends StatelessWidget {
   final List<String> categories = [
     'General Quran Quiz',
     'Prophet Stories Quiz',
     'Surahs and Verses Quiz',
   ];
+
+  QuranQuiz({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -275,14 +267,20 @@ class QuizSelectionScreen extends StatelessWidget {
         title: const Text('Quran Quiz Game'),
         backgroundColor: Colors.green,
       ),
-      body: ListView.builder(
+      body: GridView.builder(
+        padding: const EdgeInsets.only(top: 16.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,  // 2 cards per row
+          crossAxisSpacing: 10,  // Spacing between columns
+          mainAxisSpacing: 10,  // Spacing between rows
+        ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           return Card(
+            color: Colors.green,
             margin: const EdgeInsets.all(10),
             elevation: 5,
-            child: ListTile(
-              title: Text(categories[index]),
+            child: InkWell(
               onTap: () {
                 Navigator.push(
                   context,
@@ -293,6 +291,19 @@ class QuizSelectionScreen extends StatelessWidget {
                   ),
                 );
               },
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    categories[index],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
           );
         },
@@ -301,10 +312,13 @@ class QuizSelectionScreen extends StatelessWidget {
   }
 }
 
+
+
+
 class QuranQuizScreen extends StatefulWidget {
   final String category;
 
-  QuranQuizScreen({required this.category});
+  const QuranQuizScreen({super.key, required this.category});
 
   @override
   State<QuranQuizScreen> createState() => _QuranQuizScreenState();
@@ -542,56 +556,193 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
     );
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category),
-        //backgroundColor: Colors.green,
+        title: Text(
+          widget.category,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Question ${_currentQuestionIndex + 1}/${questionPool.length}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              questionPool[_currentQuestionIndex]['question'],
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 20),
-            Column(
-              children: (questionPool[_currentQuestionIndex]['options'] as List<String>)
-                  .map((option) => ElevatedButton(
-                onPressed: () {
-                  _checkAnswer(option);
-                },
-                //style: ElevatedButton.styleFrom(backgroundColor:  Colors.green),
-                child: Text(option),
-              ))
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Current Score: $_score',
-              style: const TextStyle(fontSize: 18),
-            ),
-            if (_selectedAnswer != null && !_isAnswerCorrect)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Correct Answer: ${questionPool[_currentQuestionIndex]['answer']}',
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Progress Bar
+              LinearProgressIndicator(
+                value: (_currentQuestionIndex + 1) / questionPool.length,
+                backgroundColor: Colors.grey.shade300,
+                color: Colors.green,
+                minHeight: 8,
+              ),
+              const SizedBox(height: 20),
+
+              // Question Header
+              Text(
+                'Question ${_currentQuestionIndex + 1}/${questionPool.length}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+
+              // Question Card
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    questionPool[_currentQuestionIndex]['question'],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
-          ],
+              const SizedBox(height: 20),
+
+              // Options with Equal Button Size
+              Expanded(
+                child: ListView.builder(
+                  itemCount: questionPool[_currentQuestionIndex]['options'].length,
+                  itemBuilder: (context, index) {
+                    String option = questionPool[_currentQuestionIndex]['options'][index];
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      width: double.infinity,
+                      height: 60, // Set a fixed height for all buttons
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _checkAnswer(option);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          option,
+                          style: const TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Current Score
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Score: $_score',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (_selectedAnswer != null)
+                    Icon(
+                      _isAnswerCorrect ? Icons.check_circle : Icons.error,
+                      color: _isAnswerCorrect ? Colors.green : Colors.green,
+                      size: 30,
+                    ),
+                ],
+              ),
+
+              // Feedback Section
+              if (_selectedAnswer != null && !_isAnswerCorrect)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Correct Answer: ${questionPool[_currentQuestionIndex]['answer']}',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
+
+
+// @override
+// Widget build(BuildContext context) {
+//   return Scaffold(
+//     appBar: AppBar(
+//       title: Text(widget.category),
+//       //backgroundColor: Colors.green,
+//     ),
+//     body: Padding(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'Question ${_currentQuestionIndex + 1}/${questionPool.length}',
+//             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//           ),
+//           const SizedBox(height: 10),
+//           Text(
+//             questionPool[_currentQuestionIndex]['question'],
+//             style: const TextStyle(fontSize: 20),
+//           ),
+//           const SizedBox(height: 20),
+//           Column(
+//             children: (questionPool[_currentQuestionIndex]['options'] as List<String>)
+//                 .map((option) => ElevatedButton(
+//               onPressed: () {
+//                 _checkAnswer(option);
+//               },
+//               //style: ElevatedButton.styleFrom(backgroundColor:  Colors.green),
+//               child: Text(option),
+//             ))
+//                 .toList(),
+//           ),
+//           const SizedBox(height: 20),
+//           Text(
+//             'Current Score: $_score',
+//             style: const TextStyle(fontSize: 18),
+//           ),
+//           if (_selectedAnswer != null && !_isAnswerCorrect)
+//             Padding(
+//               padding: const EdgeInsets.all(8.0),
+//               child: Text(
+//                 'Correct Answer: ${questionPool[_currentQuestionIndex]['answer']}',
+//                 style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+//               ),
+//             ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 }
 

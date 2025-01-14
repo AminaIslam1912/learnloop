@@ -95,6 +95,19 @@ class _SignUpPageState extends State<SignUpPage> {
          // 'created_at': DateTime.now().toUtc().toIso8601String(),
          // 'password': password
           'fire_id': firebaseUserId,
+          'friends': [], // Insert an empty JSON array
+          'request_sent': [], // Insert an empty JSON array
+          'request_received': [], // Insert an empty JSON array
+          'rating':0,
+          'userFeedback':[],
+          'bio':"",
+          'occupation':'',
+          'location':'',
+          'achievements':[],
+          'skills':[],
+          'profile_picture':'',
+
+
         }
       ])
           .select();

@@ -98,7 +98,7 @@ class _SwappedState extends State<Swapped> {
           'id': userResponse['id'],
           'name': userResponse['name'],
           'profile_picture': userResponse['profile_picture'],
-          'occupation': userResponse['occupation'] ?? 'Unknown',
+          'occupation': userResponse['occupation'] ?? '',
         });
       }
 

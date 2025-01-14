@@ -3,20 +3,20 @@ import 'dart:async';
 
 
 
-class MemoryGame extends StatelessWidget {
-  const MemoryGame({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const GameBoard(),
-    );
-  }
-}
+// class MemoryGame extends StatelessWidget {
+//   const MemoryGame({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: const GameBoard(),
+//     );
+//   }
+// }
 
 class GameBoard extends StatefulWidget {
   const GameBoard({super.key});
@@ -150,7 +150,7 @@ class GameBoardState extends State<GameBoard> {
                         ? Colors.green[100]
                         : cardFlipped[index]
                         ? Colors.white
-                        : Colors.blue,
+                        : Colors.green,
                     child: Center(
                       child: Text(
                         cardFlipped[index] ? cardContent[index] : '',
