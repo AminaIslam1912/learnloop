@@ -144,6 +144,7 @@ import 'package:learnloop/request/received.dart';
 import 'package:learnloop/request/sent.dart';
 import 'package:learnloop/request/suggestion.dart';
 import 'package:learnloop/request/swapped.dart';
+import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -200,8 +201,9 @@ class _RequestPageState extends State<RequestPage> with SingleTickerProviderStat
         ),
         centerTitle: true,
       ),
-      body: isUserLoggedIn
-          ? Column(
+      body:
+     // isUserLoggedIn?
+      Column(
         children: [
           Container(
             color: Colors.black,
@@ -210,11 +212,57 @@ class _RequestPageState extends State<RequestPage> with SingleTickerProviderStat
               labelColor: Colors.green,
               unselectedLabelColor: Colors.white,
               indicatorColor: Colors.green,
-              tabs: const [
-                Tab(text: "Sent"),
-                Tab(text: "Received"),
-                Tab(text: "Swapped"),
-                Tab(text: "Suggested for you"),
+              tabs:  [
+                // Tab(text: "Sent"),
+                // Tab(text: "Received"),
+                // Tab(text: "Swapped"),
+                // Tab(text: "Suggested for you"),
+              Tab(
+                child: Marquee(
+                  blankSpace: 72,
+                  text: "Sent", // The text that will scroll
+                  style: const TextStyle(color: Colors.green), // Text style
+                  velocity: 15, // Speed of the scrolling
+                   pauseAfterRound: Duration(seconds: 2), // Pause after each cycle
+                  // scrollAxis: Axis.horizontal, // Scroll horizontally
+                  // crossAxisAlignment: CrossAxisAlignment.start, // Align text
+                  // blankSpace: 50, // Space between repetitions (optional)
+                  // startPadding: 10, // Padding before starting the scroll (optional)
+                  // accelerationDuration: Duration(seconds: 1), // Speed acceleration (optional)
+                  // accelerationCurve: Curves.linear, // Acceleration curve (optional)
+                ),
+              ),
+              Tab(
+                child: Marquee(
+                  text: "Received",
+                  blankSpace: 40,
+                  style: const TextStyle(color: Colors.green),
+                  velocity: 15,
+                   pauseAfterRound: Duration(seconds: 2),
+                  // scrollAxis: Axis.horizontal,
+                ),
+              ),
+              Tab(
+                child: Marquee(
+                  text: "Swapped",
+                  blankSpace: 40,
+                  style: const TextStyle(color: Colors.green),
+                  velocity: 15,
+                   pauseAfterRound: Duration(seconds: 2),
+                  // scrollAxis: Axis.horizontal,
+                ),
+              ),
+              Tab(
+                child: Marquee(
+
+                  text: "Suggested for you",
+                  blankSpace: 25,
+                  style: const TextStyle(color: Colors.green),
+                  velocity: 15,
+                   pauseAfterRound: Duration(seconds: 2),
+                  // scrollAxis: Axis.horizontal,
+                ),
+              ),
               ],
             ),
           ),
@@ -231,24 +279,25 @@ class _RequestPageState extends State<RequestPage> with SingleTickerProviderStat
           ),
         ],
       )
-          : Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Fluttertoast.showToast(
-              msg: "Please login first",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const SignUpPage()),
-            );
-          },
-          child: Text("Please Login to Access Requests"),
-        ),
-      ),
+      //     :
+      //   Center(
+      //   child: ElevatedButton(
+      //     onPressed: () {
+      //       Fluttertoast.showToast(
+      //         msg: "Please login first",
+      //         toastLength: Toast.LENGTH_SHORT,
+      //         gravity: ToastGravity.BOTTOM,
+      //         backgroundColor: Colors.red,
+      //         textColor: Colors.white,
+      //       );
+      //       Navigator.pushReplacement(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => const SignUpPage()),
+      //       );
+      //     },
+      //     child: Text("Please Login to Access Requests"),
+      //   ),
+      // ),
     );
   }
 }

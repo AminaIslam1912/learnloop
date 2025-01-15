@@ -182,7 +182,7 @@ class AboutScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold, // Makes the text bold
                 fontFamily:
                 'Roboto Mono', // Optional: Customize font family for a more unique look
-                color: Colors.white, // Change text color to blue
+                color: Colors.green, // Change text color to blue
 
                 letterSpacing: 1.2, // Adds some spacing between letters
                 height: 1.5, // Adjusts line height for better readability

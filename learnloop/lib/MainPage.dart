@@ -374,18 +374,178 @@
 
 
 //using provider
+//
+// import 'package:flutter/material.dart';
+// import 'package:learnloop/person/UserProfile.dart';
+// import 'package:learnloop/sign_up.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:provider/provider.dart'; // Import provider package
+// import 'UserProvider.dart';
+// import 'chat/screen/ChatPage.dart';
+// import 'request/request_sent.dart';
+// import 'homelander/home_page.dart';
+// import 'homelander/community/Community_ui.dart';
+//
+//
+// class MainPage extends StatefulWidget {
+//   const MainPage({Key? key}) : super(key: key);
+//
+//   @override
+//   _MainPageState createState() => _MainPageState();
+// }
+//
+// class _MainPageState extends State<MainPage> {
+//   int _currentIndex = 0;
+//   final PageController _pageController = PageController();
+//   int? _userId; // To store the fetched user ID
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchUserId(); // Fetch user ID on initialization
+//   //  _checkSession();
+//   }
+//
+//   Future<void> fetchUserId() async {
+//     final user = context.read<UserProvider>().user; // Get the user from Provider
+//
+//     if (user == null) return;
+//
+//     try {
+//       // Query the `users` table for the user with the corresponding email
+//       final response = await Supabase.instance.client
+//           .from('users')
+//           .select('id')
+//           .eq('email', user.email as Object)
+//           .single(); // `.single()` fetches a single row
+//
+//       if (response != null && response['id'] is int) {
+//         setState(() {
+//           _userId = response['id']; // Store the fetched ID
+//         });
+//         print('Fetched User ID: $_userId');
+//       } else {
+//         print('No user found with email ${user.email}');
+//       }
+//     } catch (error) {
+//       print('Error fetching user ID: $error');
+//     }
+//   }
+//
+//
+//   void _checkSessionAndNavigate(int index) {
+//     final user = context.read<UserProvider>().user; // Get the user from Provider
+//
+//     if (index == 3) {
+//       if (user == null) {
+//         // Redirect to login if no session is found
+//         Navigator.pushReplacementNamed(context, '/login');
+//       } else if (_userId == null) {
+//         // Show loading feedback if user ID is still being fetched
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text("Loading user profile, please wait..."),
+//             duration: Duration(seconds: 2),
+//           ),
+//         );
+//       } else {
+//         // Navigate to the Profile page if everything is valid
+//         setState(() {
+//           _currentIndex = index;
+//         });
+//         _pageController.jumpToPage(index);
+//       }
+//     } else {
+//       // Navigate to other pages directly
+//       setState(() {
+//         _currentIndex = index;
+//       });
+//       _pageController.jumpToPage(index);
+//     }
+//   }
+//
+//   void _checkSession() async {
+//     final session = Supabase.instance.client.auth.currentSession;
+//
+//     if (session != null && session.user != null) {
+//       // User is logged in
+//       final userProvider = Provider.of<UserProvider>(context, listen: false);
+//       userProvider.setUser(session.user!); // Update the user in the provider
+//     } else {
+//       // User is not logged in, redirect to SignUpPage
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (context) => const SignUpPage()),
+//       );
+//     }
+//   }
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final user = context.watch<UserProvider>().user; // Watch the user from Provider
+//     final isUserLoggedIn = Provider.of<UserProvider>(context).isLoggedIn;
+//
+//
+//     return Scaffold(
+//       body: PageView(
+//         controller: _pageController,
+//         onPageChanged: (index) {
+//           setState(() {
+//            _currentIndex = index;
+//            // _checkSessionAndNavigate(index); // Check session when page changes
+//           });
+//         },
+//         children: [
+//           const HomePage(),
+//           RequestPage(),
+//          // const Center(child: Text('Messages')), // Messages page placeholder
+//           ChatPage(),
+//           _userId == null
+//         //isUserLoggedIn
+//               ?  const Center(
+//             child: CircularProgressIndicator(),
+//           ) // Show a loading indicator while fetching
+//               : isUserLoggedIn? UserProfile(
+//             loggedInUserId: _userId!,
+//             profileUserId: _userId!,
+//           ): const Center(
+//             child: CircularProgressIndicator(),
+//           ) ,
+//         ],
+//       ),
+//       bottomNavigationBar: BottomNavigationBar(
+//         backgroundColor: Colors.black,
+//         selectedItemColor: Colors.green,
+//         unselectedItemColor: Colors.white,
+//         currentIndex: _currentIndex,
+//         onTap: (index) {
+//           setState(() {
+//             _currentIndex = index;
+//           });
+//           _pageController.jumpToPage(index);
+//         },
+//         items: const [
+//           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+//           BottomNavigationBarItem(icon: Icon(Icons.group), label: "Request"),
+//           BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
+//           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 import 'package:flutter/material.dart';
 import 'package:learnloop/person/UserProfile.dart';
 import 'package:learnloop/sign_up.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:provider/provider.dart'; // Import provider package
+import 'package:provider/provider.dart';
 import 'UserProvider.dart';
 import 'chat/screen/ChatPage.dart';
 import 'request/request_sent.dart';
 import 'homelander/home_page.dart';
 import 'homelander/community/Community_ui.dart';
-
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -397,121 +557,85 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
-  int? _userId; // To store the fetched user ID
+  int? _userId;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    fetchUserId(); // Fetch user ID on initialization
-  //  _checkSession();
+    initializeUserState();
   }
 
-  Future<void> fetchUserId() async {
-    final user = context.read<UserProvider>().user; // Get the user from Provider
-
-    if (user == null) return;
-
-    try {
-      // Query the `users` table for the user with the corresponding email
-      final response = await Supabase.instance.client
-          .from('users')
-          .select('id')
-          .eq('email', user.email as Object)
-          .single(); // `.single()` fetches a single row
-
-      if (response != null && response['id'] is int) {
-        setState(() {
-          _userId = response['id']; // Store the fetched ID
-        });
-        print('Fetched User ID: $_userId');
-      } else {
-        print('No user found with email ${user.email}');
-      }
-    } catch (error) {
-      print('Error fetching user ID: $error');
-    }
-  }
-
-
-  void _checkSessionAndNavigate(int index) {
-    final user = context.read<UserProvider>().user; // Get the user from Provider
-
-    if (index == 3) {
-      if (user == null) {
-        // Redirect to login if no session is found
-        Navigator.pushReplacementNamed(context, '/login');
-      } else if (_userId == null) {
-        // Show loading feedback if user ID is still being fetched
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Loading user profile, please wait..."),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } else {
-        // Navigate to the Profile page if everything is valid
-        setState(() {
-          _currentIndex = index;
-        });
-        _pageController.jumpToPage(index);
-      }
-    } else {
-      // Navigate to other pages directly
-      setState(() {
-        _currentIndex = index;
-      });
-      _pageController.jumpToPage(index);
-    }
-  }
-
-  void _checkSession() async {
+  Future<void> initializeUserState() async {
+    // Get the current session
     final session = Supabase.instance.client.auth.currentSession;
 
-    if (session != null && session.user != null) {
-      // User is logged in
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.setUser(session.user!); // Update the user in the provider
-    } else {
-      // User is not logged in, redirect to SignUpPage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SignUpPage()),
-      );
+    if (session != null && !_isInitialized) {
+      // Get the current user from the session
+      final currentUser = session.user;
+
+      // Update the UserProvider with the current user
+      if (context.mounted) {
+        context.read<UserProvider>().setUser(currentUser);
+      }
+
+      // Fetch and set the user ID
+      try {
+        final response = await Supabase.instance.client
+            .from('users')
+            .select('id')
+            .eq('email', currentUser.email as Object)
+            .single();
+
+        if (response != null && response['id'] is int && mounted) {
+          setState(() {
+            _userId = response['id'];
+            _isInitialized = true;
+          });
+          print('Fetched User ID: $_userId');
+        }
+      } catch (error) {
+        print('Error fetching user ID: $error');
+      }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user; // Watch the user from Provider
-    final isUserLoggedIn = Provider.of<UserProvider>(context).isLoggedIn;
-
-
     return Scaffold(
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
-           _currentIndex = index;
-           // _checkSessionAndNavigate(index); // Check session when page changes
+            _currentIndex = index;
           });
         },
         children: [
           const HomePage(),
-          RequestPage(),
-         // const Center(child: Text('Messages')), // Messages page placeholder
-          ChatPage(),
-          _userId == null
-        //isUserLoggedIn
-              ?  const Center(
-            child: CircularProgressIndicator(),
-          ) // Show a loading indicator while fetching
-              : isUserLoggedIn? UserProfile(
-            loggedInUserId: _userId!,
-            profileUserId: _userId!,
-          ): const Center(
-            child: CircularProgressIndicator(),
-          ) ,
+
+          if (_userId == null)
+            const Center(
+              child: SignUpPage(),
+            )
+          else
+            RequestPage(),
+          //const Center(child: Text('Messages')),
+
+          if (_userId == null)
+            const Center(
+              child: SignUpPage(),
+            )
+          else
+            ChatPage(),
+          if (_userId == null)
+            const Center(
+              child: SignUpPage(),
+            )
+          else
+            UserProfile(
+              loggedInUserId: _userId!,
+              profileUserId: _userId!,
+            ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

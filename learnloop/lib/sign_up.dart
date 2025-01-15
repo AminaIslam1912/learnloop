@@ -161,8 +161,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const Text(
-                    'Username', style: TextStyle(color: Colors.white70)),
+                //const Text(
+                 //   'Username', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _usernameController,
                   decoration: InputDecoration(
@@ -182,7 +182,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Email', style: TextStyle(color: Colors.white70)),
+               // const Text('Email', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -203,8 +203,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                    'Password', style: TextStyle(color: Colors.white70)),
+               // const Text(
+                  //  'Password', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _passwordController,
                   obscureText: !_isPasswordVisible,
@@ -238,8 +238,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Re-enter Password',
-                    style: TextStyle(color: Colors.white70)),
+               // const Text('Re-enter Password',
+                //    style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _confirmPasswordController,
                   obscureText: !_isConfirmPasswordVisible,

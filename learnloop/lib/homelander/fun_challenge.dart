@@ -1021,7 +1021,7 @@ class FunChallengeScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         gradient: const LinearGradient(
-                          colors: [Colors.teal, Colors.tealAccent],
+                          colors: [Colors.green, Colors.green],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

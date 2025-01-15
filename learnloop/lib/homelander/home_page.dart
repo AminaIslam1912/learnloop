@@ -121,6 +121,7 @@ import 'package:flutter/material.dart';
 // }
 
 
+
 import 'package:flutter/material.dart';
 import 'package:learnloop/homelander/faq_screen.dart';
 import 'package:marquee/marquee.dart';
@@ -311,6 +312,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         {"image": "assets/Quran.jpg", "title": "Quran Recitation", "isFree": true, "id": 1},
         {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
         {"image": "assets/digitalmarketing.jpeg", "title": "Digital Marketing", "isFree": true, "id": 6},
+        {"title": "Cooking", "isFree": true, "id": 12},
       ],
     },
     {
@@ -322,6 +324,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
             {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false, "id": 7},
             {"image": "assets/java.jpeg", "title": "Java Programming", "isFree": true, "id": 4},
+            {"title": "Assembly Language", "isFree":true, "id":13},
           ],
         },
         {
@@ -330,6 +333,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             {"image": "assets/js.jpg", "title": "Frontend Basics", "isFree": true, "id": 5},
             {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false, "id": 8},
             {"image": "assets/node.png", "title": "NodeJS", "isFree": true, "id": 3},
+            {"title":"MongoDB", "isFree":true, "id":14},
           ],
         },
       ],
@@ -340,9 +344,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         {"image": "assets/gd.jpeg", "title": "Graphics Design", "isFree": false, "id": 9},
         {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false, "id": 10},
         {"image": "assets/singer.jpeg", "title": "Music", "isFree": false, "id": 11},
+        {"title":"Microsoft Bundle", "isFree":false, "id":15},
       ],
     },
   ];
+
 
 
 
@@ -460,6 +466,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   // Replace the _searchCourses and _processCoursesForSearch methods with these updated versions:
 
+  // List<Map<String, dynamic>> _searchCourses(String query) {
+  //   exactMatches = [];
+  //   similarCourses = [];
+  //
+  //   if (query.isEmpty) return [];
+  //
+  //   // Create sets to track unique courses by title
+  //   final Set<String> processedTitles = {};
+  //
+  //   for (var section in courseSections) {
+  //     if (section.containsKey("courses")) {
+  //       _processCoursesForSearch(section["courses"], query, processedTitles);
+  //     } else if (section.containsKey("categories")) {
+  //       for (var category in section["categories"]) {
+  //         _processCoursesForSearch(category["courses"], query, processedTitles);
+  //       }
+  //     }
+  //   }
+  //
+  //   return exactMatches.isNotEmpty ? exactMatches : similarCourses;
+  // }
+
   List<Map<String, dynamic>> _searchCourses(String query) {
     exactMatches = [];
     similarCourses = [];
@@ -471,18 +499,47 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     for (var section in courseSections) {
       if (section.containsKey("courses")) {
-        _processCoursesForSearch(section["courses"], query, processedTitles);
+        _processCoursesForSearch(section["courses"] as List<dynamic>, query, processedTitles);
       } else if (section.containsKey("categories")) {
-        for (var category in section["categories"]) {
-          _processCoursesForSearch(category["courses"], query, processedTitles);
+        for (var category in section["categories"] as List<dynamic>) {
+          _processCoursesForSearch(category["courses"] as List<dynamic>, query, processedTitles);
         }
       }
     }
 
-    return exactMatches.isNotEmpty ? exactMatches : similarCourses;
+    // Return exact matches if any, otherwise return similar courses
+    if (exactMatches.isNotEmpty) {
+      return exactMatches;
+    } else if (similarCourses.isNotEmpty) {
+      return similarCourses;
+    } else {
+      // Show a predefined set of suggestions when no matches are found
+      return _getSuggestedCourses();
+    }
   }
 
-  void _processCoursesForSearch(List<dynamic> courses, String query, Set<String> processedTitles) {
+  // void _processCoursesForSearch(List<dynamic> courses, String query, Set<String> processedTitles) {
+  //   for (var course in courses) {
+  //     String courseTitle = course["title"].toString().toLowerCase();
+  //     String searchQuery = query.toLowerCase();
+  //
+  //     // Skip if we've already processed this course title
+  //     if (processedTitles.contains(courseTitle)) {
+  //       continue;
+  //     }
+  //
+  //     if (courseTitle == searchQuery || courseTitle.contains(searchQuery)) {
+  //       exactMatches.add(course);
+  //       processedTitles.add(courseTitle);
+  //     } else if (_isSimilar(searchQuery, courseTitle)) {
+  //       similarCourses.add(course);
+  //       processedTitles.add(courseTitle);
+  //     }
+  //   }
+  // }
+
+  void _processCoursesForSearch(
+      List<dynamic> courses, String query, Set<String> processedTitles) {
     for (var course in courses) {
       String courseTitle = course["title"].toString().toLowerCase();
       String searchQuery = query.toLowerCase();
@@ -493,10 +550,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
 
       if (courseTitle == searchQuery || courseTitle.contains(searchQuery)) {
-        exactMatches.add(course);
+        exactMatches.add(Map<String, dynamic>.from(course));
         processedTitles.add(courseTitle);
       } else if (_isSimilar(searchQuery, courseTitle)) {
-        similarCourses.add(course);
+        similarCourses.add(Map<String, dynamic>.from(course));
         processedTitles.add(courseTitle);
       }
     }
@@ -536,6 +593,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return matrix[s1.length][s2.length];
   }
+// Returns a predefined list of suggested courses when no match is found
+  List<Map<String, dynamic>> _getSuggestedCourses() {
+    // This can be replaced with dynamic suggestions from your dataset
+    return [
+      {"title": "Introduction to Programming", "id": 1},
+      {"title": "Data Structures and Algorithms", "id": 2},
+      {"title": "Machine Learning Basics", "id": 3},
+    ];
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -581,8 +649,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     blankSpace: 25,
                     text: "Suggested for You", // The text that will scroll
                     style: TextStyle(color: Colors.green), // Text style
-                    // velocity: 30, // Speed of the scrolling
-                    // pauseAfterRound: Duration(seconds: 1), // Pause after each cycle
+                    velocity: 15, // Speed of the scrolling
+                    pauseAfterRound: Duration(seconds: 2), // Pause after each cycle
                     // scrollAxis: Axis.horizontal, // Scroll horizontally
                     // crossAxisAlignment: CrossAxisAlignment.start, // Align text
                     // blankSpace: 50, // Space between repetitions (optional)
@@ -596,8 +664,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     text: "Community",
                     blankSpace: 72,
                     style: TextStyle(color: Colors.green),
-                    // velocity: 30,
-                    // pauseAfterRound: Duration(seconds: 1),
+                    velocity: 15,
+                    pauseAfterRound: Duration(seconds: 2),
                     // scrollAxis: Axis.horizontal,
                   ),
                 ),
@@ -606,8 +674,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     text: "Fun Challenge",
                     blankSpace: 72,
                     style: const TextStyle(color: Colors.green),
-                    // velocity: 30,
-                    // pauseAfterRound: Duration(seconds: 1),
+                    velocity: 15,
+                    pauseAfterRound: Duration(seconds: 2),
                     // scrollAxis: Axis.horizontal,
                   ),
                 ),
@@ -617,8 +685,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     text: "About",
                     blankSpace: 72,
                     style: TextStyle(color: Colors.green),
-                    // velocity: 30,
-                    // pauseAfterRound: Duration(seconds: 1),
+                    velocity: 15,
+                    pauseAfterRound: Duration(seconds: 4),
                     // scrollAxis: Axis.horizontal,
                   ),
                 ),
@@ -962,88 +1030,157 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   // }
 
 
+  // Widget _buildSettingsDrawer(BuildContext context) {
+  //  // bool isDarkMode;
+  //   return Drawer(
+  //     child: Container(
+  //       color: Colors.black.withOpacity(0.5),
+  //       child: ListView(
+  //         padding: EdgeInsets.zero,
+  //         children: [
+  //           DrawerHeader(
+  //             decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
+  //             child: const Text(
+  //               'Settings',
+  //               style: TextStyle(color: Colors.white, fontSize: 24),
+  //             ),
+  //           ),
+  //
+  //
+  //
+  //
+  //
+  //           ListTile(
+  //             leading: Icon(Icons.lock, color: Colors.white),
+  //             title: Text('Change Password', style: TextStyle(color: Colors.white)),
+  //             onTap: () {
+  //             //  Navigator.pushNamed(context, '/change-password');
+  //             },
+  //           ),
+  //
+  //
+  //
+  //           ListTile(
+  //             leading: Icon(Icons.help_outline, color: Colors.white),
+  //             title: Text('FAQ', style: TextStyle(color: Colors.white)),
+  //             onTap: () {
+  //            //   Navigator.pushNamed(context, '/faq');
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(builder : (context) => const FAQScreen())
+  //               );
+  //             },
+  //           ),
+  //
+  //
+  //           ListTile(
+  //             leading: Icon(Icons.feedback, color: Colors.white),
+  //             title: Text('Send Feedback', style: TextStyle(color: Colors.white)),
+  //             onTap: () {
+  //               // Redirect to feedback form
+  //               FeedbackFormDialog.showFeedbackForm(context);
+  //
+  //             },
+  //           ),
+  //
+  //           // Logout option
+  //           ListTile(
+  //             leading: const Icon(Icons.logout, color: Colors.white),
+  //             title: const Text(
+  //               'Logout',
+  //               style: TextStyle(color: Colors.white),
+  //             ),
+  //             onTap: () async {
+  //               try {
+  //                 await Supabase.instance.client.auth.signOut();
+  //                 print('Logged out successfully');
+  //                 // Navigate to the login page after logout
+  //                 Navigator.pushReplacementNamed(context, '/sign_up');
+  //               } catch (e) {
+  //                 print('Logout exception: $e');
+  //                 // Optionally show a toast/snackbar for logout failure
+  //                 ScaffoldMessenger.of(context).showSnackBar(
+  //                   SnackBar(content: Text('Failed to log out. Please try again.')),
+  //                 );
+  //               }
+  //             },
+  //           ),
+  //
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
   Widget _buildSettingsDrawer(BuildContext context) {
-   // bool isDarkMode;
-    return Drawer(
-      child: Container(
-        color: Colors.black.withOpacity(0.5),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
-              child: const Text(
-                'Settings',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.6, // Adjust width as needed
+      child: Drawer(
+        child: Container(
+          color: Colors.black.withOpacity(0.5),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              SizedBox(
+                height: 120, // Set the desired height for the header
+                child: DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
+                  child: const Text(
+                    'Settings',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ),
               ),
-            ),
-
-
-
-
-
-            ListTile(
-              leading: Icon(Icons.lock, color: Colors.white),
-              title: Text('Change Password', style: TextStyle(color: Colors.white)),
-              onTap: () {
-              //  Navigator.pushNamed(context, '/change-password');
-              },
-            ),
-
-
-
-            ListTile(
-              leading: Icon(Icons.help_outline, color: Colors.white),
-              title: Text('FAQ', style: TextStyle(color: Colors.white)),
-              onTap: () {
-             //   Navigator.pushNamed(context, '/faq');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder : (context) => const FAQScreen())
-                );
-              },
-            ),
-
-
-            ListTile(
-              leading: Icon(Icons.feedback, color: Colors.white),
-              title: Text('Send Feedback', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                // Redirect to feedback form
-                FeedbackFormDialog.showFeedbackForm(context);
-
-              },
-            ),
-
-            // Logout option
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.white),
-              title: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.white),
+              ListTile(
+                leading: Icon(Icons.lock, color: Colors.white),
+                title: Text('Change Password', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Navigator.pushNamed(context, '/change-password');
+                },
               ),
-              onTap: () async {
-                try {
-                  await Supabase.instance.client.auth.signOut();
-                  print('Logged out successfully');
-                  // Navigate to the login page after logout
-                  Navigator.pushReplacementNamed(context, '/sign_up');
-                } catch (e) {
-                  print('Logout exception: $e');
-                  // Optionally show a toast/snackbar for logout failure
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to log out. Please try again.')),
+              ListTile(
+                leading: Icon(Icons.help_outline, color: Colors.white),
+                title: Text('FAQ', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FAQScreen()),
                   );
-                }
-              },
-            ),
-
-          ],
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.feedback, color: Colors.white),
+                title: Text('Send Feedback', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Redirect to feedback form
+                  FeedbackFormDialog.showFeedbackForm(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.white),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () async {
+                  try {
+                    await Supabase.instance.client.auth.signOut();
+                    print('Logged out successfully');
+                    Navigator.pushReplacementNamed(context, '/sign_up');
+                  } catch (e) {
+                    print('Logout exception: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to log out. Please try again.')),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-
 
 }
 

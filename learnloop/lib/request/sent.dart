@@ -425,11 +425,11 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
           .single();
 
       if (response != null && response['id'] is int) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+       // WidgetsBinding.instance.addPostFrameCallback((_) {
           setState(() {
             _userId = response['id'];
           });
-        });
+      //  });
         print('Fetched User ID: $_userId');
       } else {
         print('No user found with email ${user.email}');
