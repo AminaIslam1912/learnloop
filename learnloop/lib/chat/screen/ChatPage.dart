@@ -590,59 +590,249 @@
 //   }
 // }
 
+// import 'package:flutter/material.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:learnloop/MainPage.dart';
+// import 'package:learnloop/chat/screen/ChatInterface.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
+//
+// class ChatPage extends StatelessWidget {
+//   final currentUser = FirebaseAuth.instance.currentUser;
+//
+//   // Fetch the `fire_id` of the current Firebase user from Supabase
+//   Future<String?> getCurrentUserFireId() async {
+//     try {
+//       final supabaseClient = Supabase.instance.client;
+//       final response = await supabaseClient
+//           .from('users')
+//           .select('fire_id')
+//           .eq('fire_id', currentUser?.uid as Object)
+//           .single();
+//
+//       print(response);
+//
+//       if (response == null || response['fire_id'] == null) {
+//         throw Exception('No matching user found in Supabase for the current Firebase user');
+//       }
+//
+//       return response['fire_id'] as String?;
+//     } catch (e) {
+//       print('Error fetching fire_id: $e');
+//       return null;
+//     }
+//   }
+//
+//   // Fetch the friends list of the current user from Supabase
+//   Future<List<int>> fetchFriends() async {
+//     try {
+//       String? id = currentUser?.uid;
+//       final fireId = await getCurrentUserFireId();
+//       if (fireId == null) throw Exception('Current user fire_id not found');
+//
+//       final supabaseClient = Supabase.instance.client;
+//       final response = await supabaseClient
+//           .from('users')
+//           .select('friends')
+//           .eq('fire_id', id as Object )
+//           .single();
+//       //print(response);
+//       if (response == null || response['friends'] == null) {
+//         throw Exception('No friends found for the current user');
+//       }
+//
+//       //print(response);
+//
+//       // Parse the friends JSON field to extract friend IDs
+//       final friendsJson = response['friends'] as List<dynamic>;
+//       return friendsJson.map((friend) => friend['id'] as int).toList();
+//     } catch (e) {
+//       print('Error fetching friends: $e');
+//       return [];
+//     }
+//   }
+//
+//   // Fetch friend details from Supabase `users` table including `fire_id`
+//   // Future<List<Map<String, dynamic>>> fetchFriendDetails(List<int> friendIds) async {
+//   //   try {
+//   //
+//   //     //print()
+//   //     if (friendIds.isEmpty) return [];
+//   //     print(friendIds);
+//   //     int id = 16;
+//   //     final supabaseClient = Supabase.instance.client;
+//   //     final response = await supabaseClient
+//   //         .from('users')
+//   //         .select('id, name, profile_picture, fire_id')
+//   //         .eq('id', id);
+//   //     print(response);
+//   //     if (response == null || response.isEmpty) {
+//   //       throw Exception('No friend details found in Supabase');
+//   //     }
+//   //
+//   //     return List<Map<String, dynamic>>.from(response as List<dynamic>);
+//   //   } catch (e) {
+//   //     print('Error fetching friend details: $e');
+//   //     return [];
+//   //   }
+//   // }
+//
+//   // Fetch friend details from Supabase `users` table including `fire_id`
+//   Future<List<Map<String, dynamic>>> fetchFriendDetails(List<int> friendIds) async {
+//     try {
+//       // Return an empty list if no friend IDs are provided
+//       if (friendIds.isEmpty) return [];
+//
+//       final supabaseClient = Supabase.instance.client;
+//       List<Map<String, dynamic>> friendDetails = [];
+//
+//       // Iterate over each friend ID in the list
+//       for (int friendId in friendIds) {
+//         final response = await supabaseClient
+//             .from('users')
+//             .select('id, name, profile_picture, fire_id')
+//             .eq('id', friendId)
+//             .maybeSingle(); // Fetch a single record or null
+//
+//         if (response != null) {
+//           friendDetails.add(Map<String, dynamic>.from(response));
+//         }
+//       }
+//
+//       return friendDetails;
+//     } catch (e) {
+//       print('Error fetching friend details: $e');
+//       return [];
+//     }
+//   }
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         leading: IconButton(
+//           icon: Icon(Icons.arrow_back),
+//           onPressed: () {
+//             Navigator.pushReplacement(
+//               context,
+//               MaterialPageRoute(
+//                 builder: (context) => MainPage(),
+//               ),
+//             );
+//           },
+//         ),
+//         title: Text('Chat'),
+//       ),
+//       body: Column(
+//         children: [
+//           Divider(),
+//           Expanded(
+//             child: FutureBuilder<List<int>>(
+//               future: fetchFriends(),
+//               builder: (context, friendIdsSnapshot) {
+//                 if (friendIdsSnapshot.connectionState == ConnectionState.waiting) {
+//                   return Center(child: CircularProgressIndicator());
+//                 }
+//                 if (friendIdsSnapshot.hasError || friendIdsSnapshot.data == null) {
+//                   return Center(child: Text('Error: ${friendIdsSnapshot.error}'));
+//                 }
+//                 final friendIds = friendIdsSnapshot.data!;
+//                 print(friendIds);
+//                 return FutureBuilder<List<Map<String, dynamic>>>(
+//                   future: fetchFriendDetails(friendIds),
+//                   builder: (context, friendsSnapshot) {
+//                     if (friendsSnapshot.connectionState == ConnectionState.waiting) {
+//                       return Center(child: CircularProgressIndicator());
+//                     }
+//                     if (friendsSnapshot.hasError || friendsSnapshot.data == null) {
+//                       return Center(child: Text('Error: ${friendsSnapshot.error}'));
+//                     }
+//                     final friends = friendsSnapshot.data!;
+//                     print(friends);
+//                     return ListView.builder(
+//                       itemCount: friends.length,
+//                       itemBuilder: (context, index) {
+//                         final friend = friends[index];
+//                         final friendFireId = friend['fire_id'];
+//                         final friendName = friend['name'];
+//                         final profilePicture = friend['profile_picture'] ?? '';
+//
+//                         return ListTile(
+//                           leading:
+//                           CircleAvatar(
+//                             backgroundImage: profilePicture.isNotEmpty
+//                                 ? const AssetImage("PICforREGISTRATION.png")
+//                                 : null,
+//                             child: profilePicture.isEmpty
+//                                 ? Icon(Icons.person, size: 30)
+//                                 : null,
+//                           ),
+//                           title: Text(friendName ?? 'Unknown'),
+//                          subtitle: Text('Tap to chat'),
+//                           onTap: () {
+//                             Navigator.push(
+//                               context,
+//                               MaterialPageRoute(
+//                                 builder: (context) => ChatInterface(
+//                                   userId: currentUser!.uid,
+//                                   peerId: friendFireId,
+//                                   userName: friendName,
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                         );
+//                       },
+//                     );
+//                   },
+//                 );
+//               },
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+//
+// extension on PostgrestFilterBuilder<PostgrestList> {
+//   in_(String s, List<int> friendIds) {}
+// }
+
+
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:learnloop/MainPage.dart';
 import 'package:learnloop/chat/screen/ChatInterface.dart';
+import 'package:intl/intl.dart'; // For date formatting
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
   final currentUser = FirebaseAuth.instance.currentUser;
+  String searchQuery = ""; // Holds the search query
+  bool isSearching = false; // To track search mode
 
-  // Fetch the `fire_id` of the current Firebase user from Supabase
-  Future<String?> getCurrentUserFireId() async {
-    try {
-      final supabaseClient = Supabase.instance.client;
-      final response = await supabaseClient
-          .from('users')
-          .select('fire_id')
-          .eq('fire_id', currentUser?.uid as Object)
-          .single();
-
-      print(response);
-
-      if (response == null || response['fire_id'] == null) {
-        throw Exception('No matching user found in Supabase for the current Firebase user');
-      }
-
-      return response['fire_id'] as String?;
-    } catch (e) {
-      print('Error fetching fire_id: $e');
-      return null;
-    }
-  }
-
-  // Fetch the friends list of the current user from Supabase
   Future<List<int>> fetchFriends() async {
     try {
       String? id = currentUser?.uid;
-      final fireId = await getCurrentUserFireId();
-      if (fireId == null) throw Exception('Current user fire_id not found');
-
       final supabaseClient = Supabase.instance.client;
       final response = await supabaseClient
           .from('users')
           .select('friends')
-          .eq('fire_id', id as Object )
+          .eq('fire_id', id as Object)
           .single();
-      //print(response);
+
       if (response == null || response['friends'] == null) {
         throw Exception('No friends found for the current user');
       }
 
-      //print(response);
-
-      // Parse the friends JSON field to extract friend IDs
       final friendsJson = response['friends'] as List<dynamic>;
       return friendsJson.map((friend) => friend['id'] as int).toList();
     } catch (e) {
@@ -651,47 +841,19 @@ class ChatPage extends StatelessWidget {
     }
   }
 
-  // Fetch friend details from Supabase `users` table including `fire_id`
-  // Future<List<Map<String, dynamic>>> fetchFriendDetails(List<int> friendIds) async {
-  //   try {
-  //
-  //     //print()
-  //     if (friendIds.isEmpty) return [];
-  //     print(friendIds);
-  //     int id = 16;
-  //     final supabaseClient = Supabase.instance.client;
-  //     final response = await supabaseClient
-  //         .from('users')
-  //         .select('id, name, profile_picture, fire_id')
-  //         .eq('id', id);
-  //     print(response);
-  //     if (response == null || response.isEmpty) {
-  //       throw Exception('No friend details found in Supabase');
-  //     }
-  //
-  //     return List<Map<String, dynamic>>.from(response as List<dynamic>);
-  //   } catch (e) {
-  //     print('Error fetching friend details: $e');
-  //     return [];
-  //   }
-  // }
-
-  // Fetch friend details from Supabase `users` table including `fire_id`
   Future<List<Map<String, dynamic>>> fetchFriendDetails(List<int> friendIds) async {
     try {
-      // Return an empty list if no friend IDs are provided
       if (friendIds.isEmpty) return [];
 
       final supabaseClient = Supabase.instance.client;
       List<Map<String, dynamic>> friendDetails = [];
 
-      // Iterate over each friend ID in the list
       for (int friendId in friendIds) {
         final response = await supabaseClient
             .from('users')
             .select('id, name, profile_picture, fire_id')
             .eq('id', friendId)
-            .maybeSingle(); // Fetch a single record or null
+            .maybeSingle();
 
         if (response != null) {
           friendDetails.add(Map<String, dynamic>.from(response));
@@ -705,6 +867,48 @@ class ChatPage extends StatelessWidget {
     }
   }
 
+  Future<Map<String, dynamic>?> fetchLastMessage(String friendFireId) async {
+    try {
+      final chatId = currentUser!.uid.compareTo(friendFireId) < 0
+          ? "${currentUser!.uid}_$friendFireId"
+          : "${friendFireId}_${currentUser!.uid}";
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final data = snapshot.docs.first.data();
+        return {
+          'lastMessage': data['message'],
+          'timestamp': data['timestamp'],
+        };
+      }
+
+      return null;
+    } catch (e) {
+      print('Error fetching last message: $e');
+      return null;
+    }
+  }
+
+  String formatTimestamp(Timestamp? timestamp) {
+    if (timestamp == null) return '';
+
+    DateTime messageTime = timestamp.toDate();
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(messageTime);
+
+    if (difference.inDays == 0) {
+      return DateFormat.jm().format(messageTime); // e.g., 2:30 PM
+    } else {
+      return DateFormat('d MMM').format(messageTime); // e.g., 7 Jan
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -721,7 +925,36 @@ class ChatPage extends StatelessWidget {
             );
           },
         ),
-        title: Text('Chat'),
+        title: isSearching
+            ? TextField(
+          autofocus: true,
+          onChanged: (value) {
+            setState(() {
+              searchQuery = value.trim().toLowerCase();
+            });
+          },
+          decoration: InputDecoration(
+            hintText: 'Search by name',
+            prefixIcon: Icon(Icons.search),
+            border: InputBorder.none,  // Remove the border
+            contentPadding: EdgeInsets.only(left: 10.0, top: 11.0, bottom: 8.0),  // Adjust vertical padding
+          ),
+
+        )
+            : Text('Chat'),
+        actions: [
+          IconButton(
+            icon: Icon(isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (isSearching) {
+                  searchQuery = ""; // Clear search query when closing search
+                }
+                isSearching = !isSearching;
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -737,7 +970,6 @@ class ChatPage extends StatelessWidget {
                   return Center(child: Text('Error: ${friendIdsSnapshot.error}'));
                 }
                 final friendIds = friendIdsSnapshot.data!;
-                print(friendIds);
                 return FutureBuilder<List<Map<String, dynamic>>>(
                   future: fetchFriendDetails(friendIds),
                   builder: (context, friendsSnapshot) {
@@ -748,37 +980,54 @@ class ChatPage extends StatelessWidget {
                       return Center(child: Text('Error: ${friendsSnapshot.error}'));
                     }
                     final friends = friendsSnapshot.data!;
-                    print(friends);
+                    final filteredFriends = friends.where((friend) {
+                      final friendName = friend['name']?.toLowerCase() ?? '';
+                      return friendName.contains(searchQuery);
+                    }).toList();
+
+                    if (filteredFriends.isEmpty) {
+                      return Center(child: Text('No matching user found'));
+                    }
+
                     return ListView.builder(
-                      itemCount: friends.length,
+                      itemCount: filteredFriends.length,
                       itemBuilder: (context, index) {
-                        final friend = friends[index];
+                        final friend = filteredFriends[index];
                         final friendFireId = friend['fire_id'];
                         final friendName = friend['name'];
                         final profilePicture = friend['profile_picture'] ?? '';
 
-                        return ListTile(
-                          leading:
-                          CircleAvatar(
-                            backgroundImage: profilePicture.isNotEmpty
-                                ? const AssetImage("PICforREGISTRATION.png")
-                                : null,
-                            child: profilePicture.isEmpty
-                                ? Icon(Icons.person, size: 30)
-                                : null,
-                          ),
-                          title: Text(friendName ?? 'Unknown'),
-                         subtitle: Text('Tap to chat'),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatInterface(
-                                  userId: currentUser!.uid,
-                                  peerId: friendFireId,
-                                  userName: friendName,
-                                ),
+                        return FutureBuilder<Map<String, dynamic>?>(
+                          future: fetchLastMessage(friendFireId),
+                          builder: (context, messageSnapshot) {
+                            final lastMessage =
+                                messageSnapshot.data?['lastMessage'] ?? '';
+                            final timestamp = messageSnapshot.data?['timestamp'];
+
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: profilePicture.isNotEmpty
+                                    ? NetworkImage(profilePicture)
+                                    : null,
+                                child: profilePicture.isEmpty
+                                    ? Icon(Icons.person)
+                                    : null,
                               ),
+                              title: Text(friendName ?? 'Unknown'),
+                              subtitle: Text(lastMessage),
+                              trailing: Text(formatTimestamp(timestamp)),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatInterface(
+                                      userId: currentUser!.uid,
+                                      peerId: friendFireId,
+                                      userName: friendName,
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         );
@@ -793,8 +1042,4 @@ class ChatPage extends StatelessWidget {
       ),
     );
   }
-}
-
-extension on PostgrestFilterBuilder<PostgrestList> {
-  in_(String s, List<int> friendIds) {}
 }
