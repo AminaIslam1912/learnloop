@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard functionality
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:learnloop/all_feedback/swap_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../main.dart';
 import '../supabase_config.dart';
 import 'Achievement.dart';
 import 'EditProfile.dart';
@@ -29,8 +27,8 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile>
     with SingleTickerProviderStateMixin {
   String name = "";
-  String email = ""; //mrittikasaigal@gmail.com
-  String profilePicture =  "assets/moha.jpg";
+  String email = "";
+  String profilePicture =  "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
   bool isEditMode = false;
   bool isLoading = false;
   bool get isOwner =>
@@ -41,6 +39,32 @@ class _UserProfileState extends State<UserProfile>
   String location = "";
   List<String> achievements = [];
   List<String> skills = []; // Default skills
+  bool isFriend = false;
+
+  Future<void> checkFriend(int loggedId, int userId) async {
+    try {
+      final response = await SupabaseConfig.client
+          .from('users')
+          .select('friends')
+          .eq('id', loggedId)  // Get the specific user's record
+          .single();
+
+      List<dynamic> friendsList = response['friends'] as List;
+      print("firends are $friendsList");
+      List<int> friendIds = friendsList.map((friend) => friend['id'] as int).toList();
+      print("firends are $friendIds");
+
+      setState(() {
+        isFriend = friendIds.contains(userId);
+      });
+
+    } catch (e) {
+      print('Error updating friend status: $e');
+      setState(() {
+        isFriend = false;
+      });
+    }
+  }
 
 
 
@@ -153,9 +177,10 @@ class _UserProfileState extends State<UserProfile>
   void initState() {
     super.initState();
     fetchUserData();
-
+    checkFriend(widget.loggedInUserId, widget.profileUserId);
 
   }
+
 
 
   Future<void> _launchEmail(String email) async {
@@ -177,7 +202,7 @@ class _UserProfileState extends State<UserProfile>
     return Scaffold(
         appBar: AppBar(
           title: const Text("User Profile"),
-          backgroundColor:Color(0xFF009252),
+          backgroundColor:const Color(0xFF009252),
         ),
         body: isLoading
             ? const Center(
@@ -283,7 +308,7 @@ class _UserProfileState extends State<UserProfile>
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 20),
                             decoration: BoxDecoration(
-                              color: Color(0xFF009252),
+                              color: const Color(0xFF009252),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -296,7 +321,7 @@ class _UserProfileState extends State<UserProfile>
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: InkWell(
                           onTap: () {},
@@ -304,7 +329,7 @@ class _UserProfileState extends State<UserProfile>
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 20),
                             decoration: BoxDecoration(
-                              color: Color(0xFF009252),
+                              color: const Color(0xFF009252),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text(
@@ -318,13 +343,92 @@ class _UserProfileState extends State<UserProfile>
                       const SizedBox(width: 10),
                       PopupMenuButton(
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
-                              value: 1, child: Text("Copy Profile Link")),
+                          PopupMenuItem(
+                            value: 1,
+                            child: Opacity(
+                              opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
+                              child: const Text("Give Feedback", style: TextStyle(
+                                  color: Colors.white, fontSize: 13.0),),
+                            ),
+                          ),
                         ],
-                      ),
+                        onSelected: (value) {
+                          if (value == 1) {
+                            print("id  $isFriend");
+                            isOwner
+                                ? print("Owner, no feedback")
+                                : (isFriend
+                                ? showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SwapFeedback( loggedInUserId: widget.loggedInUserId,
+                                  profileUserId: widget.profileUserId,);
+                              },
+                            )
+                                : ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("You must be friends to give feedback")),
+                            ));
+                          }
+                        },
+                      )
+                      // PopupMenuButton(
+                      //   itemBuilder: (context) => [
+                      //     PopupMenuItem(
+                      //       value: 1,
+                      //       child: Opacity(
+                      //         opacity: isOwner ? 0.5 : 1.0,  // Reduce opacity if isOwner is true
+                      //         child: const Text("Give Feedback", style: TextStyle(
+                      //             color: Colors.white, fontSize: 13.0),),
+                      //       ),
+                      //     ),
+                      //   ],
+                      //   onSelected: (value) {
+                      //     if (value == 1) {
+                      //        // Set this based on your logic
+                      //
+                      //       // If isOwner is false, show the feedback form, otherwise, do nothing
+                      //       isOwner
+                      //           ? print("Owner, no feedback") // If true, do nothing or handle owner logic
+                      //           : showDialog(
+                      //         context: context,
+                      //         builder: (BuildContext context) {
+                      //           return SwapFeedback(); // Show FeedbackForm for non-owners
+                      //         },
+                      //       );
+                      //     }
+                      //   },
+                      // )
+
+                      // PopupMenuButton(
+                      //   itemBuilder: (context) => [
+                      //     const PopupMenuItem(
+                      //       value: 1,
+                      //       child: Text("Give Feedback"),
+                      //     ),
+                      //   ],
+                      //   onSelected: (value) {
+                      //     if (value == 1) {
+                      //       // Show the feedback form in a dialog
+                      //       showDialog(
+                      //         context: context,
+                      //         builder: (BuildContext context) {
+                      //           return SwapFeedback();
+                      //         },
+                      //       );
+                      //     }
+                      //   },
+                      // )
+
+
+                      // PopupMenuButton(
+                      //   itemBuilder: (context) => [
+                      //     const PopupMenuItem(
+                      //         value: 1, child: Text("Give Feedback")),
+                      //   ],
+                      // ),
                     ],
                   ),
-
+                  const SizedBox(height: 16),
                   // Email Section with Clipboard functionality
                   GestureDetector(
                     onLongPress: () {
@@ -364,8 +468,27 @@ class _UserProfileState extends State<UserProfile>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          occupation,
+                          //occupation,
+                          occupation.isNotEmpty ? occupation : "N/A",
                           style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_city, color: Color(0xFF009252)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          //location,
+                          location.isNotEmpty ? location : "N/A",
+                          style: const TextStyle(
+                              color: Colors.white,
                               fontSize: 16, overflow: TextOverflow.ellipsis),
                         ),
                       ),
@@ -388,7 +511,7 @@ class _UserProfileState extends State<UserProfile>
                         children: achievements.take(3).map((skill) {
                           return Chip(
                             label: Text(skill),
-                            backgroundColor: Color(0xFF009252),
+                            backgroundColor: Colors.black,
                           );
                         }).toList(),
                       ),
@@ -396,6 +519,9 @@ class _UserProfileState extends State<UserProfile>
                       Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF009252), // Set the button color
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -413,20 +539,6 @@ class _UserProfileState extends State<UserProfile>
                     ],
                   ),
 
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_city, color: Color(0xFF009252)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          location,
-                          style: const TextStyle(
-                              fontSize: 16, overflow: TextOverflow.ellipsis),
-                        ),
-                      ),
-                    ],
-                  ),
 
                   // Skills Section with Slide-in effect
                   const SizedBox(height: 16),
@@ -446,7 +558,7 @@ class _UserProfileState extends State<UserProfile>
                         children: skills.take(3).map((skill) {
                           return Chip(
                             label: Text(skill),
-                            backgroundColor: Color(0xFF009252),
+                            backgroundColor: Colors.black,
                           );
                         }).toList(),
                       ),
@@ -454,6 +566,9 @@ class _UserProfileState extends State<UserProfile>
                       Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF009252), // Set the button color
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -473,9 +588,12 @@ class _UserProfileState extends State<UserProfile>
 
                   // Feedback Button with Hero Animation
                   const SizedBox(height: 8),
-                  Hero(
-                    tag: 'feedbackButton',
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF009252), // Set the button color
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -487,6 +605,7 @@ class _UserProfileState extends State<UserProfile>
                       child: const Text("Feedback",style: TextStyle(color: Colors.white)),
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -495,4 +614,3 @@ class _UserProfileState extends State<UserProfile>
     );
   }
 }
-

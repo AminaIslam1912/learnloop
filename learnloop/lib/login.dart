@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isLoading = false;
   String _errorMessage = '';
+  bool _isPasswordVisible = false;
 
   Future<void> _login() async {
     final email = _emailController.text;
@@ -47,14 +48,14 @@ class _LoginPageState extends State<LoginPage> {
       }else{
         // Login is successful
         final user = response.user; // Get the user info
-      //  Print all user info
-      //   print('User Info:');
-      //   print('ID: ${user?.id}');
-      //   print('Email: ${user?.email}');
-      //   print('Created At: ${user?.createdAt}');
-      //   print('Updated At: ${user?.updatedAt}');
-      //  print('User Metadata: ${user?.userMetadata}');
-     //   print('App Metadata: ${user?.appMetadata}');
+        //  Print all user info
+        //   print('User Info:');
+        //   print('ID: ${user?.id}');
+        //   print('Email: ${user?.email}');
+        //   print('Created At: ${user?.createdAt}');
+        //   print('Updated At: ${user?.updatedAt}');
+        //  print('User Metadata: ${user?.userMetadata}');
+        //   print('App Metadata: ${user?.appMetadata}');
         // Set the user in the provider
         context.read<UserProvider>().setUser(user!);
         print("loooooooooogin success");
@@ -75,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
       //   context,
       //   MaterialPageRoute(builder: (context) =>  const CommunityUI()),
       // );
-   //   Navigator.pop(context);
+      //   Navigator.pop(context);
 
 
       print("login successful");
@@ -130,12 +131,13 @@ class _LoginPageState extends State<LoginPage> {
                     hintStyle: const TextStyle(color: Colors.white70),
 
                   ),
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
                 const Text('Password', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration:InputDecoration(hintText: 'Enter Password',
                     filled: true,
                     fillColor: Colors.grey[850],
@@ -149,6 +151,19 @@ class _LoginPageState extends State<LoginPage> {
                           color: Color(0xFF009252), width: 2),
                     ),
                     hintStyle: const TextStyle(color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),

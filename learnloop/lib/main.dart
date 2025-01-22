@@ -79,7 +79,9 @@ void main() async {
 
   // Initialize Supabase with the SupabaseConfig class
   await SupabaseConfig.initialize();
- // runApp(const MyApp());
+  // runApp(const MyApp());
+  //await Firebase.initializeApp();
+
 
   runApp(
     MultiProvider(
@@ -108,12 +110,16 @@ class MyApp extends StatelessWidget {
         // Add other routes as needed
         // '/home/suggested': (context) => SuggestedForYou(),
         '/home/community': (context) => CommunityUI(),
-        '/home/funChallenge': (context) =>  FunChallengeScreen(),
+        //'/home/funChallenge': (context) =>  FunChallengeScreen(),
         '/home/about': (context) => AboutScreen(),
         '/login':(context)=>LoginPage(),
         '/sign_up':(context)=>SignUpPage(),
-         //'/home/fun':(context)=>FunChallengeScreen()
+        //'/home/fun':(context)=>FunChallengeScreen()
       },
     );
+  }
+  Future<void> _loadSession(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+   // await userProvider.loadSession(); // Load the session into the UserProvider
   }
 }

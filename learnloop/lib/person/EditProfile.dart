@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../supabase_config.dart';
@@ -25,7 +27,7 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   String name = "";
   String email = "";
-  String profilePicture = "assets/moha.jpg";
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
   bool isLoading = false;
   bool get isOwner =>
       widget.loggedInUserId == widget.profileUserId; // Check ownership
@@ -85,6 +87,15 @@ class _EditProfileState extends State<EditProfile> {
         bio = _bioController.text;
         occupation = _occupationController.text;
         location = _locationController.text;
+      });
+
+      // Pass updated data back to the previous screen
+      Navigator.pop(context, {
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'bio': _bioController.text,
+        'occupation': _occupationController.text,
+        'location': _locationController.text,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -189,6 +200,14 @@ class _EditProfileState extends State<EditProfile> {
       setState(() => isLoading = true);
 
       try {
+
+        // Check if there's already a profile picture and delete it if it exists
+        if (profilePicture != "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" && profilePicture.startsWith('https://')) {
+          final fileName = profilePicture.split('/').last; // Extract file name
+          await Supabase.instance.client.storage
+              .from('profile_picture')
+              .remove([fileName]);
+        }
         // File name for the uploaded image
         final fileName = '${widget.profileUserId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
@@ -253,7 +272,7 @@ class _EditProfileState extends State<EditProfile> {
           .eq('id', widget.profileUserId);
 
       setState(() {
-        profilePicture = "assets/moha.jpg"; // Reset to default
+        profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"; // Reset to default
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -280,26 +299,24 @@ class _EditProfileState extends State<EditProfile> {
           .eq('id', widget.profileUserId)
           .single();
 
-      if (response != null) {
-        setState(() {
-          name = response['name'] ?? "";
-          email = response['email'] ?? "";
-          bio = response['bio'] ?? "";
-          occupation = response['occupation'] ?? "";
-          location = response['location'] ?? "";
-          profilePicture = response['profile_picture'] ?? "assets/moha.jpg";
-          achievements = List<String>.from(response['achievements'] ?? []);
-          skills = List<String>.from(response['skills'] ?? []);
-        });
+      setState(() {
+        name = response['name'] ?? "";
+        email = response['email'] ?? "";
+        bio = response['bio'] ?? "";
+        occupation = response['occupation'] ?? "";
+        location = response['location'] ?? "";
+        profilePicture = response['profile_picture'] ?? profilePicture;
+        achievements = List<String>.from(response['achievements'] ?? []);
+        skills = List<String>.from(response['skills'] ?? []);
+      });
 
-        // Set the initial values for controllers
-        _nameController.text = name;
-        _emailController.text = email;
-        _bioController.text = bio;
-        _occupationController.text = occupation;
-        _locationController.text = location;
+      // Set the initial values for controllers
+      _nameController.text = name;
+      _emailController.text = email;
+      _bioController.text = bio;
+      _occupationController.text = occupation;
+      _locationController.text = location;
 
-      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching data: $e")),
@@ -313,6 +330,11 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    bool canDeletePic = profilePicture != "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
+
+
 
     return Scaffold(
       appBar: AppBar(
@@ -339,28 +361,76 @@ class _EditProfileState extends State<EditProfile> {
               Row(
                 children: [
                   GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FullScreenImage(
-                              imagePath: profilePicture, isNetworkImage: profilePicture.startsWith('https://'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FullScreenImage(
+                            imagePath: profilePicture,
+                            isNetworkImage: profilePicture.startsWith('https://'),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      alignment: Alignment.bottomRight, // Position the edit icon at the bottom right
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: profilePicture.startsWith('https://')
+                              ? NetworkImage(profilePicture)
+                              : AssetImage(profilePicture) as ImageProvider,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Show options for update and delete
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    height: 150,
+                                    child: Column(
+                                      children: [
+                                        ListTile(
+                                          leading: Icon(Icons.edit),
+                                          title: Text('Update'),
+                                          onTap: () {
+                                            // Handle the update action here
+                                            uploadProfilePicture();
+                                            Navigator.pop(context); // Close the bottom sheet
+                                          },
+                                        ),
+                                        Opacity(
+                                          opacity: canDeletePic ? 1.0 : 0.5, // Change opacity here
+                                          child: ListTile(
+                                            leading: const Icon(Icons.delete),
+                                            title: const Text('Delete'),
+                                            onTap: canDeletePic ? () {
+                                              deleteProfilePicture();
+                                              Navigator.pop(context);
+                                            } : null,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: const CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.green,
+                              child: Icon(Icons.edit, color: Colors.black),
                             ),
                           ),
-                        );
-                      },
-                      // child: CircleAvatar(
-                      //   radius: 50,
-                      //   backgroundImage: AssetImage(profilePicture),
-                      // ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: profilePicture.startsWith('https://')
-                            ? NetworkImage(profilePicture)
-                            : AssetImage(profilePicture) as ImageProvider,
-                      )
-
+                        ),
+                      ],
+                    ),
                   ),
+
 
                   Expanded(
                     child: Padding(
@@ -372,40 +442,43 @@ class _EditProfileState extends State<EditProfile> {
                           labelText: 'Edit Bio',
                           border: OutlineInputBorder(),
                         ),
+                        // onChanged: (value) {
+                        //   userProfileProvider.bio = value; // Update the bio
+                        // },
                       ),
                     ),
                   ),
                 ],
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: uploadProfilePicture,
-                    child: const Text("Upload Picture"),
-                  ),
-                  ElevatedButton(
-                    onPressed: deleteProfilePicture,
-                    child: const Text("Delete Picture"),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              // Column(
+              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //   children: [
+              //     ElevatedButton(
+              //       onPressed: uploadProfilePicture,
+              //       child: const Text("Upload Picture"),
+              //     ),
+              //     ElevatedButton(
+              //       onPressed: deleteProfilePicture,
+              //       child: const Text("Delete Picture"),
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(height: 16),
+              // TextField(
+              //   controller: _nameController,
+              //   decoration: const InputDecoration(
+              //     labelText: 'Name',
+              //     border: OutlineInputBorder(),
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
+              // TextField(
+              //   controller: _emailController,
+              //   decoration: const InputDecoration(
+              //     labelText: 'Email',
+              //     border: OutlineInputBorder(),
+              //   ),
+              // ),
               const SizedBox(height: 16),
               TextField(
                 controller: _occupationController,
@@ -427,36 +500,47 @@ class _EditProfileState extends State<EditProfile> {
                 "Achievements",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
               ),
+              const SizedBox(height: 16),
               Wrap(
                 spacing: 5,
                 runSpacing: 5,
                 children: achievements.take(3).map((achievement) {
                   return Chip(
                     label: Text(achievement),
-                    backgroundColor: Colors.orangeAccent[100],
+                    backgroundColor: Colors.black,
+
                   );
                 }).toList(),
               ),
               ElevatedButton(
                 onPressed: _editAchievement,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF009252), // Set the button color
+                ),
                 child: const Text("Edit Achievements",style: TextStyle(color: Colors.white)),
+
               ),
               const SizedBox(height: 16),
               const Text(
                 "Skills",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
               ),
+              const SizedBox(height: 16),
               Wrap(
                 spacing: 5,
                 runSpacing: 5,
                 children: skills.take(3).map((skill) {
                   return Chip(
                     label: Text(skill),
-                    backgroundColor: Colors.greenAccent[100],
+                    backgroundColor: Colors.black,
                   );
                 }).toList(),
               ),
+              const SizedBox(height: 16),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF009252), // Set the button color
+                ),
                 onPressed: _editSkills,
                 child: const Text("Edit Skills",style: TextStyle(color: Colors.white)),
               ),

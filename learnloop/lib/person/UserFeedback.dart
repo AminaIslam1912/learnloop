@@ -18,6 +18,8 @@ class _UserFeedbackState extends State<UserFeedback> {
   List<Map<String, dynamic>> filteredFeedback = [];
   List<Map<String, dynamic>> feedbackData = [];
   bool isLoading = true;
+  String profilePicture =  "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+
 
   final SupabaseClient supabase = Supabase.instance.client;
 
@@ -97,7 +99,7 @@ class _UserFeedbackState extends State<UserFeedback> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Feedback'),
-        backgroundColor: Colors.blue,
+        backgroundColor:const Color(0xFF009252),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -138,7 +140,7 @@ class _UserFeedbackState extends State<UserFeedback> {
                             // Use the profile picture URL if available, otherwise fall back to a default image
                             backgroundImage: feedback['profile_picture'] != null
                                 ? NetworkImage(feedback['profile_picture'])
-                                : const AssetImage("assets/moha.jpg") as ImageProvider,
+                                :  NetworkImage(profilePicture) ,
                             radius: 30,
                           ),
                           const SizedBox(width: 10),
