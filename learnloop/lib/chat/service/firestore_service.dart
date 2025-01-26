@@ -20,6 +20,7 @@ class FirestoreService {
         'senderId': senderId,
         'receiverId': receiverId,
         'message': message,
+        'isSeen': false,
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {

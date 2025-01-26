@@ -48,6 +48,7 @@ dependencies:
   cloud_firestore: ^5.6.1
   firebase_storage: ^12.4.0
   intl: ^0.20.1
+  file_picker: ^8.1.7
 
 
 dev_dependencies:

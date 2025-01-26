@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // For formatting date and time
 import 'package:learnloop/chat/service/firestore_service.dart';
-import 'package:learnloop/chat/screen/ChatPage.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ChatInterface extends StatefulWidget {
   final String userId; // Current logged-in user's ID
@@ -47,13 +45,11 @@ class _ChatInterfaceState extends State<ChatInterface> {
   /// Send a message to the Firestore database.
   void _sendMessage() {
     final message = _messageController.text.trim();
-
     if (message.isNotEmpty) {
       _firestoreService.sendMessage(
         senderId: widget.userId,
         receiverId: widget.peerId,
         message: message,
-
       );
       _messageController.clear();
     }
@@ -117,15 +113,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ChatPage()),
-            ).then((shouldRefresh) {
-              if (shouldRefresh == true) {
-                // Refresh your page or perform the necessary actions
-                setState(() {});
-              }
-            });
+            Navigator.pop(context); // Navigate back
           },
         ),
         title: Row(
@@ -145,10 +133,11 @@ class _ChatInterfaceState extends State<ChatInterface> {
         actions: [
           IconButton(
             icon: Icon(Icons.call),// Icon for "Join Classroom"
-            onPressed: () async {
-              const String meetLink = 'https://meet.google.com/landing'; // Static meet link
-
-              await launchUrl(Uri.parse(meetLink), mode: LaunchMode.externalApplication);
+            onPressed: () {
+              // Implement your logic for joining a classroom
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Join Classroom clicked')),
+              );
             },
           ),
           IconButton(
