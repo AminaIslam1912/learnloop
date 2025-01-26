@@ -64,6 +64,7 @@ import 'package:learnloop/supabase_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'UserProvider.dart';
+import 'chat/screen/ChatPage.dart';
 import 'homelander/community/Community_ui.dart';
 import 'homelander/about_us.dart';
 import 'homelander/fun_challenge.dart';
@@ -117,6 +118,7 @@ class MyApp extends StatelessWidget {
         '/login':(context)=>LoginPage(),
         '/sign_up':(context)=>SignUpPage(),
          //'/home/fun':(context)=>FunChallengeScreen()
+        '/chat':(context)=>ChatPage(),
       },
     );
   }

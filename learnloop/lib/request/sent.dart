@@ -362,6 +362,8 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
   List<Map<String, dynamic>> sentProfiles = []; // List to store fetched profiles
   bool isLoading = true;
   int? _userId;
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+
 
   @override
   void initState() {
@@ -554,15 +556,21 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
           if (userId == null) {
             return SizedBox.shrink(); // Skip invalid profiles
           }
-          return buildSentCard(
-            userId: userId,
-            name: profile['name'] ?? 'Unknown',
-           // role: profile['occupation'], // Replace with appropriate role if available
-            stats: {},
-            ratings: profile['rating']?.toString() ?? 'N/A',
-            profileImageUrl: profile['profile_picture'] ??
-                'https://via.placeholder.com/150',
-            status: profile['status']
+          return Padding(
+            padding: const EdgeInsets.all( 8.0),
+            child: buildSentCard(
+              userId: userId,
+              name: profile['name'] ?? 'Unknown',
+             // role: profile['occupation'], // Replace with appropriate role if available
+              stats: {},
+              ratings: profile['rating']?.toString() ?? 'N/A',
+              // profileImageUrl: profile['profile_picture'] ??
+              //     'https://via.placeholder.com/150',
+                profileImageUrl : (profile['profile_picture'] != null && profile['profile_picture'].isNotEmpty)
+                    ? profile['profile_picture']
+                    : profilePicture,
+              status: profile['status']
+            ),
           );
         },
       ),
@@ -582,8 +590,13 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
       onTap: () {
         navigateToUserProfile(userId);
       },
+    child: Container(
+    decoration: BoxDecoration(
+    border: Border.all(color: Colors.green, width: 2), // Green border
+    borderRadius: BorderRadius.circular(16),
+    ),
       child: Card(
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.white.withOpacity(0.2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -613,28 +626,29 @@ class _SentRequestsTabState extends State<SentRequestsTab> {
                   ],
                 ),
               ),
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  // Handle menu selection
-                },
-                itemBuilder: (BuildContext context) {
-                  return [
-                    PopupMenuItem<String>(
-                        value: 'Seen', child: Text('Seen')),
-                    PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                        value: 'Accepted', child: Text('Accepted')),
-                    PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                        value: 'Declined', child: Text('Declined')),
-                  ];
-                },
-                icon: Icon(Icons.more_vert, color: Colors.white),
-              ),
+              // PopupMenuButton<String>(
+              //   onSelected: (value) {
+              //     // Handle menu selection
+              //   },
+              //   itemBuilder: (BuildContext context) {
+              //     return [
+              //       PopupMenuItem<String>(
+              //           value: 'Seen', child: Text('Seen')),
+              //       PopupMenuDivider(),
+              //       PopupMenuItem<String>(
+              //           value: 'Accepted', child: Text('Accepted')),
+              //       PopupMenuDivider(),
+              //       PopupMenuItem<String>(
+              //           value: 'Declined', child: Text('Declined')),
+              //     ];
+              //   },
+              //   icon: Icon(Icons.more_vert, color: Colors.white),
+              // ),
             ],
           ),
         ),
       ),
+    )
     );
   }
 }

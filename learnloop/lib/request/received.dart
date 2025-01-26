@@ -602,6 +602,8 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
   List<Map<String, dynamic>> receivedProfiles = [];
   bool isLoading = true;
   int? _userId;
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+
 
   @override
   void initState() {
@@ -717,7 +719,7 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
       child: isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(8.0),
         itemCount: receivedProfiles.length,
         itemBuilder: (context, index) {
           final profile = receivedProfiles[index];
@@ -731,8 +733,11 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
             role: profile['role'] ?? 'Unknown',
             stats: {},
             ratings: profile['ratings']?.toString() ?? 'N/A',
-            profileImageUrl: profile['profile_picture'] ??
-                'https://via.placeholder.com/150',
+            // profileImageUrl: profile['profile_picture'] ??
+            //     'https://via.placeholder.com/150',
+            profileImageUrl : (profile['profile_picture'] != null && profile['profile_picture'].isNotEmpty)
+                ? profile['profile_picture']
+                : profilePicture,
             actionButtons: ["Accept", "Decline"],
             status:profile['status'],
           );
@@ -766,6 +771,198 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
     );
   }
 
+  // Widget buildReceivedCard({
+  //   required int userId,
+  //   required String name,
+  //   required String role,
+  //   required Map<String, String> stats,
+  //   required List<String> actionButtons,
+  //   required String profileImageUrl,
+  //   required String ratings,
+  //   required String status,
+  // }) {
+  //   return GestureDetector(
+  //     onTap: () {
+  //       navigateToUserProfile(userId);
+  //     },
+  //     child: Card(
+  //       color: Colors.black.withOpacity(0.5),
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //       child: Padding(
+  //         padding: const EdgeInsets.all(16.0),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 CircleAvatar(
+  //                   backgroundImage: NetworkImage(profileImageUrl),
+  //                   radius: 30,
+  //                 ),
+  //                 SizedBox(width: 16),
+  //                 Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(name,
+  //                           style: TextStyle(
+  //                               fontSize: 18,
+  //                               fontWeight: FontWeight.bold,
+  //                               color: Colors.white)),
+  //                       Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             SizedBox(height: 16),
+  //             Row(
+  //               children: actionButtons.map((btn) {
+  //                 return Expanded(
+  //                   child: ElevatedButton(
+  //                     onPressed: () async {
+  //                       if (btn == "Accept") {
+  //                         await handleAcceptAction(userId);
+  //                       }
+  //                       // Handle button actions
+  //                       else if (btn == "Decline") {
+  //                         await handleDeclineAction(userId);
+  //                       }
+  //                     },
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: btn == "Decline"
+  //                           ? Color(0xFFFDA89C)
+  //                           : Color(0xFF679186),
+  //                       foregroundColor:
+  //                       btn == "Decline" ? Colors.black : Colors.white,
+  //                     ),
+  //                     child: Text(btn),
+  //                   ),
+  //                 );
+  //               }).toList(),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Widget buildReceivedCard({
+  //   required int userId,
+  //   required String name,
+  //   required String role,
+  //   required Map<String, String> stats,
+  //   required List<String> actionButtons,
+  //   required String profileImageUrl,
+  //   required String ratings,
+  //   required String status,
+  // }) {
+  //   return GestureDetector(
+  //     onTap: () {
+  //       navigateToUserProfile(userId);
+  //     },
+  //   child: Container(
+  //   decoration: BoxDecoration(
+  //   border: Border.all(color: Colors.green, width: 2), // Green border
+  //   borderRadius: BorderRadius.circular(16), // Rounded corners for the border
+  //   ),
+  //     child: Card(
+  //       color: Colors.black.withOpacity(0.5),
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //       child: Padding(
+  //         padding: const EdgeInsets.all(16.0),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 CircleAvatar(
+  //                   backgroundImage: NetworkImage(profileImageUrl),
+  //                   radius: 30,
+  //                 ),
+  //                 SizedBox(width: 16),
+  //                 Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(name,
+  //                           style: TextStyle(
+  //                               fontSize: 18,
+  //                               fontWeight: FontWeight.bold,
+  //                               color: Colors.white)),
+  //                       Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
+  //                       Row(
+  //                         children: actionButtons.map((btn) {
+  //                           if (btn == "Accept") {
+  //                             return IconButton(
+  //                               onPressed: () async {
+  //                                 await handleAcceptAction(userId);
+  //                               },
+  //                               icon: Icon(
+  //                                 Icons.check_circle,
+  //                                 color: Colors.green,
+  //                               ),
+  //                             );
+  //                           } else if (btn == "Decline") {
+  //                             return IconButton(
+  //                               onPressed: () async {
+  //                                 await handleDeclineAction(userId);
+  //                               },
+  //                               icon: Icon(
+  //                                 Icons.cancel,
+  //                                 color: Colors.red,
+  //                               ),
+  //                             );
+  //                           } else {
+  //                             return SizedBox.shrink(); // If there are any other buttons
+  //                           }
+  //                         }).toList(),
+  //                       ),
+  //
+  //
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             // SizedBox(height: 16),
+  //             // Row(
+  //             //   children: actionButtons.map((btn) {
+  //             //     if (btn == "Accept") {
+  //             //       return IconButton(
+  //             //         onPressed: () async {
+  //             //           await handleAcceptAction(userId);
+  //             //         },
+  //             //         icon: Icon(
+  //             //           Icons.check_circle,
+  //             //           color: Colors.green,
+  //             //         ),
+  //             //       );
+  //             //     } else if (btn == "Decline") {
+  //             //       return IconButton(
+  //             //         onPressed: () async {
+  //             //           await handleDeclineAction(userId);
+  //             //         },
+  //             //         icon: Icon(
+  //             //           Icons.cancel,
+  //             //           color: Colors.red,
+  //             //         ),
+  //             //       );
+  //             //     } else {
+  //             //       return SizedBox.shrink(); // If there are any other buttons
+  //             //     }
+  //             //   }).toList(),
+  //             // ),
+  //             //
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   )
+  //   );
+  // }
+
   Widget buildReceivedCard({
     required int userId,
     required String name,
@@ -780,68 +977,75 @@ class _ReceivedRequestsTabState extends State<ReceivedRequestsTab> {
       onTap: () {
         navigateToUserProfile(userId);
       },
-      child: Card(
-        color: Colors.black.withOpacity(0.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(profileImageUrl),
-                    radius: 30,
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(name,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
-                        Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
-                      ],
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.green, width: 2), // Green border
+          borderRadius: BorderRadius.circular(12), // Rounded corners for the border
+        ),
+        child: Card(
+          color: Colors.white.withOpacity(0.2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(profileImageUrl),
+                      radius: 25,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Row(
-                children: actionButtons.map((btn) {
-                  return Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (btn == "Accept") {
-                          await handleAcceptAction(userId);
-                        }
-                        // Handle button actions
-                        else if (btn == "Decline") {
-                          await handleDeclineAction(userId);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: btn == "Decline"
-                            ? Color(0xFFFDA89C)
-                            : Color(0xFF679186),
-                        foregroundColor:
-                        btn == "Decline" ? Colors.black : Colors.white,
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
+                          Text(role, style: TextStyle(color: Color(0xE1DADAFF))),
+                          Row(
+                            children: [
+                              // Accept IconButton
+                              IconButton(
+                                onPressed: () async {
+                                  await handleAcceptAction(userId);
+                                },
+                                icon: Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              SizedBox(width: 20), // Space between Accept and Decline icons
+                              // Decline IconButton
+                              IconButton(
+                                onPressed: () async {
+                                  await handleDeclineAction(userId);
+                                },
+                                icon: Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      child: Text(btn),
                     ),
-                  );
-                }).toList(),
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+
 
   Future<void> handleAcceptAction(int friendId) async {
     try {

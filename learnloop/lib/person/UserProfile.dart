@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard functionality
 import 'package:learnloop/all_feedback/swap_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../chat/screen/ChatPage.dart';
 import '../supabase_config.dart';
 import 'Achievement.dart';
 import 'EditProfile.dart';
@@ -28,7 +29,7 @@ class _UserProfileState extends State<UserProfile>
     with SingleTickerProviderStateMixin {
   String name = "";
   String email = "";
-  String profilePicture =  "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
   bool isEditMode = false;
   bool isLoading = false;
   bool get isOwner =>
@@ -95,7 +96,10 @@ class _UserProfileState extends State<UserProfile>
 
           occupation = response['occupation'] ?? occupation;
           location = response['location'] ?? location;
-          profilePicture = response['profile_picture'] ?? profilePicture;
+         // profilePicture = response['profile_picture'] ?? profilePicture;
+          profilePicture = (response['profile_picture'] != null && response['profile_picture'].isNotEmpty)
+              ? response['profile_picture']
+              : profilePicture;
           achievements = List<String>.from(response['achievements'] ?? []);
           //print("achievements: $achievements");
           skills = List<String>.from(response['skills'] ?? []);
@@ -197,12 +201,31 @@ class _UserProfileState extends State<UserProfile>
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("User Profile"),
           backgroundColor:const Color(0xFF009252),
+          actions: [
+            if (isOwner)
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProfile(
+                        loggedInUserId: widget.loggedInUserId,
+                        profileUserId: widget.profileUserId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
         body: isLoading
             ? const Center(
@@ -269,86 +292,41 @@ class _UserProfileState extends State<UserProfile>
                             bio.isNotEmpty ? bio : "",
                             style: const TextStyle(
                                 fontSize: 18.0, fontWeight: FontWeight.bold,color: Colors.white),
-                          )
+                          ),
+
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // User Name Section
-                  Text(
-                    name,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
-                  ),
                   const SizedBox(height: 8),
 
-                  // Buttons: Swap, Message, Popup Menu
+                  // User Name Section
+                  // Text(
+                  //   name,
+                  //   style: const TextStyle(
+                  //       fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
+                  // ),
+
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap:
-                          isOwner // Only allow navigation to EditProfile if the user is the owner
-                              ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    EditProfile(
-                                      loggedInUserId: widget.loggedInUserId,
-                                      profileUserId: widget.profileUserId,
-                                    ),
-                              ),
-                            );
-                          }
-                              : () {}, // Do nothing if not the owner
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF009252),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              isOwner
-                                  ? 'Edit'
-                                  : 'Swap', // Change the label if owner
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 13.0),
-                            ),
-                          ),
-                        ),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF009252),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              'Message',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 13.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
+                      //const SizedBox(width: 8),  // Adds some space between the name and the popup button
+                      Expanded(child: Container()),  // Fills remaining space to push the popup button to the right
                       PopupMenuButton(
                         itemBuilder: (context) => [
                           PopupMenuItem(
                             value: 1,
                             child: Opacity(
                               opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
-                              child: const Text("Give Feedback", style: TextStyle(
-                                  color: Colors.white, fontSize: 13.0),),
+                              child: const Text(
+                                "Give Feedback",
+                                style: TextStyle(color: Colors.white, fontSize: 13.0),
+                              ),
                             ),
                           ),
                         ],
@@ -361,8 +339,10 @@ class _UserProfileState extends State<UserProfile>
                                 ? showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return SwapFeedback( loggedInUserId: widget.loggedInUserId,
-                                  profileUserId: widget.profileUserId,);
+                                return SwapFeedback(
+                                  loggedInUserId: widget.loggedInUserId,
+                                  profileUserId: widget.profileUserId,
+                                );
                               },
                             )
                                 : ScaffoldMessenger.of(context).showSnackBar(
@@ -370,64 +350,208 @@ class _UserProfileState extends State<UserProfile>
                             ));
                           }
                         },
-                      )
-                      // PopupMenuButton(
-                      //   itemBuilder: (context) => [
-                      //     PopupMenuItem(
-                      //       value: 1,
-                      //       child: Opacity(
-                      //         opacity: isOwner ? 0.5 : 1.0,  // Reduce opacity if isOwner is true
-                      //         child: const Text("Give Feedback", style: TextStyle(
-                      //             color: Colors.white, fontSize: 13.0),),
-                      //       ),
-                      //     ),
-                      //   ],
-                      //   onSelected: (value) {
-                      //     if (value == 1) {
-                      //        // Set this based on your logic
-                      //
-                      //       // If isOwner is false, show the feedback form, otherwise, do nothing
-                      //       isOwner
-                      //           ? print("Owner, no feedback") // If true, do nothing or handle owner logic
-                      //           : showDialog(
-                      //         context: context,
-                      //         builder: (BuildContext context) {
-                      //           return SwapFeedback(); // Show FeedbackForm for non-owners
-                      //         },
-                      //       );
-                      //     }
-                      //   },
-                      // )
-
-                      // PopupMenuButton(
-                      //   itemBuilder: (context) => [
-                      //     const PopupMenuItem(
-                      //       value: 1,
-                      //       child: Text("Give Feedback"),
-                      //     ),
-                      //   ],
-                      //   onSelected: (value) {
-                      //     if (value == 1) {
-                      //       // Show the feedback form in a dialog
-                      //       showDialog(
-                      //         context: context,
-                      //         builder: (BuildContext context) {
-                      //           return SwapFeedback();
-                      //         },
-                      //       );
-                      //     }
-                      //   },
-                      // )
-
-
-                      // PopupMenuButton(
-                      //   itemBuilder: (context) => [
-                      //     const PopupMenuItem(
-                      //         value: 1, child: Text("Give Feedback")),
-                      //   ],
-                      // ),
+                      ),
                     ],
                   ),
+
+
+
+                  const SizedBox(height: 8),
+
+
+
+                  // Buttons: Swap, Message, Popup Menu
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: InkWell(
+                  //         onTap:
+                  //         isOwner // Only allow navigation to EditProfile if the user is the owner
+                  //             ? () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //               builder: (context) =>
+                  //                   EditProfile(
+                  //                     loggedInUserId: widget.loggedInUserId,
+                  //                     profileUserId: widget.profileUserId,
+                  //                   ),
+                  //             ),
+                  //           );
+                  //         }
+                  //             : () {}, // Do nothing if not the owner
+                  //         child: Container(
+                  //           padding: const EdgeInsets.symmetric(
+                  //               vertical: 10, horizontal: 20),
+                  //           decoration: BoxDecoration(
+                  //             color: const Color(0xFF009252),
+                  //             borderRadius: BorderRadius.circular(12),
+                  //           ),
+                  //           child: Text(
+                  //             isOwner
+                  //                 ? 'Edit'
+                  //                 : 'Swap', // Change the label if owner
+                  //             style: const TextStyle(
+                  //                 color: Colors.white, fontSize: 13.0),
+                  //           ),
+                  //          // child:  ElevatedButton(
+                  //          //    onPressed: () async {
+                  //          //      // Check if the user is not the owner and perform swap or unswap accordingly
+                  //          //      if (!isOwner) {
+                  //          //        if (isSwapped) {
+                  //          //          await handleUnswap(); // Call Unswap
+                  //          //        } else {
+                  //          //          await handleSwap(); // Call Swap
+                  //          //        }
+                  //          //      }
+                  //          //    },
+                  //          //    style: ElevatedButton.styleFrom(
+                  //          //      backgroundColor: isSwapped
+                  //          //          ? Color(0xFFFDA89C) // Unswap Button Color
+                  //          //          : Color(0xFF679186), // Swap Button Color
+                  //          //    ),
+                  //          //    child: Text(
+                  //          //      isSwapped ? "Unswap" : "Swap", // Show Swap or Unswap based on isSwapped
+                  //          //      style: const TextStyle(
+                  //          //          color: Colors.white, fontSize: 13.0),
+                  //          //    ),
+                  //          //  ),
+                  //
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 16),
+                  //     if (!isOwner)
+                  //       Expanded(
+                  //        child: InkWell(
+                  //         onTap: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(builder: (context) =>  ChatPage()),
+                  //           );
+                  //         },
+                  //          child: Container(
+                  //           padding: const EdgeInsets.symmetric(
+                  //               vertical: 10, horizontal: 20),
+                  //           decoration: BoxDecoration(
+                  //             color: const Color(0xFF009252),
+                  //             borderRadius: BorderRadius.circular(12),
+                  //           ),
+                  //           child: const Text(
+                  //             'Message',
+                  //             style: TextStyle(
+                  //                 color: Colors.white, fontSize: 13.0),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 10),
+                  //     PopupMenuButton(
+                  //       itemBuilder: (context) => [
+                  //         PopupMenuItem(
+                  //           value: 1,
+                  //           child: Opacity(
+                  //             opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
+                  //             child: const Text("Give Feedback", style: TextStyle(
+                  //                 color: Colors.white, fontSize: 13.0),),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //       onSelected: (value) {
+                  //         if (value == 1) {
+                  //           print("id  $isFriend");
+                  //           isOwner
+                  //               ? print("Owner, no feedback")
+                  //               : (isFriend
+                  //               ? showDialog(
+                  //             context: context,
+                  //             builder: (BuildContext context) {
+                  //               return SwapFeedback( loggedInUserId: widget.loggedInUserId,
+                  //                 profileUserId: widget.profileUserId,);
+                  //             },
+                  //           )
+                  //               : ScaffoldMessenger.of(context).showSnackBar(
+                  //             const SnackBar(content: Text("You must be friends to give feedback")),
+                  //           ));
+                  //         }
+                  //       },
+                  //     )
+                  //     // PopupMenuButton(
+                  //     //   itemBuilder: (context) => [
+                  //     //     PopupMenuItem(
+                  //     //       value: 1,
+                  //     //       child: Opacity(
+                  //     //         opacity: isOwner ? 0.5 : 1.0,  // Reduce opacity if isOwner is true
+                  //     //         child: const Text("Give Feedback", style: TextStyle(
+                  //     //             color: Colors.white, fontSize: 13.0),),
+                  //     //       ),
+                  //     //     ),
+                  //     //   ],
+                  //     //   onSelected: (value) {
+                  //     //     if (value == 1) {
+                  //     //        // Set this based on your logic
+                  //     //
+                  //     //       // If isOwner is false, show the feedback form, otherwise, do nothing
+                  //     //       isOwner
+                  //     //           ? print("Owner, no feedback") // If true, do nothing or handle owner logic
+                  //     //           : showDialog(
+                  //     //         context: context,
+                  //     //         builder: (BuildContext context) {
+                  //     //           return SwapFeedback(); // Show FeedbackForm for non-owners
+                  //     //         },
+                  //     //       );
+                  //     //     }
+                  //     //   },
+                  //     // )
+                  //
+                  //     // PopupMenuButton(
+                  //     //   itemBuilder: (context) => [
+                  //     //     const PopupMenuItem(
+                  //     //       value: 1,
+                  //     //       child: Text("Give Feedback"),
+                  //     //     ),
+                  //     //   ],
+                  //     //   onSelected: (value) {
+                  //     //     if (value == 1) {
+                  //     //       // Show the feedback form in a dialog
+                  //     //       showDialog(
+                  //     //         context: context,
+                  //     //         builder: (BuildContext context) {
+                  //     //           return SwapFeedback();
+                  //     //         },
+                  //     //       );
+                  //     //     }
+                  //     //   },
+                  //     // )
+                  //
+                  //
+                  //     // PopupMenuButton(
+                  //     //   itemBuilder: (context) => [
+                  //     //     const PopupMenuItem(
+                  //     //         value: 1, child: Text("Give Feedback")),
+                  //     //   ],
+                  //     // ),
+                  //   ],
+                  // ),
+                  //
+                  // if (isOwner)
+                  //   IconButton(
+                  //     icon: const Icon(
+                  //       Icons.edit,
+                  //       color: Colors.white,
+                  //     ),
+                  //     onPressed: () {
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //           builder: (context) => EditProfile(
+                  //             loggedInUserId: widget.loggedInUserId,
+                  //             profileUserId: widget.profileUserId,
+                  //           ),
+                  //         ),
+                  //       );
+                  //     },
+                  //   ),
                   const SizedBox(height: 16),
                   // Email Section with Clipboard functionality
                   GestureDetector(

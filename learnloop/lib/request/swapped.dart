@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../UserProvider.dart';
+import '../chat/screen/ChatPage.dart';
 import '../person/UserProfile.dart';
 
 class Swapped extends StatefulWidget {
@@ -13,6 +14,8 @@ class _SwappedState extends State<Swapped> {
   List<Map<String, dynamic>> friendsProfiles = [];
   bool isLoading = true;
   int? _userId;
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+
 
   @override
   void initState() {
@@ -138,7 +141,26 @@ class _SwappedState extends State<Swapped> {
       body: Container(
         child: isLoading
             ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
+            :
+        // ListView.builder(
+        //   padding: EdgeInsets.all(16),
+        //   itemCount: friendsProfiles.length,
+        //   itemBuilder: (context, index) {
+        //     final profile = friendsProfiles[index];
+        //     final userId = profile['id'];
+        //     if (userId == null) {
+        //       return SizedBox.shrink(); // Skip invalid profiles
+        //     }
+        //     return buildFriendCard(
+        //       userId: userId,
+        //       name: profile['name'] ?? 'Unknown',
+        //       occupation: profile['occupation'] ?? 'Unknown',
+        //       profileImageUrl: profile['profile_picture'] ??
+        //           'https://via.placeholder.com/150',
+        //     );
+        //   },
+        // ),
+        ListView.builder(
           padding: EdgeInsets.all(16),
           itemCount: friendsProfiles.length,
           itemBuilder: (context, index) {
@@ -147,15 +169,24 @@ class _SwappedState extends State<Swapped> {
             if (userId == null) {
               return SizedBox.shrink(); // Skip invalid profiles
             }
-            return buildFriendCard(
-              userId: userId,
-              name: profile['name'] ?? 'Unknown',
-              occupation: profile['occupation'] ?? 'Unknown',
-              profileImageUrl: profile['profile_picture'] ??
-                  'https://via.placeholder.com/150',
+            return Column(
+              children: [
+                buildFriendCard(
+                  userId: userId,
+                  name: profile['name'] ?? 'Unknown',
+                  occupation: profile['occupation'] ?? 'Unknown',
+                //  profileImageUrl: profile['profile_picture'] ?? 'https://via.placeholder.com/150',
+                  profileImageUrl : (profile['profile_picture'] != null && profile['profile_picture'].isNotEmpty)
+                      ? profile['profile_picture']
+                      : profilePicture,
+
+                ),
+                SizedBox(height: 16), // This increases the gap between cards
+              ],
             );
           },
-        ),
+        )
+
       ),
     );
   }
@@ -170,46 +201,70 @@ class _SwappedState extends State<Swapped> {
       onTap: () {
         navigateToUserProfile(userId);
       },
-      child: Card(
-        color: Colors.black.withOpacity(0.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(profileImageUrl),
-                radius: 30,
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
-                    Text(occupation, style: TextStyle(color: Color(0xE1DADAFF))),
-                  ],
+      child: Container(
+      decoration: BoxDecoration(
+      border: Border.all(color: Colors.green, width: 2), // Green border
+      borderRadius: BorderRadius.circular(16),
+    ),
+      child:
+        Card(
+          color: Colors.white.withOpacity(0.2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(profileImageUrl),
+                  radius: 30,
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  print('Message button pressed for user ID: $userId');
-                  // Navigate to chat or message functionality
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF679186),
-                  foregroundColor: Colors.white,
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name,
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      Text(occupation, style: TextStyle(color: Color(0xE1DADAFF))),
+                    ],
+                  ),
                 ),
-                child: Text('Message'),
-              ),
-            ],
+                // ElevatedButton(
+                //   onPressed: () {
+                //     print('Message button pressed for user ID: $userId');
+                //     // Navigate to chat or message functionality
+                //   },
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Color(0xFF679186),
+                //     foregroundColor: Colors.white,
+                //   ),
+                //   child: Text('Message'),
+                // ),
+                // Message IconButton
+                IconButton(
+                  onPressed: () {
+                    print('Message icon pressed for user ID: $userId');
+                   // Navigator.pushReplacement(context, "/chat" as Route<Object?>);
+                  //Navigator.push(context, "/chat" as Route<Object?>)  ;
+                    Navigator.push(
+                             context,
+                             MaterialPageRoute(builder: (context) =>  ChatPage()),
+                           );
+                    // Navigate to chat or message functionality
+                  },
+                  icon: Icon(
+                    Icons.message,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      )
     );
   }
 }

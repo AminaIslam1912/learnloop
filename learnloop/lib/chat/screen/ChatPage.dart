@@ -917,12 +917,13 @@ class _ChatPageState extends State<ChatPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainPage(),
-              ),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => MainPage(),
+            //   ),
+            // );
+            Navigator.pop(context);
           },
         ),
         title: isSearching
