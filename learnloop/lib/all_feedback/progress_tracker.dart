@@ -192,6 +192,65 @@ class _ProgressTrackerState extends State<ProgressTracker> {
     }
   }
 
+  // Future<void> _fetchUserIntId() async {
+  //   try {
+  //     // Fetch the logged-in user's integer ID and data
+  //     final response = await Supabase.instance.client
+  //         .from('users')
+  //         .select('id, userFeedback, friends')
+  //         .eq('email', _user!.email as Object)
+  //         .single();
+  //
+  //     final intId = response['id'] as int;
+  //
+  //     // Parse userFeedback and friends safely
+  //     final userFeedback = response['userFeedback'] is String
+  //         ? jsonDecode(response['userFeedback']) as List
+  //         : response['userFeedback'] as List;
+  //
+  //     final friends = response['friends'] is String
+  //         ? jsonDecode(response['friends']) as List
+  //         : response['friends'] as List;
+  //
+  //     int taughtThem = userFeedback.length;
+  //
+  //     print("id is $intId");
+  //     print("them $taughtThem");
+  //
+  //     int taughtMe = 0;
+  //     for (var friend in friends) {
+  //       // Fetch each friend's userFeedback
+  //       final friendResponse = await Supabase.instance.client
+  //           .from('users')
+  //           .select('userFeedback')
+  //           .eq('id', friend['id'])
+  //           .single();
+  //
+  //       final friendFeedback = friendResponse['userFeedback'] is String
+  //           ? jsonDecode(friendResponse['userFeedback']) as List
+  //           : friendResponse['userFeedback'] as List;
+  //
+  //       // Count occurrences of the logged-in user's int ID in the friend's feedback
+  //       taughtMe += friendFeedback.where((feedback) => feedback['id'] == intId).length;
+  //     }
+  //
+  //     print("me $taughtMe");
+  //
+  //     setState(() {
+  //       _intId = intId;
+  //       taughtThemCount = taughtThem;
+  //       taughtMeCount = taughtMe;
+  //       _isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = 'Failed to fetch data: $e';
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
+
+
   Future<void> _fetchUserIntId() async {
     try {
       // Fetch the logged-in user's integer ID and data
@@ -203,14 +262,15 @@ class _ProgressTrackerState extends State<ProgressTracker> {
 
       final intId = response['id'] as int;
 
-      // Parse userFeedback and friends safely
-      final userFeedback = response['userFeedback'] is String
+      // Check if userFeedback is not null and safely parse it
+      final userFeedback = response['userFeedback'] != null && response['userFeedback'] is String
           ? jsonDecode(response['userFeedback']) as List
-          : response['userFeedback'] as List;
+          : response['userFeedback'] as List? ?? [];
 
-      final friends = response['friends'] is String
+      // Check if friends is not null and safely parse it
+      final friends = response['friends'] != null && response['friends'] is String
           ? jsonDecode(response['friends']) as List
-          : response['friends'] as List;
+          : response['friends'] as List? ?? [];
 
       int taughtThem = userFeedback.length;
 
@@ -226,9 +286,9 @@ class _ProgressTrackerState extends State<ProgressTracker> {
             .eq('id', friend['id'])
             .single();
 
-        final friendFeedback = friendResponse['userFeedback'] is String
+        final friendFeedback = friendResponse['userFeedback'] != null && friendResponse['userFeedback'] is String
             ? jsonDecode(friendResponse['userFeedback']) as List
-            : friendResponse['userFeedback'] as List;
+            : friendResponse['userFeedback'] as List? ?? [];
 
         // Count occurrences of the logged-in user's int ID in the friend's feedback
         taughtMe += friendFeedback.where((feedback) => feedback['id'] == intId).length;

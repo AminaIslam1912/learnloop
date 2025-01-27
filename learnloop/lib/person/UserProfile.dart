@@ -3,19 +3,14 @@ import 'package:flutter/services.dart'; // For Clipboard functionality
 import 'package:learnloop/all_feedback/swap_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../supabase_config.dart';
-import 'Achievement.dart';
 import 'EditProfile.dart';
 import 'FullScreenImage.dart';
 import 'Skill.dart';
 import 'UserFeedback.dart';
 
-
-
 class UserProfile extends StatefulWidget {
   final int loggedInUserId; // Pass the authenticated user's ID
   final int profileUserId; // The profile's owner ID
-
-
 
   const UserProfile(
       {super.key, required this.loggedInUserId, required this.profileUserId});
@@ -28,7 +23,7 @@ class _UserProfileState extends State<UserProfile>
     with SingleTickerProviderStateMixin {
   String name = "";
   String email = "";
-  String profilePicture =  "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
   bool isEditMode = false;
   bool isLoading = false;
   bool get isOwner =>
@@ -40,6 +35,7 @@ class _UserProfileState extends State<UserProfile>
   List<String> achievements = [];
   List<String> skills = []; // Default skills
   bool isFriend = false;
+  String cvUrl = "";
 
   Future<void> checkFriend(int loggedId, int userId) async {
     try {
@@ -66,16 +62,10 @@ class _UserProfileState extends State<UserProfile>
     }
   }
 
-
-
-
-
   Future<void> fetchUserData() async {
     setState(() {
       isLoading = true;
     });
-
-
 
     try {
       final response = await SupabaseConfig.client
@@ -95,35 +85,18 @@ class _UserProfileState extends State<UserProfile>
 
           occupation = response['occupation'] ?? occupation;
           location = response['location'] ?? location;
-          profilePicture = response['profile_picture'] ?? profilePicture;
+          // profilePicture = response['profile_picture'] ?? profilePicture;
+          profilePicture = (response['profile_picture'] != null && response['profile_picture'].isNotEmpty)
+              ? response['profile_picture']
+              : profilePicture;
           achievements = List<String>.from(response['achievements'] ?? []);
           //print("achievements: $achievements");
           skills = List<String>.from(response['skills'] ?? []);
+          cvUrl = response['cv_url'] ?? "";
         });
       }
 
-      // if (response.error != null) {
-      //   print('Error fetching user data: ${response.error!.message}');
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Error fetching user data: ${response.error!.message}')),
-      //   );
-      //   return;
-      // }
-      //
-      // final data = response.data;
-      //
-      // if (data != null) {
-      //   setState(() {
-      //     name = data['name'] ?? name;
-      //     email = data['email'] ?? email;
-      //     bio = data['bio'] ?? bio;
-      //     occupation = data['occupation'] ?? occupation;
-      //     location = data['location'] ?? location;
-      //     profilePicture = data['profile_picture'] ?? profilePicture;
-      //     achievements = List<String>.from(data['achievements'] ?? []);
-      //     skills = List<String>.from(data['skills'] ?? []);
-      //   });
-      // }
+
 
 
       // Calculate average rating from user feedback
@@ -180,9 +153,6 @@ class _UserProfileState extends State<UserProfile>
     checkFriend(widget.loggedInUserId, widget.profileUserId);
 
   }
-
-
-
   Future<void> _launchEmail(String email) async {
     final Uri emailUri = Uri(
       scheme: 'mailto',
@@ -196,13 +166,29 @@ class _UserProfileState extends State<UserProfile>
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("User Profile"),
           backgroundColor:const Color(0xFF009252),
+          actions: [
+            if (isOwner)
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProfile(
+                        loggedInUserId: widget.loggedInUserId,
+                        profileUserId: widget.profileUserId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
         body: isLoading
             ? const Center(
@@ -219,215 +205,217 @@ class _UserProfileState extends State<UserProfile>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Profile Picture and Rating Section
+                  // Row(
+                  //   children: [
+                  //     GestureDetector(
+                  //       onTap: () {
+                  //         Navigator.push(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //             // builder: (context) =>
+                  //             //     FullScreenImage(imagePath: profilePicture),
+                  //             builder: (context) => FullScreenImage(
+                  //               imagePath: profilePicture,
+                  //               isNetworkImage: profilePicture.startsWith('https://'), filePath: '',
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //       child: Padding(
+                  //           padding: const EdgeInsets.all(1.0),
+                  //           // child: CircleAvatar(
+                  //           //   radius: 50,
+                  //           //   backgroundImage: AssetImage(profilePicture),
+                  //           // ),
+                  //           child: CircleAvatar(
+                  //             radius: 50,
+                  //             backgroundImage: profilePicture.startsWith('https://')
+                  //                 ? NetworkImage(profilePicture)
+                  //                 : AssetImage(profilePicture) as ImageProvider,
+                  //           )
+                  //       ),
+                  //     ),
+                  //     Column(
+                  //         children: [
+                  //           Row(
+                  //             children: List.generate(5, (index) {
+                  //               return IconButton(
+                  //                 icon: Icon(
+                  //                   index < rating
+                  //                       ? Icons.star
+                  //                       : Icons.star_border,
+                  //                   color: Colors.yellow[700],
+                  //                 ),
+                  //                 onPressed:
+                  //                 null, // Only owner can change rating
+                  //               );
+                  //             }),
+                  //           ),
+                  //           Text(
+                  //             bio.isNotEmpty ? bio : "",
+                  //             style: const TextStyle(
+                  //                 fontSize: 18.0, fontWeight: FontWeight.bold,color: Colors.white),
+                  //           ),
+                  //
+                  //         ],
+                  //       ),
+                  //
+                  //   ],
+                  // ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              // builder: (context) =>
-                              //     FullScreenImage(imagePath: profilePicture),
                               builder: (context) => FullScreenImage(
                                 imagePath: profilePicture,
                                 isNetworkImage: profilePicture.startsWith('https://'),
+                                filePath: '',
                               ),
                             ),
                           );
                         },
                         child: Padding(
-                            padding: const EdgeInsets.all(1.0),
-                            // child: CircleAvatar(
-                            //   radius: 50,
-                            //   backgroundImage: AssetImage(profilePicture),
-                            // ),
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundImage: profilePicture.startsWith('https://')
-                                  ? NetworkImage(profilePicture)
-                                  : AssetImage(profilePicture) as ImageProvider,
-                            )
+                          padding: const EdgeInsets.all(1.0),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage: profilePicture.startsWith('https://')
+                                ? NetworkImage(profilePicture)
+                                : AssetImage(profilePicture) as ImageProvider,
+                          ),
                         ),
                       ),
-                      Column(
-                        children: [
-                          Row(
-                            children: List.generate(5, (index) {
-                              return IconButton(
-                                icon: Icon(
-                                  index < rating
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: Colors.yellow[700],
-                                ),
-                                onPressed:
-                                null, // Only owner can change rating
-                              );
-                            }),
-                          ),
-                          Text(
-                            bio.isNotEmpty ? bio : "",
-                            style: const TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.bold,color: Colors.white),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // User Name Section
-                  Text(
-                    name,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Buttons: Swap, Message, Popup Menu
-                  Row(
-                    children: [
                       Expanded(
-                        child: InkWell(
-                          onTap:
-                          isOwner // Only allow navigation to EditProfile if the user is the owner
-                              ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    EditProfile(
-                                      loggedInUserId: widget.loggedInUserId,
-                                      profileUserId: widget.profileUserId,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: List.generate(5, (index) {
+                                  return IconButton(
+                                    icon: Icon(
+                                      index < rating ? Icons.star : Icons.star_border,
+                                      color: Colors.yellow[700],
                                     ),
+                                    onPressed: null, // Only owner can change rating
+                                  );
+                                }),
                               ),
-                            );
-                          }
-                              : () {}, // Do nothing if not the owner
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF009252),
-                              borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(
-                              isOwner
-                                  ? 'Edit'
-                                  : 'Swap', // Change the label if owner
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 13.0),
-                            ),
-                          ),
+                            if (bio.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  bio,
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF009252),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              'Message',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 13.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      PopupMenuButton(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 1,
-                            child: Opacity(
-                              opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
-                              child: const Text("Give Feedback", style: TextStyle(
-                                  color: Colors.white, fontSize: 13.0),),
-                            ),
-                          ),
-                        ],
-                        onSelected: (value) {
-                          if (value == 1) {
-                            print("id  $isFriend");
-                            isOwner
-                                ? print("Owner, no feedback")
-                                : (isFriend
-                                ? showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SwapFeedback( loggedInUserId: widget.loggedInUserId,
-                                  profileUserId: widget.profileUserId,);
-                              },
-                            )
-                                : ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("You must be friends to give feedback")),
-                            ));
-                          }
-                        },
-                      )
-                      // PopupMenuButton(
-                      //   itemBuilder: (context) => [
-                      //     PopupMenuItem(
-                      //       value: 1,
-                      //       child: Opacity(
-                      //         opacity: isOwner ? 0.5 : 1.0,  // Reduce opacity if isOwner is true
-                      //         child: const Text("Give Feedback", style: TextStyle(
-                      //             color: Colors.white, fontSize: 13.0),),
-                      //       ),
-                      //     ),
-                      //   ],
-                      //   onSelected: (value) {
-                      //     if (value == 1) {
-                      //        // Set this based on your logic
-                      //
-                      //       // If isOwner is false, show the feedback form, otherwise, do nothing
-                      //       isOwner
-                      //           ? print("Owner, no feedback") // If true, do nothing or handle owner logic
-                      //           : showDialog(
-                      //         context: context,
-                      //         builder: (BuildContext context) {
-                      //           return SwapFeedback(); // Show FeedbackForm for non-owners
-                      //         },
-                      //       );
-                      //     }
-                      //   },
-                      // )
-
-                      // PopupMenuButton(
-                      //   itemBuilder: (context) => [
-                      //     const PopupMenuItem(
-                      //       value: 1,
-                      //       child: Text("Give Feedback"),
-                      //     ),
-                      //   ],
-                      //   onSelected: (value) {
-                      //     if (value == 1) {
-                      //       // Show the feedback form in a dialog
-                      //       showDialog(
-                      //         context: context,
-                      //         builder: (BuildContext context) {
-                      //           return SwapFeedback();
-                      //         },
-                      //       );
-                      //     }
-                      //   },
-                      // )
-
-
-                      // PopupMenuButton(
-                      //   itemBuilder: (context) => [
-                      //     const PopupMenuItem(
-                      //         value: 1, child: Text("Give Feedback")),
-                      //   ],
-                      // ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     Text(
+                  //       name,
+                  //       style: const TextStyle(
+                  //           fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  //     ),
+                  //     const SizedBox(height: 20,),
+                  //     //const SizedBox(width: 8),  // Adds some space between the name and the popup button
+                  //     Expanded(child: Container()),  // Fills remaining space to push the popup button to the right
+                  //     PopupMenuButton(
+                  //       itemBuilder: (context) => [
+                  //         PopupMenuItem(
+                  //           value: 1,
+                  //           child: Opacity(
+                  //             opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
+                  //             child: const Text(
+                  //               "Give Feedback",
+                  //               style: TextStyle(color: Colors.white, fontSize: 13.0),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //       onSelected: (value) {
+                  //         if (value == 1) {
+                  //           print("id  $isFriend");
+                  //           isOwner
+                  //               ? print("Owner, no feedback")
+                  //               : (isFriend
+                  //               ? showDialog(
+                  //             context: context,
+                  //             builder: (BuildContext context) {
+                  //               return SwapFeedback(
+                  //                 loggedInUserId: widget.loggedInUserId,
+                  //                 profileUserId: widget.profileUserId,
+                  //               );
+                  //             },
+                  //           )
+                  //               : ScaffoldMessenger.of(context).showSnackBar(
+                  //             const SnackBar(content: Text("You must be friends to give feedback")),
+                  //           ));
+                  //         }
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      const SizedBox(height: 20),
+                      Expanded(child: Container()), // Fills remaining space to push the icon to the right
+                      IconButton(
+                        icon: const Icon(
+                          Icons.rate_review,  // Feedback icon
+                          color: Colors.white,  // Icon color
+                          size: 30,  // Icon size
+                        ),
+                        onPressed: () {
+                          print("id  $isFriend");
+                          isOwner
+                              ? print("Owner, no feedback")
+                              : (isFriend
+                              ? showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SwapFeedback(
+                                loggedInUserId: widget.loggedInUserId,
+                                profileUserId: widget.profileUserId,
+                              );
+                            },
+                          )
+                              : ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("You must be friends to give feedback")),
+                          ));
+                        },
+                      ),
+                    ],
+                  ),
+
+
+
+                  // Fills remaining space to push the popup button to the right
+
                   const SizedBox(height: 16),
                   // Email Section with Clipboard functionality
                   GestureDetector(
@@ -481,6 +469,85 @@ class _UserProfileState extends State<UserProfile>
                   const SizedBox(height: 16),
                   Row(
                     children: [
+                      const Icon(Icons.picture_in_picture, color: Color(0xFF009252)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: cvUrl != null && cvUrl.isNotEmpty
+                              ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FullScreenCV(
+                                  filePath: cvUrl,
+                                ),
+                              ),
+                            );
+                          }
+                              : null, // Disable onTap if no CV is uploaded
+                          child: Text(
+                            cvUrl != null && cvUrl.isNotEmpty ? 'View CV' : 'No CV uploaded',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: cvUrl != null && cvUrl.isNotEmpty ? Colors.blue : Colors.red,
+                              decoration: cvUrl != null && cvUrl.isNotEmpty
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+                  // CV Section
+                  // if (cvUrl != null && cvUrl.isNotEmpty) ...[
+                  //   const SizedBox(height: 16),
+                  //   Row(
+                  //     children: [
+                  //       const Icon(Icons.picture_in_picture, color: Color(0xFF009252)),
+                  //       const SizedBox(width: 8),
+                  //       Expanded(
+                  //         child: GestureDetector(
+                  //           onTap: () {
+                  //             Navigator.push(
+                  //               context,
+                  //               MaterialPageRoute(
+                  //                 builder: (context) => FullScreenCV(
+                  //                   filePath: cvUrl,
+                  //                 ),
+                  //               ),
+                  //             );
+                  //           },
+                  //           child: Text(
+                  //             'View CV',
+                  //             style: TextStyle(
+                  //               fontSize: 16,
+                  //               fontWeight: FontWeight.bold,
+                  //               color: Colors.blue,
+                  //               decoration: TextDecoration.underline,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ] else ...[
+                  //   const SizedBox(height: 16),
+                  //   Text(
+                  //     textAlign: TextAlign.left,
+                  //     'No CV uploaded',
+                  //     style: TextStyle(fontSize: 16, color: Colors.red),
+                  //   ),
+                  // ],
+
+                  const SizedBox(height: 16),
+
+
+                  Row(
+                    children: [
                       const Icon(Icons.location_city, color: Color(0xFF009252)),
                       const SizedBox(width: 8),
                       Expanded(
@@ -496,13 +563,69 @@ class _UserProfileState extends State<UserProfile>
                   ),
 
                   const SizedBox(height: 16),
-                  Column(
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     const Text(
+                  //       "Achievements",
+                  //       style: TextStyle(
+                  //           fontSize: 18, fontWeight: FontWeight.bold),
+                  //     ),
+                  //     const SizedBox(height: 8),
+                  //     Wrap(
+                  //       spacing: 5,
+                  //       runSpacing: 5,
+                  //       children: achievements.take(3).map((skill) {
+                  //         return Chip(
+                  //           label: Text(skill),
+                  //           backgroundColor: Colors.black,
+                  //         );
+                  //       }).toList(),
+                  //     ),
+                  //     const SizedBox(height: 10),
+                  //     Align(
+                  //       alignment: Alignment.centerLeft,
+                  //       child: ElevatedButton(
+                  //         style: ElevatedButton.styleFrom(
+                  //           backgroundColor: const Color(0xFF009252), // Set the button color
+                  //         ),
+                  //         onPressed: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //               builder: (context) => AchievementsDetails(
+                  //                 achievements: List<String>.from(achievements),
+                  //                 isOwner: isOwner,
+                  //               ),
+                  //             ),
+                  //           );
+                  //         },
+                  //         child: const Text("View All Achievements", style: TextStyle(color: Colors.white)),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+
+                Container(
+                  decoration: BoxDecoration(
+                    //color: Colors.white, // Background color for the box
+                    border: Border.all(
+                      color: Colors.grey, // Border color
+                      width: 1.0,         // Border width
+                    ),
+                    borderRadius: BorderRadius.circular(8.0), // Rounded corners for the border
+                  ),
+                  padding: const EdgeInsets.all(16.0), // Padding inside the box
+                  margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin around the box
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Achievements",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
@@ -516,58 +639,58 @@ class _UserProfileState extends State<UserProfile>
                         }).toList(),
                       ),
                       const SizedBox(height: 10),
+                      // Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: ElevatedButton(
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: const Color(0xFF009252), // Set the button color
+                      //     ),
+                      //     onPressed: () {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => AchievementsDetails(
+                      //             achievements: List<String>.from(achievements),
+                      //             isOwner: isOwner,
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //     child: const Text(
+                      //       "View All Achievements",
+                      //      // style: TextStyle(color: Colors.white),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: ElevatedButton(
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: const Color(0xFF009252), // Button background color
+                      //     ),
+                      //     onPressed: () {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => SkillsDetailPage(
+                      //             skills: List<String>.from(skills),
+                      //             isOwner: isOwner,
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //     child: const Icon(
+                      //       Icons.arrow_forward, // Better icon choice for navigation
+                      //       color: Colors.white, // Icon color
+                      //     ),
+                      //   ),
+                      // ),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF009252), // Set the button color
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AchievementsDetails(
-                                  achievements: List<String>.from(achievements),
-                                  isOwner: isOwner,
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text("View All Achievements", style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  ),
-
-
-                  // Skills Section with Slide-in effect
-                  const SizedBox(height: 16),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Skills",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 5,
-                        runSpacing: 5,
-                        children: skills.take(3).map((skill) {
-                          return Chip(
-                            label: Text(skill),
-                            backgroundColor: Colors.black,
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF009252), // Set the button color
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward, // Icon for navigation
+                            color: Colors.white, // Icon color
                           ),
                           onPressed: () {
                             Navigator.push(
@@ -580,31 +703,236 @@ class _UserProfileState extends State<UserProfile>
                               ),
                             );
                           },
-                          child: const Text("View All Skills",style: TextStyle(color: Colors.white)),
+                          iconSize: 30, // Adjust the icon size as needed
+                          padding: const EdgeInsets.all(10), // Add padding around the icon
+                          constraints: BoxConstraints(), // Remove the default constraints to adjust the size
                         ),
-                      ),
+                      )
+
+
                     ],
                   ),
+                ),
 
-                  // Feedback Button with Hero Animation
+
+
+                // Skills Section with Slide-in effect
+                  const SizedBox(height: 16),
+
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     const Text(
+                  //       "Skills",
+                  //       style: TextStyle(
+                  //           fontSize: 18, fontWeight: FontWeight.bold),
+                  //     ),
+                  //     const SizedBox(height: 8),
+                  //     Wrap(
+                  //       spacing: 5,
+                  //       runSpacing: 5,
+                  //       children: skills.take(3).map((skill) {
+                  //         return Chip(
+                  //           label: Text(skill),
+                  //           backgroundColor: Colors.black,
+                  //         );
+                  //       }).toList(),
+                  //     ),
+                  //     const SizedBox(height: 10),
+                  //     Align(
+                  //       alignment: Alignment.centerLeft,
+                  //       child: ElevatedButton(
+                  //         style: ElevatedButton.styleFrom(
+                  //           backgroundColor: const Color(0xFF009252), // Set the button color
+                  //         ),
+                  //         onPressed: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //               builder: (context) => SkillsDetailPage(
+                  //                 skills: List<String>.from(skills),
+                  //                 isOwner: isOwner,
+                  //               ),
+                  //             ),
+                  //           );
+                  //         },
+                  //         child: const Text("View All Skills",style: TextStyle(color: Colors.white)),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black, // Background color for the box
+                    border: Border.all(
+                      color: Colors.grey, // Border color
+                      width: 1.0,         // Border width
+                    ),
+                    borderRadius: BorderRadius.circular(8.0), // Rounded corners for the border
+                  ),
+                  padding: const EdgeInsets.all(16.0), // Padding inside the box
+                  margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin around the box
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Skills",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 5,
+                        runSpacing: 5,
+                        children: skills.take(3).map((skill) {
+                          return Chip(
+                            label: Text(skill),
+                            backgroundColor: Colors.black,
+                            //labelStyle: const TextStyle(color: Colors.white), // Ensures text is visible
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 10),
+                      // Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: ElevatedButton(
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: const Color(0xFF009252), // Button background color
+                      //     ),
+                      //     onPressed: () {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => SkillsDetailPage(
+                      //             skills: List<String>.from(skills),
+                      //             isOwner: isOwner,
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //     child: const Text(
+                      //       "View All Skills",
+                      //       //style: TextStyle(color: Colors.white), // Button text color
+                      //     ),
+                      //   ),
+                      // ),
+                      // Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: ElevatedButton(
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor:  Colors.white, // Button background color
+                      //     ),
+                      //     onPressed: () {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => SkillsDetailPage(
+                      //             skills: List<String>.from(skills),
+                      //             isOwner: isOwner,
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //     child: const Icon(
+                      //       Icons.arrow_forward, // Better icon choice for navigation
+                      //       color: Colors.white, // Icon color
+                      //     ),
+                      //   ),
+                      // ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward, // Icon for navigation
+                            color: Colors.white, // Icon color
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SkillsDetailPage(
+                                  skills: List<String>.from(skills),
+                                  isOwner: isOwner,
+                                ),
+                              ),
+                            );
+                          },
+                          iconSize: 30, // Adjust the icon size as needed
+                          padding: const EdgeInsets.all(10), // Add padding around the icon
+                          constraints: BoxConstraints(), // Remove the default constraints to adjust the size
+                        ),
+                      )
+
+
+                    ],
+                  ),
+                ),
+
+
+                // Feedback Button with Hero Animation
                   const SizedBox(height: 8),
+                  // Align(
+                  //   alignment: Alignment.centerLeft,
+                  //   child: ElevatedButton(
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: const Color(0xFF009252), // Set the button color
+                  //     ),
+                  //     onPressed: () {
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //           builder: (context) =>  UserFeedback(profileUserId : widget.profileUserId),
+                  //         ),
+                  //       );
+                  //     },
+                  //     child: const Text("Feedback",style: TextStyle(color: Colors.white)),
+                  //   ),
+                  // ),
+
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF009252), // Set the button color
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey, // Border color
+                          width: 2, // Border width
+                        ),
+                        borderRadius: BorderRadius.circular(8), // Rounded corners
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>  UserFeedback(profileUserId : widget.profileUserId),
-                          ),
-                        );
-                      },
-                      child: const Text("Feedback",style: TextStyle(color: Colors.white)),
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Padding inside the button
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserFeedback(profileUserId: widget.profileUserId),
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min, // Ensures the button doesn't expand unnecessarily
+                          children: [
+                            Icon(
+                              Icons.feedback, // Feedback icon
+                              color: Colors.white, // Icon color
+                            ),
+                            SizedBox(width: 8), // Add spacing between icon and text
+                            Text(
+                              "Feedback",
+                              style: TextStyle(color: Colors.white), // Text color
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  )
+
+
 
                 ],
               ),

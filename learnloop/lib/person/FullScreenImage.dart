@@ -37,7 +37,7 @@ class FullScreenImage extends StatelessWidget {
   const FullScreenImage({
     Key? key,
     required this.imagePath,
-    required this.isNetworkImage,
+    required this.isNetworkImage, required String filePath,
   }) : super(key: key);
 
   @override

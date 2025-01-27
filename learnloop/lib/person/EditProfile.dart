@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -36,6 +37,7 @@ class _EditProfileState extends State<EditProfile> {
   String location = "";
   List<String> achievements = [];
   List<String> skills = [];
+  String cvUrl = "";
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -44,6 +46,10 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _locationController = TextEditingController();
 
   final picker = ImagePicker();
+
+  // get uploadedCVName => null;
+
+  get cvFilePath => null;
 
 
 
@@ -113,8 +119,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
 
-
-
   void _editSkills() async {
     try {
       // Navigate to the SkillsEditPage and wait for the updated skills
@@ -126,26 +130,7 @@ class _EditProfileState extends State<EditProfile> {
         ),
       );
 
-      // if (updatedSkills != null) {
-      //   //print("Updated skills: $updatedSkills"); // Debugging
-      //
-      //   // Update the skills in the database
-      //   await SupabaseConfig.client
-      //       .from('users')
-      //       .update({'skills': updatedSkills}) // Directly update without jsonEncode
-      //       .eq('id', widget.profileUserId);
-      //
-      //   // Update the local state to reflect the changes
-      //   setState(() {
-      //     skills = updatedSkills;
-      //   });
-      //
-      //   //await fetchUserData();
-      //
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text("Skills updated successfully in the database!")),
-      //   );
-      // }
+
     } catch (e) {
       //print("Error saving updated skills to the database: $e"); // Log error
       ScaffoldMessenger.of(context).showSnackBar(
@@ -167,24 +152,7 @@ class _EditProfileState extends State<EditProfile> {
         ),
       );
 
-      // if (updatedAchievements != null) {
-      //
-      //
-      //   // Update the skills in the database
-      //   await SupabaseConfig.client
-      //       .from('users')
-      //       .update({'achievements': updatedAchievements}) // Directly update without jsonEncode
-      //       .eq('id', widget.profileUserId);
-      //
-      //   // Update the local state to reflect the changes
-      //   setState(() {
-      //     achievements = updatedAchievements;
-      //   });
-      //
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text("Achievements updated successfully in the database!")),
-      //   );
-      // }
+
     } catch (e) {
       //print("Error saving updated achievements to the database: $e"); // Log error
       ScaffoldMessenger.of(context).showSnackBar(
@@ -287,6 +255,97 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
+  Future<void> uploadCv() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery); // You can change this to a file picker if needed
+
+    if (pickedFile != null) {
+      setState(() => isLoading = true);
+
+      try {
+        // Upload logic similar to profile picture upload
+        final fileName = '${widget.profileUserId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        File file = File(pickedFile.path);
+
+        // Upload CV to Supabase storage
+        final response = await Supabase.instance.client.storage
+            .from('cv_bucket')
+            .upload(fileName, file);
+
+        if (response.error != null) {
+          throw response.error!.message;
+        }
+
+        // Get the public URL of the uploaded CV
+        final publicUrl = Supabase.instance.client.storage
+            .from('cv_bucket')
+            .getPublicUrl(fileName);
+
+        // Update the user's CV URL in the database
+        await Supabase.instance.client
+            .from('users')
+            .update({'cv_url': publicUrl})
+            .eq('id', widget.profileUserId);
+
+        setState(() {
+          cvUrl = publicUrl; // Update CV URL
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("CV uploaded successfully!")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error uploading CV: $e")),
+        );
+      } finally {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  // Update the deleteCv function to handle the case when no CV exists
+  Future<void> deleteCv() async {
+    if (!cvUrl.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No CV to delete")),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      // Remove CV from storage
+      final fileName = cvUrl.split('/').last;
+      await Supabase.instance.client.storage
+          .from('cv_bucket')
+          .remove([fileName]);
+
+      // Update the database
+      await Supabase.instance.client
+          .from('users')
+          .update({'cv_url': null})
+          .eq('id', widget.profileUserId);
+
+      setState(() {
+        cvUrl = ""; // Reset CV URL
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("CV deleted successfully!")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting CV: $e")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+
+
+
   Future<void> fetchUserData() async {
     setState(() {
       isLoading = true;
@@ -308,8 +367,10 @@ class _EditProfileState extends State<EditProfile> {
         profilePicture = response['profile_picture'] ?? profilePicture;
         achievements = List<String>.from(response['achievements'] ?? []);
         skills = List<String>.from(response['skills'] ?? []);
-      });
+        cvUrl = response['cv_url'] ?? "";
 
+      });
+      //print(cvUrl);
       // Set the initial values for controllers
       _nameController.text = name;
       _emailController.text = email;
@@ -333,6 +394,8 @@ class _EditProfileState extends State<EditProfile> {
 
 
     bool canDeletePic = profilePicture != "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
+    bool canDeleteCv = cvUrl.isNotEmpty;
+    print("can Delete $canDeleteCv");
 
 
 
@@ -367,7 +430,7 @@ class _EditProfileState extends State<EditProfile> {
                         MaterialPageRoute(
                           builder: (context) => FullScreenImage(
                             imagePath: profilePicture,
-                            isNetworkImage: profilePicture.startsWith('https://'),
+                            isNetworkImage: profilePicture.startsWith('https://'), filePath: '',
                           ),
                         ),
                       );
@@ -450,35 +513,7 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ],
               ),
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //   children: [
-              //     ElevatedButton(
-              //       onPressed: uploadProfilePicture,
-              //       child: const Text("Upload Picture"),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: deleteProfilePicture,
-              //       child: const Text("Delete Picture"),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 16),
-              // TextField(
-              //   controller: _nameController,
-              //   decoration: const InputDecoration(
-              //     labelText: 'Name',
-              //     border: OutlineInputBorder(),
-              //   ),
-              // ),
-              // const SizedBox(height: 16),
-              // TextField(
-              //   controller: _emailController,
-              //   decoration: const InputDecoration(
-              //     labelText: 'Email',
-              //     border: OutlineInputBorder(),
-              //   ),
-              // ),
+
               const SizedBox(height: 16),
               TextField(
                 controller: _occupationController,
@@ -496,9 +531,128 @@ class _EditProfileState extends State<EditProfile> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                "Achievements",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+
+              // const Text(
+              //   "Upload CV",
+              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              // ),
+              // const SizedBox(height: 8),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.center,
+              //   mainAxisAlignment: MainAxisAlignment.start,
+              //   children: [
+              //     IconButton(
+              //       icon: const Icon(Icons.upload_file, color: Colors.green),
+              //       onPressed: () async {
+              //         await uploadCv();
+              //       },
+              //     ),
+              //     const SizedBox(width: 16),
+              //     Opacity(
+              //       opacity: canDeleteCv ? 1.0 : 0.5, // Change opacity based on CV existence
+              //       child: IconButton(
+              //         icon: const Icon(Icons.delete, color: Colors.red),
+              //         onPressed: canDeleteCv
+              //             ? () async {
+              //           await deleteCv();
+              //         }
+              //             : null, // Disable the button if no CV exists
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              Container(
+                padding: const EdgeInsets.all(16), // Adjust padding as needed
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey, // Border color
+                    width: 1.0,         // Border width
+                  ),
+                  //color: Colors.black, // Box background color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: Colors.grey.withOpacity(0.2), // Box shadow for depth
+                  //     blurRadius: 5, // Shadow blur
+                  //     offset: const Offset(0, 3), // Shadow offset
+                  //   ),
+                  // ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Upload CV",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.upload_file, color: Colors.green),
+                          onPressed: () async {
+                            await uploadCv();
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                            Opacity(
+                              opacity: canDeleteCv ? 1.0 : 0.5, // Change opacity based on CV existence
+                              child: IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: canDeleteCv
+                                    ? () async {
+                                  await deleteCv();
+                                }
+                                    : null, // Disable the button if no CV exists
+                              ),
+                            ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+
+
+
+
+
+
+
+              const SizedBox(height: 16),
+
+        Container(
+          decoration: BoxDecoration(
+            //color: Colors.white, // Background color for the box
+            border: Border.all(
+              color: Colors.grey, // Border color
+              width: 1.0,         // Border width
+            ),
+            borderRadius: BorderRadius.circular(8.0), // Rounded corners for the border
+          ),
+          padding: const EdgeInsets.all(16.0), // Padding inside the box
+          margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin around the box
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    "Achievements",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // Changed to black for visibility on white box
+                    ),
+                  ),
+                  const Spacer(), // Pushes the icon to the right
+                  IconButton(
+                    onPressed: _editAchievement,
+                    icon: const Icon(Icons.add, color: Colors.white), // Icon color for contrast
+                    tooltip: "Edit Achievements", // Optional: Tooltip
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Wrap(
@@ -506,24 +660,140 @@ class _EditProfileState extends State<EditProfile> {
                 runSpacing: 5,
                 children: achievements.take(3).map((achievement) {
                   return Chip(
-                    label: Text(achievement),
+                    label: Text(
+                      achievement,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                     backgroundColor: Colors.black,
-
                   );
                 }).toList(),
               ),
-              ElevatedButton(
-                onPressed: _editAchievement,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF009252), // Set the button color
-                ),
-                child: const Text("Edit Achievements",style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
 
-              ),
+
+        // Row(
+              //   children: [
+              //     const Text(
+              //       "Achievements",
+              //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+              //     ),
+              //     ElevatedButton(
+              //       onPressed: _editAchievement,
+              //       style: ElevatedButton.styleFrom(
+              //         backgroundColor: const Color(0xFF009252), // Set the button color
+              //       ),
+              //       child: const Text("Edit Achievements",style: TextStyle(color: Colors.white)),
+              //
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   children: [
+              //     const Text(
+              //       "Achievements",
+              //       style: TextStyle(
+              //         fontSize: 18,
+              //         fontWeight: FontWeight.bold,
+              //         color: Colors.white,
+              //       ),
+              //     ),
+              //     const Spacer(), // Pushes the icon to the right
+              //     IconButton(
+              //       onPressed: _editAchievement,
+              //       icon: const Icon(Icons.add, color: Colors.white),
+              //       tooltip: "Edit Achievements", // Optional: Shows a tooltip when hovered or long-pressed
+              //     ),
+              //   ],
+              // ),
+              //
+              // const SizedBox(height: 16),
+              // Wrap(
+              //   spacing: 5,
+              //   runSpacing: 5,
+              //   children: achievements.take(3).map((achievement) {
+              //     return Chip(
+              //       label: Text(achievement),
+              //       backgroundColor: Colors.black,
+              //
+              //     );
+              //   }).toList(),
+              // ),
+              // ElevatedButton(
+              //   onPressed: _editAchievement,
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color(0xFF009252), // Set the button color
+              //   ),
+              //   child: const Text("Edit Achievements",style: TextStyle(color: Colors.white)),
+              //
+              // ),
               const SizedBox(height: 16),
-              const Text(
-                "Skills",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+              // const Text(
+              //   "Skills",
+              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+              // ),
+              // Row(
+              //   children: [
+              //     const Text(
+              //       "Skills",
+              //       style: TextStyle(
+              //         fontSize: 18,
+              //         fontWeight: FontWeight.bold,
+              //         color: Colors.white,
+              //       ),
+              //     ),
+              //     const Spacer(), // Pushes the icon to the right
+              //     IconButton(
+              //       onPressed: _editAchievement,
+              //       icon: const Icon(Icons.add, color: Colors.white),
+              //       tooltip: "Edit Skills", // Optional: Shows a tooltip when hovered or long-pressed
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(height: 16),
+              // Wrap(
+              //   spacing: 5,
+              //   runSpacing: 5,
+              //   children: skills.take(3).map((skill) {
+              //     return Chip(
+              //       label: Text(skill),
+              //       backgroundColor: Colors.black,
+              //     );
+              //   }).toList(),
+              // ),
+
+        Container(
+          decoration: BoxDecoration(
+            //color: Colors.black, // Background color for the box
+            border: Border.all(
+              color: Colors.grey, // Border color
+              width: 1.0,         // Border width
+            ),
+            borderRadius: BorderRadius.circular(8.0), // Rounded corners for the border
+          ),
+          padding: const EdgeInsets.all(16.0), // Padding inside the box
+          margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin around the box
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    "Skills",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // Text color for visibility on the white background
+                    ),
+                  ),
+                  const Spacer(), // Pushes the icon to the right
+                  IconButton(
+                    onPressed: _editAchievement,
+                    icon: const Icon(Icons.add, color: Colors.white), // Icon color for contrast
+                    tooltip: "Edit Skills", // Tooltip for the button
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Wrap(
@@ -531,24 +801,59 @@ class _EditProfileState extends State<EditProfile> {
                 runSpacing: 5,
                 children: skills.take(3).map((skill) {
                   return Chip(
-                    label: Text(skill),
-                    backgroundColor: Colors.black,
+                    label: Text(
+                      skill,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.black, // Black background for chips
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF009252), // Set the button color
-                ),
-                onPressed: _editSkills,
-                child: const Text("Edit Skills",style: TextStyle(color: Colors.white)),
-              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+              // ElevatedButton(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color(0xFF009252), // Set the button color
+              //   ),
+              //   onPressed: _editSkills,
+              //   child: const Text("Edit Skills",style: TextStyle(color: Colors.white)),
+              // ),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+// Full Screen CV Viewer
+class FullScreenCV extends StatelessWidget {
+  final String filePath;
+
+  const FullScreenCV({Key? key, required this.filePath}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("View CV", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF009252),
+      ),
+      body: Center(
+        child: _buildViewer(),
+      ),
+    );
+  }
+
+  Widget _buildViewer() {
+    if (filePath.endsWith(".jpg") || filePath.endsWith(".png")) {
+      return Image.network(filePath);  // Use Image.network for remote URLs
+    } else {
+      return const Text("Unsupported file type.");
+    }
   }
 }
 
