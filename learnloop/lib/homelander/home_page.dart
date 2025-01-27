@@ -121,12 +121,12 @@ import 'package:flutter/material.dart';
 // }
 
 
-
 import 'package:flutter/material.dart';
 import 'package:learnloop/homelander/faq_screen.dart';
 import 'package:marquee/marquee.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../all_feedback/app_feedback.dart';
+import '../all_feedback/progress_tracker.dart';
 import '../login.dart';
 import 'about_us.dart';
 import '../sign_up.dart';
@@ -248,7 +248,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       } else if (_tabController.index == 2) {
 
-         FunChallengeScreen();
+        FunChallengeScreen();
 
       } else if (_tabController.index == 3) {
 
@@ -378,7 +378,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   // }
   //
 
- // @override
+  // @override
   // void initState() {
   //   super.initState();
   //   _tabController = TabController(length: 4, vsync: this);
@@ -704,15 +704,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: TabBarView(
               controller: _tabController,
               children: [
-               // _buildCourseSections(),
+                // _buildCourseSections(),
                 searchQuery.isEmpty
                     ? _buildCourseSections()
                     : _buildSearchResults(_searchCourses(searchQuery)),
-               // const Center(child: Text("Community Section", style: TextStyle(color: Colors.white))),
+                // const Center(child: Text("Community Section", style: TextStyle(color: Colors.white))),
                 const CommunityUI(),
-               // const Center(child: Text("Fun Challenge Section", style: TextStyle(color: Colors.white))),
+                // const Center(child: Text("Fun Challenge Section", style: TextStyle(color: Colors.white))),
                 FunChallengeScreen(),
-               // const Center(child: Text("About Section", style: TextStyle(color: Colors.white))),
+                // const Center(child: Text("About Section", style: TextStyle(color: Colors.white))),
                 const AboutScreen()
               ],
             ),
@@ -1130,6 +1130,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     style: TextStyle(color: Colors.white, fontSize: 24),
                   ),
                 ),
+              ),
+              ListTile(
+                leading: Icon(Icons.developer_board, color: Colors.white),
+                title: Text('Progress Tracker', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Navigate to ProgressTracker screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProgressTracker(),
+                    ),
+                  );
+                },
               ),
               ListTile(
                 leading: Icon(Icons.lock, color: Colors.white),

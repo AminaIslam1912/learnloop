@@ -168,8 +168,8 @@ class _UserFeedbackState extends State<UserFeedback> {
                                 Text(
                                   feedback['topic'] ?? 'No topic',
                                   style: const TextStyle(
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.blueAccent,
+                                    fontStyle: FontStyle.normal,
+                                    color: Colors.green,
                                   ),
                                 ),
                                 const SizedBox(height: 5),

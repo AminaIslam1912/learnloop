@@ -662,8 +662,17 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Add the image widget here
+                const Center(
+                  child: Image(
+                    image: AssetImage('assets/login_logo-removebg-preview.png'), // Replace with your image path
+                    height: 100, // Adjust the height as needed
+                    width: 100, // Adjust the width as needed
+                  ),
+                ),
+                const SizedBox(height: 10), // Add spacing between the image and the text
                 const Center(
                   child: Text(
                     'Login',
@@ -729,14 +738,14 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: _showForgotPasswordDialog,
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
+                // const SizedBox(height: 10),
+                // TextButton(
+                //   onPressed: _showForgotPasswordDialog,
+                //   child: const Text(
+                //     'Forgot Password?',
+                //     style: TextStyle(color: Colors.blue),
+                //   ),
+                // ),
                 const SizedBox(height: 20),
                 if (_isLoading)
                   const Center(child: CircularProgressIndicator())
@@ -763,65 +772,102 @@ class _LoginPageState extends State<LoginPage> {
                 ],
                 const SizedBox(height: 20),
 // Add Google Sign-In Button here
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      // Call the Google Sign-In method
-                      // await _handleGoogleSignIn();
-                      await _handleGoogleSignIn(context, (String message) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-                      });
-                      // Navigate to the CommunityUI screen upon successful sign-in
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const CommunityUI()),
-                      );
-
-                    }
-                    catch (e) {
-                      // Handle errors if Google Sign-In fails
-                      print('Google Sign-In failed: $e');
-                    }
-                  },
-                  onLongPress: _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+//                 ElevatedButton(
+//                   onPressed: () async {
+//                     try {
+//                       // Call the Google Sign-In method
+//                       // await _handleGoogleSignIn();
+//                       await _handleGoogleSignIn(context, (String message) {
+//                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+//                       });
+//                       // Navigate to the CommunityUI screen upon successful sign-in
+//                       Navigator.push(
+//                         context,
+//                         MaterialPageRoute(builder: (context) => const CommunityUI()),
+//                       );
+//
+//                     }
+//                     catch (e) {
+//                       // Handle errors if Google Sign-In fails
+//                       print('Google Sign-In failed: $e');
+//                     }
+//                   },
+//                   onLongPress: _login,
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: Colors.white,
+//                     minimumSize: const Size(double.infinity, 50),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+//                   ),
+//                   child: const Row(
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     children: [
+//                       Icon(Icons.g_mobiledata, size: 30, color: Colors.black87),
+//                       SizedBox(width: 12),
+//                       Text(
+//                         'Continue with Google',
+//                         style: TextStyle(
+//                           color: Colors.black87,
+//                           fontSize: 16,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//
+//                 const SizedBox(height: 10),
+                // Center(
+                //   child: TextButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(builder: (context) => const SignUpPage()),
+                //       );
+                //     },
+                //     child: const Text(
+                //       "Don't have an account? SignUp",
+                //       style: TextStyle(color: Color(0xFF009252)),
+                //     ),
+                //   ),
+                // ),
+                //
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Icon(Icons.g_mobiledata, size: 30, color: Colors.black87),
-                      SizedBox(width: 12),
-                      Text(
-                        'Continue with Google',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 16,
+
+                    // Add spacing between the two texts
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignUpPage()),
+                          );
+                        },
+                        child: const Text(
+                          "Don't have an account? Sign Up",
+                          style: TextStyle(
+                            color: Color(0xFF009252),
+                            fontSize: 14, // Standard font size for this text
+                          ),
+                        ),
+                      ),
+                     // const SizedBox(width:1),
+                      TextButton(
+                        onPressed: _showForgotPasswordDialog,
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 8, // Smaller font size for "Forgot Password"
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 10),
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SignUpPage()),
-                      );
-                    },
-                    child: const Text(
-                      "Don't have an account? SignUp",
-                      style: TextStyle(color: Color(0xFF009252)),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),

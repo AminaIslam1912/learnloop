@@ -207,8 +207,18 @@ class _UserProfileState extends State<UserProfile>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("User Profile"),
-          backgroundColor:const Color(0xFF009252),
+          // title: const Text("Profile"),
+          // backgroundColor:Colors.black,
+          title: const Text(
+            "Profile",
+            style: TextStyle(
+              fontWeight: FontWeight.bold, // Make the text bold
+              fontSize: 20,
+                color: Colors.white// Adjust font size if needed
+            ),
+          ),
+          centerTitle: true, // Center the title
+          backgroundColor: Colors.black,
           actions: [
             if (isOwner)
               IconButton(
@@ -274,20 +284,28 @@ class _UserProfileState extends State<UserProfile>
                       ),
                       Column(
                         children: [
+                        //  Expanded(child:
                           Row(
+                             mainAxisAlignment: MainAxisAlignment.start, // Center-align stars
+                             mainAxisSize: MainAxisSize.min, // Ensure the row doesn't take up extra space
                             children: List.generate(5, (index) {
-                              return IconButton(
-                                icon: Icon(
-                                  index < rating
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: Colors.yellow[700],
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                                child: IconButton(
+                                  icon: Icon(
+                                    index < rating
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.yellow[700],
+                                  ),
+                                  onPressed:
+                                  null, // Only owner can change rating
                                 ),
-                                onPressed:
-                                null, // Only owner can change rating
                               );
                             }),
                           ),
+
+
                           Text(
                             bio.isNotEmpty ? bio : "",
                             style: const TextStyle(

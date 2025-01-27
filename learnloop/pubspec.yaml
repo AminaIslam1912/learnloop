@@ -51,6 +51,8 @@ dependencies:
   blinking_text: ^1.0.4
   mailer: ^6.4.0
   google_sign_in: ^6.2.2
+  table_calendar: ^3.2.0
+  pie_chart: ^5.4.0
 
 dev_dependencies:
   flutter_test:

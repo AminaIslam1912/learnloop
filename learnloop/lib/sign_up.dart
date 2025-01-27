@@ -148,11 +148,23 @@ class _SignUpPageState extends State<SignUpPage> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const SizedBox(height: 10),
+                // Add the image widget above the "SignUp" text
+                const Center(
+
+                  child: Image(
+                    image: AssetImage('assets/reg.png'), // Replace with your image path
+                    height: 100, // Adjust the height as needed
+                    width: 100, // Adjust the width as needed
+                  ),
+                ),
+                const SizedBox(height: 10), // Add spacing between the image and the "SignUp" text
+
                 const Center(
                   child: Text(
-                    'SignUp',
+                    'Register Now',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,

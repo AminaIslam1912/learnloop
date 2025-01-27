@@ -338,8 +338,18 @@ class _EditProfileState extends State<EditProfile> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Profile",style: TextStyle(color: Colors.white)),
-        backgroundColor: Color(0xFF009252),
+        // title: const Text("Edit Profile",style: TextStyle(color: Colors.white)),
+        // backgroundColor: Colors.green,
+        title: const Text(
+          "Edit Profile",
+          style: TextStyle(
+              fontWeight: FontWeight.bold, // Make the text bold
+              fontSize: 20,
+              color: Colors.white// Adjust font size if needed
+          ),
+        ),
+        centerTitle: true, // Center the title
+        backgroundColor: Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.save),

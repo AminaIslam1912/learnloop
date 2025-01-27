@@ -245,14 +245,14 @@ class FeedbackFormDialog {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          "Feedback Our App",
+                          "Give Us Your Thoughts",
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          "Rate Us",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                        ),
+                        // const SizedBox(height: 20),
+                        // const Text(
+                        //   "Rate Us",
+                        //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        // ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
