@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard functionality
-import 'package:supabase_flutter/supabase_flutter.dart';
+//import 'package:learnloop/all_feedback/swap_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../main.dart';
+import '../chat/screen/ChatPage.dart';
 import '../supabase_config.dart';
 import 'Achievement.dart';
 import 'EditProfile.dart';
@@ -11,13 +10,9 @@ import 'FullScreenImage.dart';
 import 'Skill.dart';
 import 'UserFeedback.dart';
 
-
-
 class UserProfile extends StatefulWidget {
   final int loggedInUserId; // Pass the authenticated user's ID
   final int profileUserId; // The profile's owner ID
-
-
 
   const UserProfile(
       {super.key, required this.loggedInUserId, required this.profileUserId});
@@ -29,8 +24,8 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile>
     with SingleTickerProviderStateMixin {
   String name = "";
-  String email = ""; //mrittikasaigal@gmail.com
-  String profilePicture =  "assets/moha.jpg";
+  String email = "";
+  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
   bool isEditMode = false;
   bool isLoading = false;
   bool get isOwner =>
@@ -41,17 +36,38 @@ class _UserProfileState extends State<UserProfile>
   String location = "";
   List<String> achievements = [];
   List<String> skills = []; // Default skills
+  bool isFriend = false;
+  String cvUrl = "";
 
+  Future<void> checkFriend(int loggedId, int userId) async {
+    try {
+      final response = await SupabaseConfig.client
+          .from('users')
+          .select('friends')
+          .eq('id', loggedId)  // Get the specific user's record
+          .single();
 
+      List<dynamic> friendsList = response['friends'] as List;
+      print("firends are $friendsList");
+      List<int> friendIds = friendsList.map((friend) => friend['id'] as int).toList();
+      print("firends are $friendIds");
 
+      setState(() {
+        isFriend = friendIds.contains(userId);
+      });
 
+    } catch (e) {
+      print('Error updating friend status: $e');
+      setState(() {
+        isFriend = false;
+      });
+    }
+  }
 
   Future<void> fetchUserData() async {
     setState(() {
       isLoading = true;
     });
-
-
 
     try {
       final response = await SupabaseConfig.client
@@ -71,35 +87,18 @@ class _UserProfileState extends State<UserProfile>
 
           occupation = response['occupation'] ?? occupation;
           location = response['location'] ?? location;
-          profilePicture = response['profile_picture'] ?? profilePicture;
+          // profilePicture = response['profile_picture'] ?? profilePicture;
+          profilePicture = (response['profile_picture'] != null && response['profile_picture'].isNotEmpty)
+              ? response['profile_picture']
+              : profilePicture;
           achievements = List<String>.from(response['achievements'] ?? []);
           //print("achievements: $achievements");
           skills = List<String>.from(response['skills'] ?? []);
+          cvUrl = response['cv_url'] ?? "";
         });
       }
 
-      // if (response.error != null) {
-      //   print('Error fetching user data: ${response.error!.message}');
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Error fetching user data: ${response.error!.message}')),
-      //   );
-      //   return;
-      // }
-      //
-      // final data = response.data;
-      //
-      // if (data != null) {
-      //   setState(() {
-      //     name = data['name'] ?? name;
-      //     email = data['email'] ?? email;
-      //     bio = data['bio'] ?? bio;
-      //     occupation = data['occupation'] ?? occupation;
-      //     location = data['location'] ?? location;
-      //     profilePicture = data['profile_picture'] ?? profilePicture;
-      //     achievements = List<String>.from(data['achievements'] ?? []);
-      //     skills = List<String>.from(data['skills'] ?? []);
-      //   });
-      // }
+
 
 
       // Calculate average rating from user feedback
@@ -153,11 +152,9 @@ class _UserProfileState extends State<UserProfile>
   void initState() {
     super.initState();
     fetchUserData();
-
+    checkFriend(widget.loggedInUserId, widget.profileUserId);
 
   }
-
-
   Future<void> _launchEmail(String email) async {
     final Uri emailUri = Uri(
       scheme: 'mailto',
@@ -171,13 +168,29 @@ class _UserProfileState extends State<UserProfile>
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("User Profile"),
-          backgroundColor:Color(0xFF009252),
+          backgroundColor:const Color(0xFF009252),
+          actions: [
+            if (isOwner)
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProfile(
+                        loggedInUserId: widget.loggedInUserId,
+                        profileUserId: widget.profileUserId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
         body: isLoading
             ? const Center(
@@ -205,7 +218,7 @@ class _UserProfileState extends State<UserProfile>
                               //     FullScreenImage(imagePath: profilePicture),
                               builder: (context) => FullScreenImage(
                                 imagePath: profilePicture,
-                                isNetworkImage: profilePicture.startsWith('https://'),
+                                isNetworkImage: profilePicture.startsWith('https://'), filePath: '',
                               ),
                             ),
                           );
@@ -244,87 +257,28 @@ class _UserProfileState extends State<UserProfile>
                             bio.isNotEmpty ? bio : "",
                             style: const TextStyle(
                                 fontSize: 18.0, fontWeight: FontWeight.bold,color: Colors.white),
-                          )
+                          ),
+
                         ],
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // User Name Section
-                  Text(
-                    name,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
                   ),
                   const SizedBox(height: 8),
-
-                  // Buttons: Swap, Message, Popup Menu
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap:
-                          isOwner // Only allow navigation to EditProfile if the user is the owner
-                              ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    EditProfile(
-                                      loggedInUserId: widget.loggedInUserId,
-                                      profileUserId: widget.profileUserId,
-                                    ),
-                              ),
-                            );
-                          }
-                              : () {}, // Do nothing if not the owner
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: Color(0xFF009252),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              isOwner
-                                  ? 'Edit'
-                                  : 'Swap', // Change the label if owner
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 13.0),
-                            ),
-                          ),
-                        ),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: Color(0xFF009252),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              'Message',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 13.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                              value: 1, child: Text("Copy Profile Link")),
-                        ],
-                      ),
+                      //const SizedBox(width: 8),  // Adds some space between the name and the popup button
+                      Expanded(child: Container()),  // Fills remaining space to push the popup button to the right
+
                     ],
                   ),
-
+                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
                   // Email Section with Clipboard functionality
                   GestureDetector(
                     onLongPress: () {
@@ -364,8 +318,69 @@ class _UserProfileState extends State<UserProfile>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          occupation,
+                          //occupation,
+                          occupation.isNotEmpty ? occupation : "N/A",
                           style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // CV Section
+                  if (cvUrl != null && cvUrl.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Icon(Icons.picture_as_pdf, color: Color(0xFF009252)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FullScreenCV(
+                                    filePath: cvUrl,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'View CV',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      'No CV uploaded',
+                      style: TextStyle(fontSize: 16, color: Colors.red),
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+
+                  Row(
+                    children: [
+                      const Icon(Icons.location_city, color: Color(0xFF009252)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          //location,
+                          location.isNotEmpty ? location : "N/A",
+                          style: const TextStyle(
+                              color: Colors.white,
                               fontSize: 16, overflow: TextOverflow.ellipsis),
                         ),
                       ),
@@ -388,7 +403,7 @@ class _UserProfileState extends State<UserProfile>
                         children: achievements.take(3).map((skill) {
                           return Chip(
                             label: Text(skill),
-                            backgroundColor: Color(0xFF009252),
+                            backgroundColor: Colors.black,
                           );
                         }).toList(),
                       ),
@@ -396,6 +411,9 @@ class _UserProfileState extends State<UserProfile>
                       Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF009252), // Set the button color
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -413,20 +431,6 @@ class _UserProfileState extends State<UserProfile>
                     ],
                   ),
 
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_city, color: Color(0xFF009252)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          location,
-                          style: const TextStyle(
-                              fontSize: 16, overflow: TextOverflow.ellipsis),
-                        ),
-                      ),
-                    ],
-                  ),
 
                   // Skills Section with Slide-in effect
                   const SizedBox(height: 16),
@@ -446,7 +450,7 @@ class _UserProfileState extends State<UserProfile>
                         children: skills.take(3).map((skill) {
                           return Chip(
                             label: Text(skill),
-                            backgroundColor: Color(0xFF009252),
+                            backgroundColor: Colors.black,
                           );
                         }).toList(),
                       ),
@@ -454,6 +458,9 @@ class _UserProfileState extends State<UserProfile>
                       Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF009252), // Set the button color
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -473,9 +480,12 @@ class _UserProfileState extends State<UserProfile>
 
                   // Feedback Button with Hero Animation
                   const SizedBox(height: 8),
-                  Hero(
-                    tag: 'feedbackButton',
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF009252), // Set the button color
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -487,6 +497,7 @@ class _UserProfileState extends State<UserProfile>
                       child: const Text("Feedback",style: TextStyle(color: Colors.white)),
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -495,4 +506,3 @@ class _UserProfileState extends State<UserProfile>
     );
   }
 }
-

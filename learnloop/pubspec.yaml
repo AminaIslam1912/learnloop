@@ -49,6 +49,7 @@ dependencies:
   firebase_storage: ^12.4.0
   intl: ^0.20.1
   file_picker: ^8.1.7
+  flutter_pdfview: ^1.4.0
 
 
 dev_dependencies:
