@@ -384,31 +384,67 @@ class _UserProfileState extends State<UserProfile>
                       ),
                       const SizedBox(height: 20),
                       Expanded(child: Container()), // Fills remaining space to push the icon to the right
+                      // IconButton(
+                      //   icon: const Icon(
+                      //     Icons.rate_review,  // Feedback icon
+                      //     color: Colors.white,  // Icon color
+                      //     size: 30,  // Icon size
+                      //   ),
+                      //   onPressed: () {
+                      //     print("id  $isFriend");
+                      //     isOwner
+                      //         ? print("Owner, no feedback")
+                      //         : (isFriend
+                      //         ? showDialog(
+                      //       context: context,
+                      //       builder: (BuildContext context) {
+                      //         return SwapFeedback(
+                      //           loggedInUserId: widget.loggedInUserId,
+                      //           profileUserId: widget.profileUserId,
+                      //         );
+                      //       },
+                      //     )
+                      //         : ScaffoldMessenger.of(context).showSnackBar(
+                      //       const SnackBar(content: Text("You must be friends to give feedback")),
+                      //     ));
+                      //   },
+                      // ),
                       IconButton(
                         icon: const Icon(
-                          Icons.rate_review,  // Feedback icon
-                          color: Colors.white,  // Icon color
-                          size: 30,  // Icon size
+                          Icons.rate_review, // Feedback icon
+                          color: Colors.white, // Icon color
+                          size: 30, // Icon size
                         ),
                         onPressed: () {
-                          print("id  $isFriend");
-                          isOwner
-                              ? print("Owner, no feedback")
-                              : (isFriend
-                              ? showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SwapFeedback(
-                                loggedInUserId: widget.loggedInUserId,
-                                profileUserId: widget.profileUserId,
-                              );
-                            },
-                          )
-                              : ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("You must be friends to give feedback")),
-                          ));
+                          if (isOwner) {
+                            // Show message for the owner
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("You can't give mentor feedback to yourself"),
+                              ),
+                            );
+                          } else if (isFriend) {
+                            // Show feedback dialog for friends
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SwapFeedback(
+                                  loggedInUserId: widget.loggedInUserId,
+                                  profileUserId: widget.profileUserId,
+                                );
+                              },
+                            );
+                          } else {
+                            // Show message for non-friends
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("You must be friends to give feedback"),
+                              ),
+                            );
+                          }
                         },
                       ),
+
                     ],
                   ),
 
