@@ -47,7 +47,7 @@ class _EditProfileState extends State<EditProfile> {
 
   final picker = ImagePicker();
 
-  get uploadedCVName => null;
+  // get uploadedCVName => null;
 
   get cvFilePath => null;
 
@@ -523,47 +523,42 @@ class _EditProfileState extends State<EditProfile> {
               const SizedBox(height: 16),
 
               // CV Upload Section
-              /*const Text(
-                "Upload CV",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: uploadedCVName != null
-                          ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FullScreenCV(
-                              filePath: cvFilePath,
-                            ),
-                          ),
-                        );
-                      }
-                          : null,
-                      child: Text(
-                        uploadedCVName ?? "No CV uploaded",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          decoration: TextDecoration.underline,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.upload_file, color: Colors.green),
-                    onPressed: uploadCv, // Function to upload CV
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: uploadedCVName != null ? Colors.red : Colors.grey),
-                    onPressed: uploadedCVName != null ? deleteCv : null, // Function to delete CV
-                  ),
-                ],
-              ),*/
+
+
+              // const Text(
+              //   "Upload CV",
+              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              // ),
+              // const SizedBox(height: 8),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.center,
+              //   mainAxisAlignment: MainAxisAlignment.start, // Align items horizontally
+              //   children: [
+              //     IconButton(
+              //       icon: const Icon(Icons.upload_file, color: Colors.green),
+              //       onPressed: () async {
+              //         await uploadCv(); // Function to upload CV
+              //         if (uploadedCVName != null) {
+              //           ScaffoldMessenger.of(context).showSnackBar(
+              //             const SnackBar(content: Text("CV uploaded successfully!")),
+              //           );
+              //         }
+              //       },
+              //     ),
+              //     const SizedBox(width: 16), // Space between the icons
+              //     IconButton(
+              //       icon: Icon(Icons.delete, color: cvUrl != null ? Colors.red : Colors.grey),
+              //       onPressed: cvUrl != null
+              //           ? () {
+              //         deleteCv(); // Function to delete CV
+              //         ScaffoldMessenger.of(context).showSnackBar(
+              //           const SnackBar(content: Text("CV deleted successfully!")),
+              //         );
+              //       }
+              //           : null, // Disable button if no CV uploaded
+              //     ),
+              //   ],
+              // ),
 
               const Text(
                 "Upload CV",
@@ -572,61 +567,42 @@ class _EditProfileState extends State<EditProfile> {
               const SizedBox(height: 8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start, // Align items horizontally
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: GestureDetector(
-                      onTap: uploadedCVName != null
-                          ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FullScreenCV(
-                              filePath: cvFilePath, // Pass the uploaded CV's file path
-                            ),
-                          ),
-                        );
-                      }
-                          : null,
-                      child: Container(
-                        height: 120, // Rectangle height
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey[200], // Background color for the default state
-                          image: uploadedCVName != null
-                              ? DecorationImage(
-                            image: NetworkImage(cvFilePath), // Show uploaded CV image
-                            fit: BoxFit.cover, // Cover the entire rectangle
-                          )
-                              : null,
-                        ),
-                        child: uploadedCVName == null
-                            ? const Center(
-                          child: Icon(Icons.insert_drive_file, size: 40, color: Colors.grey),
-                        )
-                            : null,
-                      ),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.upload_file, color: Colors.green),
+                    onPressed: () async {
+                      await uploadCv(); // Function to upload CV
+                      // if (cvUrl != null) {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     const SnackBar(content: Text("CV uploaded successfully!")),
+                      //   );
+                      // }
+                    },
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.upload_file, color: Colors.green),
-                          onPressed: uploadCv, // Function to upload CV
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: uploadedCVName != null ? Colors.red : Colors.grey),
-                          onPressed: uploadedCVName != null ? deleteCv : null, // Function to delete CV
-                        ),
-                      ],
+                  const SizedBox(width: 16), // Space between the icons
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: cvUrl != null ? Colors.red : Colors.grey, // Red if CV is uploaded, else grey
                     ),
+                    onPressed: cvUrl != null
+                        ? () async {
+                      await deleteCv(); // Function to delete CV
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   const SnackBar(content: Text("CV deleted successfully!")),
+                      // );
+                    }
+                        : () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("No CV to delete")), // Message when no CV is uploaded
+                      );
+                    },
                   ),
                 ],
               ),
+
+
 
               const SizedBox(height: 16),
 
