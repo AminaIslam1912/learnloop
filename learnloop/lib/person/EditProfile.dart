@@ -1,18 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../main.dart';
 import '../supabase_config.dart';
 import 'Achievement.dart';
 import 'FullScreenImage.dart';
 import 'Skill.dart';
 
 class EditProfile extends StatefulWidget {
-  final int loggedInUserId; // Authenticated user's ID
-  final int profileUserId; // Profile owner's ID
+  final int loggedInUserId;
+  final int profileUserId;
 
   const EditProfile({
     super.key,
@@ -30,7 +27,7 @@ class _EditProfileState extends State<EditProfile> {
   String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
   bool isLoading = false;
   bool get isOwner =>
-      widget.loggedInUserId == widget.profileUserId; // Check ownership
+      widget.loggedInUserId == widget.profileUserId;
   String bio = "";
   String occupation = "";
   String location = "";
@@ -46,13 +43,6 @@ class _EditProfileState extends State<EditProfile> {
 
   final picker = ImagePicker();
 
-  // get uploadedCVName => null;
-
-  get cvFilePath => null;
-
-
-
-
   @override
   void initState() {
     super.initState();
@@ -60,10 +50,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
 
-
-
   Future<void> saveProfile() async {
-    //print("Before saving: $skills");
 
     setState(() {
       isLoading = true;
@@ -79,12 +66,11 @@ class _EditProfileState extends State<EditProfile> {
 
       };
 
-
       await SupabaseConfig.client
           .from('users')
           .update(payload)
           .eq('id', widget.profileUserId);
-      //print("After saving: $skills");
+
 
       setState(() {
         name = _nameController.text;
@@ -94,7 +80,6 @@ class _EditProfileState extends State<EditProfile> {
         location = _locationController.text;
       });
 
-      // Pass updated data back to the previous screen
       Navigator.pop(context, {
         'name': _nameController.text,
         'email': _emailController.text,
@@ -120,8 +105,6 @@ class _EditProfileState extends State<EditProfile> {
 
   void _editSkills() async {
     try {
-      // Navigate to the SkillsEditPage and wait for the updated skills
-      //final updatedSkills =
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -131,7 +114,7 @@ class _EditProfileState extends State<EditProfile> {
 
 
     } catch (e) {
-      //print("Error saving updated skills to the database: $e"); // Log error
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error saving skills to the database: $e")),
       );
@@ -142,8 +125,7 @@ class _EditProfileState extends State<EditProfile> {
 
   void _editAchievement() async {
     try {
-      // Navigate to the SkillsEditPage and wait for the updated skills
-      //final updatedAchievements =
+
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -151,9 +133,7 @@ class _EditProfileState extends State<EditProfile> {
         ),
       );
 
-
     } catch (e) {
-      //print("Error saving updated achievements to the database: $e"); // Log error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error saving achievements to the database: $e")),
       );
@@ -167,35 +147,31 @@ class _EditProfileState extends State<EditProfile> {
       setState(() => isLoading = true);
 
       try {
-
-        // Check if there's already a profile picture and delete it if it exists
         if (profilePicture != "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" && profilePicture.startsWith('https://')) {
-          final fileName = profilePicture.split('/').last; // Extract file name
+          final fileName = profilePicture.split('/').last;
           await Supabase.instance.client.storage
               .from('profile_picture')
               .remove([fileName]);
         }
-        // File name for the uploaded image
         final fileName = '${widget.profileUserId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-        // Convert the file path string to a File object
         File file = File(pickedFile.path);
 
-        // Upload the image to Supabase Storage
+
         final response = await Supabase.instance.client.storage
-            .from('profile_picture') // Bucket name
-            .upload(fileName, file); // Pass the File object
+            .from('profile_picture')
+            .upload(fileName, file);
 
         if (response.error != null) {
           throw response.error!.message;
         }
 
-        // Get the public URL of the uploaded image
+
         final publicUrl = Supabase.instance.client.storage
             .from('profile_picture')
             .getPublicUrl(fileName);
 
-        // Update the user's profile picture URL in the database
+
         await Supabase.instance.client
             .from('users')
             .update({'profile_picture': publicUrl})
@@ -224,15 +200,14 @@ class _EditProfileState extends State<EditProfile> {
     setState(() => isLoading = true);
 
     try {
-      // Remove profile picture from storage (if previously uploaded)
+
       if (profilePicture.startsWith('https://')) {
-        final fileName = profilePicture.split('/').last; // Extract file name
+        final fileName = profilePicture.split('/').last;
         await Supabase.instance.client.storage
             .from('profile_picture')
             .remove([fileName]);
       }
 
-      // Update the database to set profile picture to default
       await Supabase.instance.client
           .from('users')
           .update({'profile_picture': null})
@@ -255,17 +230,16 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> uploadCv() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery); // You can change this to a file picker if needed
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() => isLoading = true);
 
       try {
-        // Upload logic similar to profile picture upload
+
         final fileName = '${widget.profileUserId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
         File file = File(pickedFile.path);
 
-        // Upload CV to Supabase storage
         final response = await Supabase.instance.client.storage
             .from('cv_bucket')
             .upload(fileName, file);
@@ -274,7 +248,6 @@ class _EditProfileState extends State<EditProfile> {
           throw response.error!.message;
         }
 
-        // Get the public URL of the uploaded CV
         final publicUrl = Supabase.instance.client.storage
             .from('cv_bucket')
             .getPublicUrl(fileName);
@@ -286,7 +259,7 @@ class _EditProfileState extends State<EditProfile> {
             .eq('id', widget.profileUserId);
 
         setState(() {
-          cvUrl = publicUrl; // Update CV URL
+          cvUrl = publicUrl;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -327,7 +300,7 @@ class _EditProfileState extends State<EditProfile> {
           .eq('id', widget.profileUserId);
 
       setState(() {
-        cvUrl = ""; // Reset CV URL
+        cvUrl = "";
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -369,8 +342,7 @@ class _EditProfileState extends State<EditProfile> {
         cvUrl = response['cv_url'] ?? "";
 
       });
-      //print(cvUrl);
-      // Set the initial values for controllers
+
       _nameController.text = name;
       _emailController.text = email;
       _bioController.text = bio;
@@ -407,7 +379,7 @@ class _EditProfileState extends State<EditProfile> {
             icon: const Icon(Icons.save),
             onPressed: isLoading
                 ? null
-                : saveProfile, // Save button to save changes to the database
+                : saveProfile,
           ),
         ],
       ),
@@ -435,7 +407,7 @@ class _EditProfileState extends State<EditProfile> {
                       );
                     },
                     child: Stack(
-                      alignment: Alignment.bottomRight, // Position the edit icon at the bottom right
+                      alignment: Alignment.bottomRight,
                       children: [
                         CircleAvatar(
                           radius: 50,
@@ -448,7 +420,6 @@ class _EditProfileState extends State<EditProfile> {
                           right: 0,
                           child: GestureDetector(
                             onTap: () {
-                              // Show options for update and delete
                               showModalBottomSheet(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -460,13 +431,12 @@ class _EditProfileState extends State<EditProfile> {
                                           leading: Icon(Icons.edit),
                                           title: Text('Update'),
                                           onTap: () {
-                                            // Handle the update action here
                                             uploadProfilePicture();
-                                            Navigator.pop(context); // Close the bottom sheet
+                                            Navigator.pop(context);
                                           },
                                         ),
                                         Opacity(
-                                          opacity: canDeletePic ? 1.0 : 0.5, // Change opacity here
+                                          opacity: canDeletePic ? 1.0 : 0.5,
                                           child: ListTile(
                                             leading: const Icon(Icons.delete),
                                             title: const Text('Delete'),
@@ -504,9 +474,6 @@ class _EditProfileState extends State<EditProfile> {
                           labelText: 'Edit Bio',
                           border: OutlineInputBorder(),
                         ),
-                        // onChanged: (value) {
-                        //   userProfileProvider.bio = value; // Update the bio
-                        // },
                       ),
                     ),
                   ),
@@ -531,92 +498,157 @@ class _EditProfileState extends State<EditProfile> {
               ),
               const SizedBox(height: 16),
 
-              const Text(
-                "Upload CV",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.upload_file, color: Colors.green),
-                    onPressed: () async {
-                      await uploadCv();
-                    },
+
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey, // Border color
+                    width: 1.0,         // Border width
                   ),
-                  const SizedBox(width: 16),
-                  Opacity(
-                    opacity: canDeleteCv ? 1.0 : 0.5, // Change opacity based on CV existence
-                    child: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: canDeleteCv
-                          ? () async {
-                        await deleteCv();
-                      }
-                          : null, // Disable the button if no CV exists
+
+                  borderRadius: BorderRadius.circular(8),
+
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Upload CV",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.upload_file, color: Colors.green),
+                          onPressed: () async {
+                            await uploadCv();
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        Opacity(
+                          opacity: canDeleteCv ? 1.0 : 0.5,
+                          child: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: canDeleteCv
+                                ? () async {
+                              await deleteCv();
+                            }
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+
+              const SizedBox(height: 16),
+
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1.0,
                   ),
-                ],
-              ),
-
-
-
-
-
-
-
-              const SizedBox(height: 16),
-
-              const Text(
-                "Achievements",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: achievements.take(3).map((achievement) {
-                  return Chip(
-                    label: Text(achievement),
-                    backgroundColor: Colors.black,
-
-                  );
-                }).toList(),
-              ),
-              ElevatedButton(
-                onPressed: _editAchievement,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF009252), // Set the button color
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                child: const Text("Edit Achievements",style: TextStyle(color: Colors.white)),
-
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "Skills",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: skills.take(3).map((skill) {
-                  return Chip(
-                    label: Text(skill),
-                    backgroundColor: Colors.black,
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF009252), // Set the button color
+                padding: const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          "Achievements",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: _editAchievement,
+                          icon: const Icon(Icons.add, color: Colors.white),
+                          tooltip: "Edit Achievements",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: achievements.take(3).map((achievement) {
+                        return Chip(
+                          label: Text(
+                            achievement,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.black,
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
-                onPressed: _editSkills,
-                child: const Text("Edit Skills",style: TextStyle(color: Colors.white)),
               ),
+
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          "Skills",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: _editSkills,
+                          icon: const Icon(Icons.add, color: Colors.white),
+                          tooltip: "Edit Skills",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: skills.take(3).map((skill) {
+                        return Chip(
+                          label: Text(
+                            skill,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.black,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
             ],
           ),
         ),
@@ -625,7 +657,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 }
 
-// Full Screen CV Viewer
 class FullScreenCV extends StatelessWidget {
   final String filePath;
 
@@ -646,7 +677,7 @@ class FullScreenCV extends StatelessWidget {
 
   Widget _buildViewer() {
     if (filePath.endsWith(".jpg") || filePath.endsWith(".png")) {
-      return Image.network(filePath);  // Use Image.network for remote URLs
+      return Image.network(filePath);
     } else {
       return const Text("Unsupported file type.");
     }
