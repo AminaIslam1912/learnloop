@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; // For formatting date and time
+import 'package:intl/intl.dart';
 import 'package:learnloop/chat/service/firestore_service.dart';
 import 'package:learnloop/chat/screen/ChatPage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,24 +29,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
   final FirestoreService _firestoreService = FirestoreService();
   String? peerPhotoUrl;
 
-  /// Fetch the peer's photo URL
-  Future<void> _getPeerPhotoUrl() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.peerId)
-          .get();
-      if (doc.exists) {
-        setState(() {
-          peerPhotoUrl = doc['photoUrl'] ?? '';
-        });
-      }
-    } catch (e) {
-      print('Error fetching peer photo URL: $e');
-    }
-  }
-
-  /// Send a message to the Firestore database.
+  // Send a message to the Firestore database.
   void _sendMessage() {
     final message = _messageController.text.trim();
 
@@ -55,13 +38,12 @@ class _ChatInterfaceState extends State<ChatInterface> {
         senderId: widget.userId,
         receiverId: widget.peerId,
         message: message,
-
       );
       _messageController.clear();
     }
   }
 
-  /// Open a calendar to pick a date and time for scheduling a class
+  // Open a calendar to pick a date and time for scheduling a class
   Future<void> _scheduleClass() async {
     DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -85,18 +67,15 @@ class _ChatInterfaceState extends State<ChatInterface> {
           selectedTime.minute,
         );
 
-        // Format and display the selected date and time
         final String formattedDateTime =
         DateFormat('MMM dd, yyyy, hh:mm a').format(scheduledDateTime);
 
-        // Show a confirmation
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Class scheduled for $formattedDateTime'),
           ),
         );
 
-        // Save the schedule to Firestore (optional)
         await FirebaseFirestore.instance.collection('schedules').add({
           'userId': widget.userId,
           'peerId': widget.peerId,
@@ -109,7 +88,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
   @override
   void initState() {
     super.initState();
-    //_getPeerPhotoUrl(); // Fetch peer photo URL when the page loads
   }
 
   @override
@@ -117,53 +95,48 @@ class _ChatInterfaceState extends State<ChatInterface> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ChatPage()),
             ).then((shouldRefresh) {
               if (shouldRefresh == true) {
-                // Refresh your page or perform the necessary actions
                 setState(() {});
               }
             });
           },
         ),
-        title:
-        Row(
+        title: Row(
           children: [
             CircleAvatar(
               backgroundImage: widget.peerProfilePicture.isNotEmpty
-                  ? NetworkImage(widget.peerProfilePicture) // Use the passed profile picture
-                  : NetworkImage(
+                  ? NetworkImage(widget.peerProfilePicture)
+                  : const NetworkImage(
                   "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"), // Default image
             ),
             const SizedBox(width: 10),
             Text(widget.userName),
           ],
         ),
-
-
-          actions: [
+        actions: [
           IconButton(
-            icon: Icon(Icons.call),// Icon for "Join Classroom"
+            icon: const Icon(Icons.call),
             onPressed: () async {
-              const String meetLink = 'https://meet.google.com/landing'; // Static meet link
-
-              await launchUrl(Uri.parse(meetLink), mode: LaunchMode.externalApplication);
+              const String meetLink = 'https://meet.google.com/landing';
+              await launchUrl(Uri.parse(meetLink),
+                  mode: LaunchMode.externalApplication);
             },
           ),
           IconButton(
-            icon: Icon(Icons.schedule), // Icon for "Schedule Class"
-            onPressed: _scheduleClass, // Call the function to schedule a class
+            icon: const Icon(Icons.schedule),
+            onPressed: _scheduleClass,
           ),
         ],
       ),
       body: Column(
         children: [
-          // Message List
-          Divider(),
+          const Divider(),
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
               stream: _firestoreService.getMessages(
@@ -187,29 +160,43 @@ class _ChatInterfaceState extends State<ChatInterface> {
                 }
 
                 return ListView.builder(
-                  reverse: true, // Show the latest messages at the bottom
+                  reverse: true,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
                     final isSender = message['senderId'] == widget.userId;
 
-                    return Align(
-                      alignment: isSender
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 5,
-                          horizontal: 10,
+                    return GestureDetector(
+                      onLongPress: () {
+                        Clipboard.setData(
+                          ClipboardData(text: message['message']),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Message copied!')),
+                        );
+                      },
+                      child: Align(
+                        alignment: isSender
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isSender
+                                ? Colors.blue.shade100
+                                : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            message['message'],
+                            style: const TextStyle(color: Colors.black),
+                          ),
+
                         ),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isSender
-                              ? Colors.black
-                              : Colors.black,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(message['message']),
                       ),
                     );
                   },
@@ -217,7 +204,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
               },
             ),
           ),
-          // Message Input Field
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -249,8 +235,4 @@ class _ChatInterfaceState extends State<ChatInterface> {
     _messageController.dispose();
     super.dispose();
   }
-}
-
-mixin peerProfilePicture {
-  var isNotEmpty;
 }

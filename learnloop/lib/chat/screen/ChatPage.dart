@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:learnloop/MainPage.dart';
 import 'package:learnloop/chat/screen/ChatInterface.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatPage extends StatefulWidget {
@@ -82,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
           .doc(chatId)
           .collection('messages')
           .where('isSeen', isEqualTo: false)
-          .where('receiverId', isEqualTo:currentUser?.uid) // Messages sent to the current user
+          .where('receiverId', isEqualTo:currentUser?.uid)
           .get();
 
       final unseenCount = unseenCountSnapshot.docs.length;
@@ -111,9 +111,9 @@ class _ChatPageState extends State<ChatPage> {
     Duration difference = now.difference(messageTime);
 
     if (difference.inDays == 0) {
-      return DateFormat.jm().format(messageTime); // e.g., 2:30 PM
+      return DateFormat.jm().format(messageTime);
     } else {
-      return DateFormat('d MMM').format(messageTime); // e.g., 7 Jan
+      return DateFormat('d MMM').format(messageTime);
     }
   }
 
@@ -140,7 +140,7 @@ class _ChatPageState extends State<ChatPage> {
               searchQuery = value.trim().toLowerCase();
             });
           },
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Search by name',
             prefixIcon: Icon(Icons.search),
             border: InputBorder.none,
@@ -164,7 +164,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          Divider(),
+          const Divider(),
           Expanded(
             child: FutureBuilder<List<int>>(
               future: fetchFriends(),
@@ -208,35 +208,35 @@ class _ChatPageState extends State<ChatPage> {
                           builder: (context, messageSnapshot) {
                             final lastMessage = messageSnapshot.data?['lastMessage'] ?? '';
                             final timestamp = messageSnapshot.data?['timestamp'];
-                            final unseenCount = messageSnapshot.data?['unseenCount'] ?? 0; // Get unseen count
+                            final unseenCount = messageSnapshot.data?['unseenCount'] ?? 0;
 
                             return Container(
 
                               child: ListTile(
                                 leading: CircleAvatar(
                                   backgroundImage: profilePicture.isNotEmpty
-                                      ? NetworkImage(profilePicture) // User er profile image
-                                      : NetworkImage(
+                                      ? NetworkImage(profilePicture)
+                                      : const NetworkImage(
                                       "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"), // Default image
                                 ),
 
                                 title: Text(
                                   friendName ?? 'Unknown',
                                   style: TextStyle(
-                                    fontWeight: unseenCount > 0 ? FontWeight.bold : FontWeight.normal, // Bold if unread
+                                    fontWeight: unseenCount > 0 ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
                                 subtitle: Text(
                                   lastMessage,
                                   style: TextStyle(
-                                    fontWeight: unseenCount > 0 ? FontWeight.bold : FontWeight.normal, // Bold if unread
+                                    fontWeight: unseenCount > 0 ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
                                 trailing: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(formatTimestamp(timestamp)),
-                                    if (unseenCount > 0) // Show unseen count only if it's greater than 0
+                                    if (unseenCount > 0)
                                       Container(
                                         margin: EdgeInsets.only(top: 4.0),
                                         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -303,19 +302,25 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
+  // Update the deleteCv function to handle the case when no CV exists
   Future<void> deleteCv() async {
+    if (!cvUrl.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No CV to delete")),
+      );
+      return;
+    }
+
     setState(() => isLoading = true);
 
     try {
-      // Remove CV from storage (if previously uploaded)
-      if (cvUrl.isNotEmpty) {
-        final fileName = cvUrl.split('/').last; // Extract file name
-        await Supabase.instance.client.storage
-            .from('cv_bucket') // Your CV files bucket
-            .remove([fileName]);
-      }
+      // Remove CV from storage
+      final fileName = cvUrl.split('/').last;
+      await Supabase.instance.client.storage
+          .from('cv_bucket')
+          .remove([fileName]);
 
-      // Update the database to set CV URL to null
+      // Update the database
       await Supabase.instance.client
           .from('users')
           .update({'cv_url': null})
@@ -336,6 +341,8 @@ class _EditProfileState extends State<EditProfile> {
       setState(() => isLoading = false);
     }
   }
+
+
 
 
   Future<void> fetchUserData() async {
@@ -386,6 +393,8 @@ class _EditProfileState extends State<EditProfile> {
 
 
     bool canDeletePic = profilePicture != "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
+    bool canDeleteCv = cvUrl.isNotEmpty;
+    print("can Delete $canDeleteCv");
 
 
 
@@ -522,44 +531,6 @@ class _EditProfileState extends State<EditProfile> {
               ),
               const SizedBox(height: 16),
 
-              // CV Upload Section
-
-
-              // const Text(
-              //   "Upload CV",
-              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              // ),
-              // const SizedBox(height: 8),
-              // Row(
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   mainAxisAlignment: MainAxisAlignment.start, // Align items horizontally
-              //   children: [
-              //     IconButton(
-              //       icon: const Icon(Icons.upload_file, color: Colors.green),
-              //       onPressed: () async {
-              //         await uploadCv(); // Function to upload CV
-              //         if (uploadedCVName != null) {
-              //           ScaffoldMessenger.of(context).showSnackBar(
-              //             const SnackBar(content: Text("CV uploaded successfully!")),
-              //           );
-              //         }
-              //       },
-              //     ),
-              //     const SizedBox(width: 16), // Space between the icons
-              //     IconButton(
-              //       icon: Icon(Icons.delete, color: cvUrl != null ? Colors.red : Colors.grey),
-              //       onPressed: cvUrl != null
-              //           ? () {
-              //         deleteCv(); // Function to delete CV
-              //         ScaffoldMessenger.of(context).showSnackBar(
-              //           const SnackBar(content: Text("CV deleted successfully!")),
-              //         );
-              //       }
-              //           : null, // Disable button if no CV uploaded
-              //     ),
-              //   ],
-              // ),
-
               const Text(
                 "Upload CV",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
@@ -567,40 +538,32 @@ class _EditProfileState extends State<EditProfile> {
               const SizedBox(height: 8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start, // Align items horizontally
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.upload_file, color: Colors.green),
                     onPressed: () async {
-                      await uploadCv(); // Function to upload CV
-                      // if (cvUrl != null) {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(content: Text("CV uploaded successfully!")),
-                      //   );
-                      // }
+                      await uploadCv();
                     },
                   ),
-                  const SizedBox(width: 16), // Space between the icons
-                  IconButton(
-                    icon: Icon(
-                      Icons.delete,
-                      color: cvUrl != null ? Colors.red : Colors.grey, // Red if CV is uploaded, else grey
+                  const SizedBox(width: 16),
+                  Opacity(
+                    opacity: canDeleteCv ? 1.0 : 0.5, // Change opacity based on CV existence
+                    child: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: canDeleteCv
+                          ? () async {
+                        await deleteCv();
+                      }
+                          : null, // Disable the button if no CV exists
                     ),
-                    onPressed: cvUrl != null
-                        ? () async {
-                      await deleteCv(); // Function to delete CV
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(content: Text("CV deleted successfully!")),
-                      // );
-                    }
-                        : () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("No CV to delete")), // Message when no CV is uploaded
-                      );
-                    },
                   ),
                 ],
               ),
+
+
+
+
 
 
 
