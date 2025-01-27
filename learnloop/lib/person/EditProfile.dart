@@ -690,7 +690,7 @@ class _EditProfileState extends State<EditProfile> {
 class FullScreenCV extends StatelessWidget {
   final String filePath;
 
-  const FullScreenCV({required this.filePath});
+  const FullScreenCV({Key? key, required this.filePath}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -700,11 +700,17 @@ class FullScreenCV extends StatelessWidget {
         backgroundColor: const Color(0xFF009252),
       ),
       body: Center(
-        child: filePath.endsWith(".pdf")
-            ? Text("Display PDF Viewer Here") // Use a PDF viewer package (e.g., `flutter_pdfview`)
-            : const Text("Unsupported file type"),
+        child: _buildViewer(),
       ),
     );
+  }
+
+  Widget _buildViewer() {
+    if (filePath.endsWith(".jpg") || filePath.endsWith(".png")) {
+      return Image.network(filePath);  // Use Image.network for remote URLs
+    } else {
+      return const Text("Unsupported file type.");
+    }
   }
 }
 

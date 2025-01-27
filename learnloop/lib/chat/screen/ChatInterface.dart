@@ -10,12 +10,14 @@ class ChatInterface extends StatefulWidget {
   final String userId; // Current logged-in user's ID
   final String userName; // The name of the other user in the chat
   final String peerId; // The ID of the user being chatted with
+  final String peerProfilePicture;
 
   const ChatInterface({
     Key? key,
     required this.userId,
     required this.userName,
     required this.peerId,
+    required this.peerProfilePicture,
   }) : super(key: key);
 
   @override
@@ -128,21 +130,22 @@ class _ChatInterfaceState extends State<ChatInterface> {
             });
           },
         ),
-        title: Row(
+        title:
+        Row(
           children: [
             CircleAvatar(
-              backgroundImage: peerPhotoUrl != null && peerPhotoUrl!.isNotEmpty
-                  ? NetworkImage(peerPhotoUrl!)
-                  : null,
-              child: peerPhotoUrl == null || peerPhotoUrl!.isEmpty
-                  ? Icon(Icons.person)
-                  : null,
+              backgroundImage: widget.peerProfilePicture.isNotEmpty
+                  ? NetworkImage(widget.peerProfilePicture) // Use the passed profile picture
+                  : NetworkImage(
+                  "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"), // Default image
             ),
             const SizedBox(width: 10),
             Text(widget.userName),
           ],
         ),
-        actions: [
+
+
+          actions: [
           IconButton(
             icon: Icon(Icons.call),// Icon for "Join Classroom"
             onPressed: () async {
@@ -246,4 +249,8 @@ class _ChatInterfaceState extends State<ChatInterface> {
     _messageController.dispose();
     super.dispose();
   }
+}
+
+mixin peerProfilePicture {
+  var isNotEmpty;
 }

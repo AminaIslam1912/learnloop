@@ -215,10 +215,11 @@ class _ChatPageState extends State<ChatPage> {
                               child: ListTile(
                                 leading: CircleAvatar(
                                   backgroundImage: profilePicture.isNotEmpty
-                                      ? NetworkImage(profilePicture)
-                                      : null,
-                                  child: profilePicture.isEmpty ? Icon(Icons.person) : null,
+                                      ? NetworkImage(profilePicture) // User er profile image
+                                      : NetworkImage(
+                                      "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"), // Default image
                                 ),
+
                                 title: Text(
                                   friendName ?? 'Unknown',
                                   style: TextStyle(
@@ -278,6 +279,7 @@ class _ChatPageState extends State<ChatPage> {
                                         userId: currentUser!.uid,
                                         peerId: friendFireId,
                                         userName: friendName,
+                                        peerProfilePicture: profilePicture,
                                       ),
                                     ),
                                   );
