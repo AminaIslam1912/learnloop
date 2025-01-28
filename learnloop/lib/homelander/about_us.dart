@@ -82,10 +82,34 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
 
+  // Widget _buildContactCard(
+  //     {required String title,
+  //       required String subtitle,
+  //       required IconData icon,
+  //       required VoidCallback onTap}) {
+  //   return Card(
+  //     elevation: 4,
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: ListTile(
+  //       leading: Icon(icon, color: Colors.blueAccent),
+  //       title: Text(
+  //         title,
+  //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+  //       ),
+  //       subtitle: Text(subtitle, style: TextStyle(fontSize: 16)),
+  //       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+  //       onTap: onTap,
+  //     ),
+  //   );
+  // }
+
   Widget _buildContactCard(
       {required String title,
         required String subtitle,
         required IconData icon,
+        Color iconColor = Colors.green, // Default color is green
         required VoidCallback onTap}) {
     return Card(
       elevation: 4,
@@ -93,7 +117,7 @@ class _AboutScreenState extends State<AboutScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Colors.blueAccent),
+        leading: Icon(icon, color: iconColor), // Set icon color to green
         title: Text(
           title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),

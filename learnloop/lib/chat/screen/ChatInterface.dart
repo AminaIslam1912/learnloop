@@ -1,6 +1,3 @@
-
-//merge code
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -45,48 +42,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
       _messageController.clear();
     }
   }
-
-  // Open a calendar to pick a date and time for scheduling a class
-  // Future<void> _scheduleClass() async {
-  //   DateTime? selectedDate = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now(),
-  //     firstDate: DateTime.now(),
-  //     lastDate: DateTime(2100),
-  //   );
-  //
-  //   if (selectedDate != null) {
-  //     TimeOfDay? selectedTime = await showTimePicker(
-  //       context: context,
-  //       initialTime: TimeOfDay.now(),
-  //     );
-  //
-  //     if (selectedTime != null) {
-  //       final DateTime scheduledDateTime = DateTime(
-  //         selectedDate.year,
-  //         selectedDate.month,
-  //         selectedDate.day,
-  //         selectedTime.hour,
-  //         selectedTime.minute,
-  //       );
-  //
-  //       final String formattedDateTime =
-  //       DateFormat('MMM dd, yyyy, hh:mm a').format(scheduledDateTime);
-  //
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Class scheduled for $formattedDateTime'),
-  //         ),
-  //       );
-  //
-  //       await FirebaseFirestore.instance.collection('schedules').add({
-  //         'userId': widget.userId,
-  //         'peerId': widget.peerId,
-  //         'scheduledAt': scheduledDateTime,
-  //       });
-  //     }
-  //   }
-  // }
 
   // Open a calendar to pick a date and time for scheduling a class
   Future<void> _scheduleClass() async {
@@ -181,6 +136,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,14 +163,10 @@ class _ChatInterfaceState extends State<ChatInterface> {
                   "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"), // Default image
             ),
             const SizedBox(width: 10),
-            //Text(widget.userName),
-            Text(
-              widget.userName,
-              style: const TextStyle(
-                fontSize: 14.0, // Set the font size (adjust as needed)
-              ),
+            Text(widget.userName,style: const TextStyle(
+              fontSize: 12.0, // Set the font size (adjust as needed)
             ),
-
+            ),
           ],
         ),
         actions: [
@@ -232,112 +184,131 @@ class _ChatInterfaceState extends State<ChatInterface> {
           ),
         ],
       ),
-      body:
-          Container(
-            decoration: BoxDecoration(
-            image: DecorationImage(
-            image: AssetImage('assets/chat-bg.jpg'), // Replace with your image path
-               fit: BoxFit.cover, // Ensures the image covers the entire background
-           ),
-              ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/chat-bg.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          children: [
+            //const Divider(),
+            Expanded(
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _firestoreService.getMessages(
+                  userId: widget.userId,
+                  peerId: widget.peerId,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-
-    child:   Column(
-        children: [
-          const Divider(),
-          Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _firestoreService.getMessages(
-                userId: widget.userId,
-                peerId: widget.peerId,
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                }
-
-                final messages = snapshot.data ?? [];
-                if (messages.isEmpty) {
-                  return const Center(child: Text('No messages yet.'));
-                }
-
-                return ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    final isSender = message['senderId'] == widget.userId;
-
-                    return GestureDetector(
-                      onLongPress: () {
-                        Clipboard.setData(
-                          ClipboardData(text: message['message']),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Message copied!')),
-                        );
-                      },
-                      child: Align(
-                        alignment: isSender
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 5,
-                            horizontal: 10,
-                          ),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: isSender
-                                ? Colors.green.shade500
-                                : Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            message['message'],
-                            style: const TextStyle(color: Colors.black),
-                          ),
-
-                        ),
-                      ),
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
                     );
-                  },
-                );
-              },
+                  }
+
+                  final messages = snapshot.data ?? [];
+                  if (messages.isEmpty) {
+                    return const Center(child: Text('No messages yet.'));
+                  }
+
+                  return ListView.builder(
+                    reverse: true,
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      final isSender = message['senderId'] == widget.userId;
+
+                      return GestureDetector(
+                        onLongPress: () {
+                          Clipboard.setData(
+                            ClipboardData(text: message['message']),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Message copied!')),
+                          );
+                        },
+                        child: Align(
+                          alignment: isSender
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 5,
+                              horizontal: 10,
+                            ),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isSender
+                                  ? Colors.green.shade600
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              message['message'],
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      labelText: 'Enter message',
-                      border: OutlineInputBorder(),
+
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: TextField(
+                        controller: _messageController,
+                        cursorColor: Colors.green,
+                        decoration: InputDecoration(
+                          labelText: 'Enter message',
+                          labelStyle: const TextStyle(color: Colors.white),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green, width: 2.0),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green, width: 2.0),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+                        ),
+                        onSubmitted: (value) => _sendMessage(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
-                    onSubmitted: (value) => _sendMessage(),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    color: Colors.white,
+                    onPressed: _sendMessage,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+
+
+          ],
+        ),
       ),
-          )
     );
   }
+
 
   @override
   void dispose() {

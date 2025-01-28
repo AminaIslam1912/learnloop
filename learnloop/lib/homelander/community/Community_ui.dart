@@ -125,16 +125,29 @@ class _CommunityUIState extends State<CommunityUI> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   onChanged: _updateSearchQuery,
+                  cursorColor: Colors.green, // Set cursor color to green
                   decoration: InputDecoration(
-                    hintText: 'Search community',
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    labelText: 'Search community',
+                    labelStyle: const TextStyle(
+                      color: Colors.green, // Green label text
+                    ),
+                   // hintStyle: const TextStyle(color: Colors.white54),
+                   // prefixIcon: const Icon(Icons.search, color: Colors.green), // Green prefix icon
+
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.white54),
+                      borderRadius: BorderRadius.circular(12),
+                     // borderSide: const BorderSide(color: Colors.white54),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12), // Rounded corners
+                      borderSide: const BorderSide(
+                        color: Colors.green, // Green border on focus
+                        width: 2.0, // Thickness of the border
+                      ),
                     ),
                     filled: true,
                     fillColor: Colors.black,
-                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                    prefixIcon: const Icon(Icons.search, color: Colors.green),
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -193,7 +206,7 @@ class _CommunityUIState extends State<CommunityUI> {
                   child: Image.network(
                     backgroundImage,
                     fit: BoxFit.cover,
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withOpacity(0.8),
                     colorBlendMode: BlendMode.darken,
                   ),
                 ),
@@ -219,7 +232,7 @@ class _CommunityUIState extends State<CommunityUI> {
                           const Text(
                             'Join the discussion',
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: Colors.green,
                               fontSize: 14,
                             ),
                           ),

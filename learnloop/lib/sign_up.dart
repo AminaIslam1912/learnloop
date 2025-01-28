@@ -25,27 +25,154 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _isPasswordVisible = false; // Track password visibility
   bool _isConfirmPasswordVisible = false; // Track confirm password visibility
 
-  Future<void> _signUp() async {
-    final username = _usernameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
+  // Future<void> _signUp() async {
+  //   final username = _usernameController.text;
+  //   final email = _emailController.text;
+  //   final password = _passwordController.text;
+  //   final confirmPassword = _confirmPasswordController.text;
+  //
+  //   if (password != confirmPassword) {
+  //     setState(() {
+  //       _errorMessage = 'Passwords do not match!';
+  //     });
+  //     return;
+  //   }
+  //
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = '';
+  //   });
+  //
+  //   try {
+  //
+  //     // Sign up the user with Firebase Authentication
+  //     UserCredential firebaseUser = await FirebaseAuth.instance
+  //         .createUserWithEmailAndPassword(email: email, password: password);
+  //
+  //     if (firebaseUser.user == null) {
+  //       throw Exception('Firebase sign-up failed');
+  //     }
+  //
+  //     final firebaseUserId = firebaseUser.user!.uid;
+  //
+  //
+  //     // Sign up the user with Supabase authentication
+  //     final response = await Supabase.instance.client.auth.signUp(
+  //       email: email,
+  //       password: password,
+  //     );
+  //
+  //     if (response.user == null) {
+  //       setState(() {
+  //         _errorMessage = 'Sign-up failed:  "Unknown error"}';
+  //       });
+  //       return;
+  //     }
+  //
+  //     final user = response.user;
+  //
+  //     // Insert the profile data (username, email) into the 'profiles' table
+  //     final profileResponse = await Supabase.instance.client
+  //         .from('profiles')
+  //         .insert([
+  //       {
+  //         'user_id': user?.id, // Storing the UUID in the new column
+  //         'name': username,
+  //         'email': email,
+  //         'created_at': DateTime.now().toUtc().toIso8601String(),
+  //         'password': password,
+  //        // 'fire_id': firebaseUserId,
+  //       }
+  //     ])
+  //         .select();
+  //
+  //     final userResponse = await Supabase.instance.client
+  //         .from('users')
+  //         .insert([
+  //       {
+  //         'sup_id': user?.id, // Storing the UUID in the new column
+  //         'name': username,
+  //         'email': email,
+  //        // 'created_at': DateTime.now().toUtc().toIso8601String(),
+  //        // 'password': password
+  //         'fire_id': firebaseUserId,
+  //         'friends': [], // Insert an empty JSON array
+  //         'request_sent': [], // Insert an empty JSON array
+  //         'request_received': [], // Insert an empty JSON array
+  //         'rating':0,
+  //         'userFeedback':[],
+  //         'bio':"",
+  //         'occupation':'',
+  //         'location':'',
+  //         'achievements':[],
+  //         'skills':[],
+  //         'profile_picture':'',
+  //
+  //
+  //       }
+  //     ])
+  //         .select();
+  //
+  //
+  //     if (profileResponse == null) {
+  //       setState(() {
+  //         _errorMessage = 'Profile insertion failed: unknown error';
+  //       });
+  //       // print('Supabase Insert Error: ${profileResponse.error!.message}');
+  //       return;
+  //     }
+  //
+  //     // Navigate to the login page
+  //     Navigator.pushReplacementNamed(context, '/login');
+  //     //  Navigator.push(
+  //     //    context,
+  //     //    MaterialPageRoute(builder: (context) => const LoginPage()),
+  //     //  );
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = 'An unexpected error occurred: $e';
+  //     });
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
 
+  Future<void> _signUp() async {
+    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    // Check for missing inputs
+    if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please, fill up all the inputs'),
+          backgroundColor: Colors.white,
+        ),
+      );
+      return;
+    }
+
+    // Check if passwords match
     if (password != confirmPassword) {
-      setState(() {
-        _errorMessage = 'Passwords do not match!';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Passwords do not match!'),
+          backgroundColor: Colors.white,
+        ),
+      );
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _errorMessage = '';
     });
 
     try {
-
-      // Sign up the user with Firebase Authentication
+      // Sign up with Firebase Authentication
       UserCredential firebaseUser = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -55,83 +182,72 @@ class _SignUpPageState extends State<SignUpPage> {
 
       final firebaseUserId = firebaseUser.user!.uid;
 
-
-      // Sign up the user with Supabase authentication
+      // Sign up with Supabase
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
 
       if (response.user == null) {
-        setState(() {
-          _errorMessage = 'Sign-up failed:  "Unknown error"}';
-        });
-        return;
+        throw Exception('Supabase sign-up failed');
       }
 
       final user = response.user;
 
-      // Insert the profile data (username, email) into the 'profiles' table
+      // Insert profile data into the 'profiles' table
       final profileResponse = await Supabase.instance.client
           .from('profiles')
           .insert([
         {
-          'user_id': user?.id, // Storing the UUID in the new column
+          'user_id': user?.id,
           'name': username,
           'email': email,
           'created_at': DateTime.now().toUtc().toIso8601String(),
           'password': password,
-         // 'fire_id': firebaseUserId,
         }
-      ])
-          .select();
+      ]);
 
-      final userResponse = await Supabase.instance.client
+      // Insert additional user data into the 'users' table
+      await Supabase.instance.client
           .from('users')
           .insert([
         {
-          'sup_id': user?.id, // Storing the UUID in the new column
+          'sup_id': user?.id,
           'name': username,
           'email': email,
-         // 'created_at': DateTime.now().toUtc().toIso8601String(),
-         // 'password': password
           'fire_id': firebaseUserId,
-          'friends': [], // Insert an empty JSON array
-          'request_sent': [], // Insert an empty JSON array
-          'request_received': [], // Insert an empty JSON array
-          'rating':0,
-          'userFeedback':[],
-          'bio':"",
-          'occupation':'',
-          'location':'',
-          'achievements':[],
-          'skills':[],
-          'profile_picture':'',
-
-
+          'friends': [],
+          'request_sent': [],
+          'request_received': [],
+          'rating': 0,
+          'userFeedback': [],
+          'bio': "",
+          'occupation': '',
+          'location': '',
+          'achievements': [],
+          'skills': [],
+          'profile_picture': '',
         }
-      ])
-          .select();
+      ]);
 
-
-      if (profileResponse == null) {
-        setState(() {
-          _errorMessage = 'Profile insertion failed: unknown error';
-        });
-        // print('Supabase Insert Error: ${profileResponse.error!.message}');
-        return;
-      }
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Congratulations!!! Registration completed.'),
+          backgroundColor: Colors.white,
+        ),
+      );
 
       // Navigate to the login page
       Navigator.pushReplacementNamed(context, '/login');
-      //  Navigator.push(
-      //    context,
-      //    MaterialPageRoute(builder: (context) => const LoginPage()),
-      //  );
     } catch (e) {
-      setState(() {
-        _errorMessage = 'An unexpected error occurred: $e';
-      });
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('An error occurred. Please, try again!!'),
+          backgroundColor: Colors.white,
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -347,88 +463,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
-
-// @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Center(
-//         child: SingleChildScrollView(
-//           child: Padding(
-//             padding: const EdgeInsets.all(20.0),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 const Center(
-//                   child: Text(
-//                     'SignUp',
-//                     style: TextStyle(
-//                       fontSize: 32,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                 ),
-//                 const SizedBox(height: 40),
-//                 const Text('Username', style: TextStyle(color: Colors.white70)),
-//                 TextField(
-//                   controller: _usernameController,
-//                   decoration: const InputDecoration(hintText: 'Enter Username'),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 const Text('Email', style: TextStyle(color: Colors.white70)),
-//                 TextField(
-//                   controller: _emailController,
-//                   decoration: const InputDecoration(hintText: 'Enter Email'),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 const Text('Password', style: TextStyle(color: Colors.white70)),
-//                 TextField(
-//                   controller: _passwordController,
-//                   obscureText: true,
-//                   decoration: const InputDecoration(hintText: 'Enter Password'),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 const Text('Re-enter Password', style: TextStyle(color: Colors.white70)),
-//                 TextField(
-//                   controller: _confirmPasswordController,
-//                   obscureText: true,
-//                   decoration: const InputDecoration(hintText: 'Re-enter Password'),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 _isLoading
-//                     ? const CircularProgressIndicator()
-//                     : ElevatedButton(
-//                   onPressed: _signUp,
-//                   child: const Text('SignUp'),
-//                 ),
-//                 if (_errorMessage.isNotEmpty) ...[
-//                   const SizedBox(height: 10),
-//                   Text(
-//                     _errorMessage,
-//                     style: const TextStyle(color: Colors.red),
-//                   ),
-//                 ],
-//                 const SizedBox(height: 10),
-//                 Center(
-//                   child: TextButton(
-//                     onPressed: () {
-//                       Navigator.pop(context);
-//                     },
-//                     child: const Text(
-//                       "Already have an account? Login",
-//                       style: TextStyle(color: Color(0xFF009252)),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 
 

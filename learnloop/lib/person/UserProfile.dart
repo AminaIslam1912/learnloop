@@ -1183,7 +1183,7 @@ class _UserProfileState extends State<UserProfile>
                                 : 'No CV uploaded',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.normal,
                               color: cvUrl != null && cvUrl.isNotEmpty
                                   ? Colors.blue
                                   : Colors.red,

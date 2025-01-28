@@ -1,6 +1,3 @@
-
-//merge code
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -135,6 +132,7 @@ class _ChatPageState extends State<ChatPage> {
             );
           },
         ),
+
         title: isSearching
             ? TextField(
           autofocus: true,
@@ -143,6 +141,7 @@ class _ChatPageState extends State<ChatPage> {
               searchQuery = value.trim().toLowerCase();
             });
           },
+          cursorColor: Colors.green,
           decoration: const InputDecoration(
             hintText: 'Search by name',
             prefixIcon: Icon(Icons.search),
@@ -150,28 +149,31 @@ class _ChatPageState extends State<ChatPage> {
             contentPadding: EdgeInsets.only(left: 10.0, top: 11.0, bottom: 8.0),
           ),
         )
-            : Text('Chat', style: TextStyle(
-            fontWeight: FontWeight.bold, // Make the text bold
+            : Text('Chat',style: TextStyle(
+            fontWeight: FontWeight.normal, // Make the text bold
             fontSize: 20,
             color: Colors.white// Adjust font size if needed
         ),),
-        centerTitle: true, // Center the title
-        backgroundColor: Colors.black,
-
+      centerTitle: true,
+      elevation: 4,
+      backgroundColor: Colors.black,
         actions: [
           IconButton(
             icon: Icon(isSearching ? Icons.close : Icons.search),
             onPressed: () {
               setState(() {
                 if (isSearching) {
-                  searchQuery = ""; // Clear search query when closing search
+                  searchQuery = "";
                 }
                 isSearching = !isSearching;
               });
             },
           ),
         ],
+
       ),
+
+
       body: Column(
         children: [
           const Divider(),

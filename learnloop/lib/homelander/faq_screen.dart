@@ -49,10 +49,14 @@ class _FAQScreenState extends State<FAQScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FAQ'),
+        title: const Text('FAQ', style: TextStyle(
+            fontWeight: FontWeight.normal, // Make the text bold
+            fontSize: 20,
+            color: Colors.white// Adjust font size if needed
+        ),),
         centerTitle: true,
         elevation: 4,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.black,
       ),
       body: _faqs.isEmpty // Check if the FAQs have been fetched
           ? const Center(child: CircularProgressIndicator())
@@ -65,23 +69,43 @@ class _FAQScreenState extends State<FAQScreen> {
               children: [
                 Expanded(
                   child: TextField(
+
                     controller: _searchController,
+                    cursorColor: Colors.green, // Set cursor color to green
+
                     onChanged: _filterFAQs,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Search FAQs...',
-                      border: OutlineInputBorder(),
+                      labelStyle: const TextStyle(
+                        color: Colors.green, // Green label text
+                      ),
+                      prefixIcon: const Icon(Icons.search, color: Colors.green), // Green search icon inside input box
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12), // Rounded corners
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12), // Rounded corners
+                        borderSide: const BorderSide(
+                          color: Colors.green, // Green border on focus
+                          width: 2.0, // Thickness of the border
+                        ),
+                      ),
+
+                     // border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    _filterFAQs(_searchController.text);
-                  },
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.search),
+                //   onPressed: () {
+                //     _filterFAQs(_searchController.text);
+                //   },
+                // ),
               ],
             ),
+
           ),
+
           // FAQ list
           Expanded(
             child: ListView.builder(
@@ -102,10 +126,12 @@ class _FAQScreenState extends State<FAQScreen> {
                         _filteredFaqs[index]['question'] ?? 'No question',
                         style: const TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                           color: Colors.white,
                         ),
                       ),
+                      trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -117,6 +143,7 @@ class _FAQScreenState extends State<FAQScreen> {
                             ),
                           ),
                         ),
+
                       ],
                     ),
                   ),

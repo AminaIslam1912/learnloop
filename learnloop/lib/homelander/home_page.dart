@@ -51,35 +51,202 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
 
     return ListView.builder(
-      itemCount:
-      savedCourses.length,
+      itemCount: savedCourses.length,
       itemBuilder: (context, index) {
         final course = savedCourses[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: course["id"] != null && courseImages.containsKey(course["id"])
-                ? NetworkImage(courseImages[course["id"]]!)
-                : AssetImage(course["image"]) as ImageProvider,
-          ),
-          title: Text(course["title"], style: const TextStyle(color: Colors.white)),
-          subtitle: Text(
-            course["isFree"] ? "Free" : "Paid",
-            style: TextStyle(color: course["isFree"] ? Colors.green : Colors.red),
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              setState(() {
-                savedCourses.removeAt(index);
-              });
+        return Dismissible(
+          key: Key(course["id"].toString()), // Unique key for each item to ensure smooth dismissal
+          direction: DismissDirection.startToEnd,
+          onDismissed: (direction) {
+            // Remove the course from the list and show a success message
+            setState(() {
+              savedCourses.removeAt(index);
+            });
+            _removeCourseFromDatabase(course["id"]);
+            // Show a snack bar with the course name and a success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("${course["title"]} deleted successfully."),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          },
+          child: InkWell(
+            onTap: () {
+              if (course["id"] != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DynamicScreen(courseId: course["id"]!),
+                  ),
+                );
+              }
             },
+            child: Card(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: CircleAvatar(
+                  backgroundImage: course["id"] != null && courseImages.containsKey(course["id"])
+                      ? NetworkImage(courseImages[course["id"]]!)
+                      : AssetImage(course["image"]) as ImageProvider,
+                ),
+                title: Text(
+                  course["title"],
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  course["isFree"] ? "Free" : "Paid",
+                  style: TextStyle(
+                    color: course["isFree"] ? Colors.green : Colors.red,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
           ),
         );
       },
     );
   }
-  //Change ended, Kawser.
+  Future<bool> _isUserLoggedIn() async {
+    final session = Supabase.instance.client.auth.currentSession;
+    return session != null;
+  }
 
+  void _handleSaveCourse(BuildContext context, Map<String, dynamic> course) async {
+    if (await _isUserLoggedIn()) {
+      // Check if the course is already saved locally
+      if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
+        setState(() {
+          savedCourses.add(course); // Add course to the local list
+        });
+
+        // Save the course to Supabase
+        try {
+          final userId = widget.user?.id; // Fetch the logged-in user's ID
+          if (userId != null) {
+            await Supabase.instance.client.from('saved_courses').insert({
+              'user_id': int.parse(userId), // Ensure the user_id is int8-compatible
+              'course_id': course['id'],   // Ensure course_id is int8-compatible
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${course["title"]} saved successfully!')),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save ${course["title"]}: $e')),
+          );
+        }
+      } else {
+        // Notify the user if the course is already saved
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${course["title"]} is already saved!')),
+        );
+      }
+    } else {
+      // If the user is not logged in, prompt them to log in
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Colors.grey[900],
+            title: const Text(
+              'Login Required',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'You need to log in to save courses. Would you like to log in now?',
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.pushReplacementNamed(context, '/login').then((value) async {
+                    // Check if the user is logged in after returning from the login page
+                    if (await _isUserLoggedIn()) {
+                      _handleSaveCourse(context, course); // Retry saving the course
+                    }
+                  });
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _fetchSavedCourses() async {
+    try {
+      final userId = widget.user?.id;
+      if (userId == null) return;
+
+      // Fetch saved courses from Supabase
+      final data = await Supabase.instance.client
+          .from('saved_courses')
+          .select('course_id, course(title, isFree, course_image)')
+          .eq('user_id', int.parse(userId)); // Use int.parse to match int8 type
+
+      setState(() {
+        savedCourses = data.map<Map<String, dynamic>>((item) {
+          return {
+            "id": item['course_id'], // Match course_id from the database
+            "title": item['course']['title'],
+            "isFree": item['course']['isFree'],
+            "image": item['course']['course_image'],
+          };
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint("Error fetching saved courses: $e");
+    }
+  }
+
+  Future<void> _removeCourseFromDatabase(int courseId) async {
+    try {
+      final userId = widget.user?.id;
+      if (userId == null) return;
+
+      // Delete saved course from the Supabase table
+      await Supabase.instance.client
+          .from('saved_courses')
+          .delete()
+          .match({'user_id': int.parse(userId), 'course_id': courseId}); // Match int8 types
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Course removed successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to remove course: $e')),
+      );
+    }
+  }
 
 
   Future<void> _fetchCourseImages() async {
@@ -183,6 +350,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
 
 
+    _fetchSavedCourses();
 
     _fetchCourseImages();
 
@@ -355,7 +523,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         elevation: 2,
         title: TextField(
           decoration: const InputDecoration(
-            hintText: "Search courses...",
+            labelText: "Search courses...",
+            labelStyle: const TextStyle(
+              color: Colors.green, // Green label text
+            ),
+            prefixIcon: const Icon(Icons.search, color: Colors.green), // Green prefix icon
+
             hintStyle: TextStyle(color: Colors.white54),
             border: InputBorder.none,
           ),
@@ -365,6 +538,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               searchQuery = value;
             });
           },
+          cursorColor: Colors.green, // Set cursor color to green
+
         ),
         actions: [
 
@@ -625,20 +800,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           title: course["title"],
                           isFree: course["isFree"],
                           useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
+                          course: course,
                           //Change started, Kawser.
                           onSaveAndWatchLater: () {
-                            setState(() {
-                              if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
-                                savedCourses.add(course);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('${course["title"]} saved successfully!')),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('${course["title"]} is already saved!')),
-                                );
-                              }
-                            });
+                            _handleSaveCourse(context, course);
                           },
                           //Change ended, Kawser.
                         ),
@@ -674,19 +839,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         isFree: course["isFree"],
                         useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
                         //Change started, Kawser.
+                        course: course,
                         onSaveAndWatchLater: () {
-                          setState(() {
-                            if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
-                              savedCourses.add(course);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${course["title"]} saved successfully!')),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${course["title"]} is already saved!')),
-                              );
-                            }
-                          });
+                          _handleSaveCourse(context, course);
                         },
                         //Change ended, Kawser.
                       ),
@@ -815,6 +970,7 @@ class CourseCard extends StatelessWidget {
   final bool useNetworkImage;
   // eta add koris.
   final VoidCallback onSaveAndWatchLater;
+  final Map<String, dynamic> course;
 
   const CourseCard({
     super.key,
@@ -824,9 +980,72 @@ class CourseCard extends StatelessWidget {
     this.useNetworkImage = false,
     // eta add koris.
     required this.onSaveAndWatchLater,
+    //eta add koris
+    required this.course,
   });
 
   @override
+  // Widget build(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 16.0, right: 8.0),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: 100,
+  //           height: 120,
+  //           decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(8),
+  //             image: DecorationImage(
+  //               image: useNetworkImage ? NetworkImage(image) : AssetImage(image) as ImageProvider,
+  //               fit: BoxFit.cover,
+  //               onError: (exception, stackTrace) {
+  //                 debugPrint('Error loading image: $exception');
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //         //Change started, Kawser.
+  //         Positioned(
+  //           right: 0,
+  //           child: PopupMenuButton<String>(
+  //             onSelected: (value) {
+  //               if (value == 'Save and Watch Later') {
+  //                 onSaveAndWatchLater();
+  //               }
+  //             },
+  //             itemBuilder: (context) =>
+  //             [
+  //               const PopupMenuItem(
+  //                 value: 'Save and Watch Later',
+  //                 child: Text('Save and Watch Later'),
+  //               ),
+  //             ],
+  //             icon: const Icon(
+  //               Icons.more_vert,
+  //               color: Colors.white,
+  //             ),
+  //           ),
+  //         ),
+  //         //Change ended, Kawser.
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           title,
+  //           style: const TextStyle(color: Colors.white, fontSize: 12),
+  //           overflow: TextOverflow.ellipsis,
+  //         ),
+  //         const SizedBox(height: 4),
+  //         Text(
+  //           isFree ? "Free" : "Paid",
+  //           style: TextStyle(color: isFree ? Colors.green : Colors.red, fontSize: 10),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
+  @override
+  // Change started, Kawser.
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, right: 8.0),
@@ -839,7 +1058,9 @@ class CourseCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: useNetworkImage ? NetworkImage(image) : AssetImage(image) as ImageProvider,
+                image: useNetworkImage
+                    ? NetworkImage(image)
+                    : AssetImage(image) as ImageProvider,
                 fit: BoxFit.cover,
                 onError: (exception, stackTrace) {
                   debugPrint('Error loading image: $exception');
@@ -847,29 +1068,6 @@ class CourseCard extends StatelessWidget {
               ),
             ),
           ),
-          //Change started, Kawser.
-          Positioned(
-            right: 0,
-            child: PopupMenuButton<String>(
-              onSelected: (value) {
-                if (value == 'Save and Watch Later') {
-                  onSaveAndWatchLater();
-                }
-              },
-              itemBuilder: (context) =>
-              [
-                const PopupMenuItem(
-                  value: 'Save and Watch Later',
-                  child: Text('Save and Watch Later'),
-                ),
-              ],
-              icon: const Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          //Change ended, Kawser.
           const SizedBox(height: 8),
           Text(
             title,
@@ -877,14 +1075,43 @@ class CourseCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          Text(
-            isFree ? "Free" : "Paid",
-            style: TextStyle(color: isFree ? Colors.green : Colors.red, fontSize: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                isFree ? "Free" : "Paid",
+                style: TextStyle(
+                  color: isFree ? Colors.green : Colors.red,
+                  fontSize: 10,
+                ),
+              ),
+              const SizedBox(width: 55),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'Save and Watch Later') {
+                    onSaveAndWatchLater();
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'Save and Watch Later',
+                    child: Text('Save and Watch Later'),
+                  ),
+                ],
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                  size: 14, // Smaller size for the three dots
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+
+// Change ended, Kawser.
 }
 
 

@@ -132,12 +132,25 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           padding: const EdgeInsets.all(16.0),
           child: TextField(
             onChanged: (value) => filterProfiles(value),
+            cursorColor: Colors.green, // Set cursor color to green
             decoration: InputDecoration(
-              hintText: "Search Profiles",
-              prefixIcon: Icon(Icons.search),
+              labelText: "Search Profiles",
+              labelStyle: const TextStyle(
+                color: Colors.green, // Green label text
+              ),
+
+              prefixIcon: Icon(Icons.search, color: Colors.green),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12), // Rounded corners
+                borderSide: const BorderSide(
+                  color: Colors.green, // Green border on focus
+                  width: 2.0, // Thickness of the border
+                ),
+              ),
             ),
+
           ),
         ),
         Expanded(
