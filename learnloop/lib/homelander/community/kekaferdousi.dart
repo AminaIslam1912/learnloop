@@ -15,13 +15,13 @@ class _CookingScreenState extends State<CookingScreen> {
       "title": "MasterChefs Club",
       "description":
       "Join a community of passionate cooks and professional chefs sharing tips, recipes, and culinary techniques.",
-      "link": "https://discord.gg/cookingclub",
+      "link": "https://discord.gg/KKp5NbtbsS",
       "name": "master_chefs_club", // Name in the Supabase table
     },
     {
       "title": "Baking Bliss",
       "description": "A paradise for baking enthusiasts to share recipes, tips, and beautiful creations.",
-      "link": "https://discord.gg/bakingbliss",
+      "link": "https://discord.gg/R2sYPwZR3Q",
       "name": "baking_bliss", // Name in the Supabase table
     },
   ];
