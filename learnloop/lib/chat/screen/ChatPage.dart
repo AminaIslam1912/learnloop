@@ -132,6 +132,7 @@ class _ChatPageState extends State<ChatPage> {
             );
           },
         ),
+
         title: isSearching
             ? TextField(
           autofocus: true,
@@ -140,6 +141,7 @@ class _ChatPageState extends State<ChatPage> {
               searchQuery = value.trim().toLowerCase();
             });
           },
+          cursorColor: Colors.green,
           decoration: const InputDecoration(
             hintText: 'Search by name',
             prefixIcon: Icon(Icons.search),
@@ -154,14 +156,17 @@ class _ChatPageState extends State<ChatPage> {
             onPressed: () {
               setState(() {
                 if (isSearching) {
-                  searchQuery = ""; // Clear search query when closing search
+                  searchQuery = "";
                 }
                 isSearching = !isSearching;
               });
             },
           ),
         ],
+
       ),
+
+
       body: Column(
         children: [
           const Divider(),
