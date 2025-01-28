@@ -156,6 +156,52 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   List<Map<String, dynamic>> similarCourses = [];
 
+  //Change started, Kawser.
+  List<Map<String, dynamic>> savedCourses = [];
+
+  Widget _buildSavedCourses() {
+    if (savedCourses.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'No saved courses yet.',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount:
+      savedCourses.length,
+      itemBuilder: (context, index) {
+        final course = savedCourses[index];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundImage: course["id"] != null && courseImages.containsKey(course["id"])
+                ? NetworkImage(courseImages[course["id"]]!)
+                : AssetImage(course["image"]) as ImageProvider,
+          ),
+          title: Text(course["title"], style: const TextStyle(color: Colors.white)),
+          subtitle: Text(
+            course["isFree"] ? "Free" : "Paid",
+            style: TextStyle(color: course["isFree"] ? Colors.green : Colors.red),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              setState(() {
+                savedCourses.removeAt(index);
+              });
+            },
+          ),
+        );
+      },
+    );
+  }
+  //Change ended, Kawser.
+
 
 
   Future<void> _fetchCourseImages() async {
@@ -313,6 +359,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
         {"image": "assets/digitalmarketing.jpeg", "title": "Digital Marketing", "isFree": true, "id": 6},
         {"title": "Cooking", "isFree": true, "id": 12},
+        {"title":"Swimming", "isFree": true, "id": 16},
+        {"title":"Problem Solving", "isFree": true, "id": 17},
       ],
     },
     {
@@ -325,6 +373,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false, "id": 7},
             {"image": "assets/java.jpeg", "title": "Java Programming", "isFree": true, "id": 4},
             {"title": "Assembly Language", "isFree":true, "id":13},
+            {"title":"Ruby", "isFree": true, "id": 18},
+            {"title":"Rust", "isFree": true, "id": 19},
           ],
         },
         {
@@ -334,6 +384,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false, "id": 8},
             {"image": "assets/node.png", "title": "NodeJS", "isFree": true, "id": 3},
             {"title":"MongoDB", "isFree":true, "id":14},
+            {"title":"Javascipt DOM", "isFree": true, "id": 20},
+            {"title":"PHP With Laravel", "isFree": true, "id": 21},
           ],
         },
       ],
@@ -345,6 +397,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false, "id": 10},
         {"image": "assets/singer.jpeg", "title": "Music", "isFree": false, "id": 11},
         {"title":"Microsoft Bundle", "isFree":false, "id":15},
+        {"title":"Time Management", "isFree": false, "id": 22},
+        {"title":"Communication", "isFree": false, "id": 23},
       ],
     },
   ];
@@ -963,6 +1017,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           title: course["title"],
                           isFree: course["isFree"],
                           useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
+                          //Change started, Kawser.
+                          onSaveAndWatchLater: () {
+                            setState(() {
+                              if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
+                                savedCourses.add(course);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${course["title"]} saved successfully!')),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${course["title"]} is already saved!')),
+                                );
+                              }
+                            });
+                          },
+                          //Change ended, Kawser.
                         ),
                       );
                     },
@@ -995,6 +1065,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         title: course["title"],
                         isFree: course["isFree"],
                         useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
+                        //Change started, Kawser.
+                        onSaveAndWatchLater: () {
+                          setState(() {
+                            if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
+                              savedCourses.add(course);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${course["title"]} saved successfully!')),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${course["title"]} is already saved!')),
+                              );
+                            }
+                          });
+                        },
+                        //Change ended, Kawser.
                       ),
                     );
                   },
@@ -1169,6 +1255,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   FeedbackFormDialog.showFeedbackForm(context);
                 },
               ),
+              //Change started, Kawser.
+              ListTile(
+                leading: const Icon(Icons.bookmark, color: Colors.white),
+                title: const Text('Saved Courses', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Navigate to the saved courses page
+                  //Navigator.pushNamed(context, '/saved-courses');
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.black,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    builder: (context) => _buildSavedCourses(),
+                  );
+                },
+              ),
+              //Change ended, Kawser.
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.white),
                 title: const Text(
@@ -1251,6 +1355,8 @@ class CourseCard extends StatelessWidget {
   final String title;
   final bool isFree;
   final bool useNetworkImage;
+  // eta add koris.
+  final VoidCallback onSaveAndWatchLater;
 
   const CourseCard({
     super.key,
@@ -1258,6 +1364,8 @@ class CourseCard extends StatelessWidget {
     required this.title,
     required this.isFree,
     this.useNetworkImage = false,
+    // eta add koris.
+    required this.onSaveAndWatchLater,
   });
 
   @override
@@ -1281,6 +1389,29 @@ class CourseCard extends StatelessWidget {
               ),
             ),
           ),
+          //Change started, Kawser.
+          Positioned(
+            right: 0,
+            child: PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'Save and Watch Later') {
+                  onSaveAndWatchLater();
+                }
+              },
+              itemBuilder: (context) =>
+              [
+                const PopupMenuItem(
+                  value: 'Save and Watch Later',
+                  child: Text('Save and Watch Later'),
+                ),
+              ],
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          //Change ended, Kawser.
           const SizedBox(height: 8),
           Text(
             title,

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:learnloop/login.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'MainPage.dart';
 import 'landing_page.dart';
 import 'login.dart';
 
@@ -142,6 +143,21 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black, // Set a background color for the AppBar
+        elevation: 0, // Remove shadow
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            // Navigator.pop(context); // Navigate back to the previous screen
+            //  Navigator.pushReplacement(context, "")
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()),
+            );
+          },
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -172,7 +188,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 10),
                 //const Text(
                  //   'Username', style: TextStyle(color: Colors.white70)),
                 TextField(

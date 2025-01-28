@@ -1,23 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-
-
-// class MemoryGame extends StatelessWidget {
-//   const MemoryGame({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: const GameBoard(),
-//     );
-//   }
-// }
-
 class GameBoard extends StatefulWidget {
   const GameBoard({super.key});
 

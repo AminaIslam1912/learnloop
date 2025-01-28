@@ -397,38 +397,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
               const SizedBox(height: 16.0),
 
-              // Navigation or Feedback Section
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     ElevatedButton(
-              //       onPressed: currentQuestionIndex > 0
-              //           ? () {
-              //         // Navigate to the previous question
-              //       }
-              //           : null,
-              //       style: ElevatedButton.styleFrom(
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(12),
-              //         ),
-              //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              //       ),
-              //       child: const Text('Previous'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         // Navigate to the next question
-              //       },
-              //       style: ElevatedButton.styleFrom(
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(12),
-              //         ),
-              //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              //       ),
-              //       child: const Text('Next'),
-              //     ),
-              //   ],
-              // ),
+
             ],
           ),
         ),
@@ -437,30 +406,5 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
 
-// @override
-// Widget build(BuildContext context) {
-//   final questionData = questionBank[widget.category]![currentQuestionIndex];
-//   return Scaffold(
-//     appBar: AppBar(title: Text('${widget.category} Quiz')),
-//     body: Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.stretch,
-//         children: [
-//           Text(
-//             'Q${currentQuestionIndex + 1}: ${questionData['question']}',
-//             style: TextStyle(fontSize: 18.0),
-//           ),
-//           SizedBox(height: 16.0),
-//           ...questionData['options'].map((option) {
-//             return ElevatedButton(
-//               onPressed: () => checkAnswer(option),
-//               child: Text(option),
-//             );
-//           }).toList(),
-//         ],
-//       ),
-//     ),
-//   );
-// }
+
 }

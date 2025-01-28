@@ -656,6 +656,21 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black, // Set a background color for the AppBar
+        elevation: 0, // Remove shadow
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+           // Navigator.pop(context); // Navigate back to the previous screen
+          //  Navigator.pushReplacement(context, "")
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()),
+            );
+          },
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(

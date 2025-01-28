@@ -154,31 +154,7 @@ class _WordScrambleGameState extends State<WordScrambleGame> {
                 style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              // Difficulty Selection Dropdown
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     const Text(
-              //       'Select Difficulty: ',
-              //       style: TextStyle(fontSize: 16),
-              //     ),
-              //     DropdownButton<String>(
-              //       value: selectedDifficulty,
-              //       items: ['Easy', 'Medium', 'Hard'].map((String difficulty) {
-              //         return DropdownMenuItem<String>(
-              //           value: difficulty,
-              //           child: Text(difficulty),
-              //         );
-              //       }).toList(),
-              //       onChanged: (String? newValue) {
-              //         setState(() {
-              //           selectedDifficulty = newValue!;
-              //           resetGame();
-              //         });
-              //       },
-              //     ),
-              //   ],
-              // ),
+
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

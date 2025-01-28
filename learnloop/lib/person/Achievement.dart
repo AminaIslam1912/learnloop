@@ -100,6 +100,31 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
     );
   }
 
+  // Future<String?> _addAchievementsDialog() async {
+  //   TextEditingController acController = TextEditingController();
+  //   return showDialog<String>(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text("Add Achievements"),
+  //       content: TextField(
+  //         controller: acController,
+  //         decoration: const InputDecoration(hintText: "Enter new Achievements"),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: const Text("Cancel"),
+  //         ),
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, acController.text),
+  //           child: const Text("Add"),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
+
   Future<String?> _addAchievementsDialog() async {
     TextEditingController acController = TextEditingController();
     return showDialog<String>(
@@ -113,11 +138,11 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text("Cancel", style: TextStyle(color: Colors.red),),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, acController.text),
-            child: const Text("Add"),
+            child: const Text("Add", style: TextStyle(color: Colors.green),),
           ),
         ],
       ),

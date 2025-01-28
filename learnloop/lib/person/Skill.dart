@@ -92,6 +92,30 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
     );
   }
 
+  // Future<String?> _addSkillDialog() async {
+  //   TextEditingController skillController = TextEditingController();
+  //   return showDialog<String>(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text("Add Skill"),
+  //       content: TextField(
+  //         controller: skillController,
+  //         decoration: const InputDecoration(hintText: "Enter new skill"),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: const Text("Cancel"),
+  //         ),
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, skillController.text),
+  //           child: const Text("Add"),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
   Future<String?> _addSkillDialog() async {
     TextEditingController skillController = TextEditingController();
     return showDialog<String>(
@@ -105,11 +129,11 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text("Cancel", style: TextStyle(color: Colors.red),),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, skillController.text),
-            child: const Text("Add"),
+            child: const Text("Add", style: TextStyle(color: Colors.green),),
           ),
         ],
       ),

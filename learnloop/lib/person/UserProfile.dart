@@ -1,8 +1,773 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart'; // For Clipboard functionality
+// import 'package:learnloop/all_feedback/swap_feedback.dart';
+// import 'package:url_launcher/url_launcher.dart';
+// import '../chat/screen/ChatPage.dart';
+// import '../supabase_config.dart';
+// import 'Achievement.dart';
+// import 'EditProfile.dart';
+// import 'FullScreenImage.dart';
+// import 'Skill.dart';
+// import 'UserFeedback.dart';
+//
+//
+//
+// class UserProfile extends StatefulWidget {
+//   final int loggedInUserId; // Pass the authenticated user's ID
+//   final int profileUserId; // The profile's owner ID
+//
+//
+//
+//   const UserProfile(
+//       {super.key, required this.loggedInUserId, required this.profileUserId});
+//
+//   @override
+//   State <UserProfile> createState() => _UserProfileState();
+// }
+//
+// class _UserProfileState extends State<UserProfile>
+//     with SingleTickerProviderStateMixin {
+//   String name = "";
+//   String email = "";
+//   String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+//   bool isEditMode = false;
+//   bool isLoading = false;
+//   bool get isOwner =>
+//       widget.loggedInUserId == widget.profileUserId; // Check ownership
+//   String bio = "";
+//   double rating = 0; // Default rating
+//   String occupation = "";
+//   String location = "";
+//   List<String> achievements = [];
+//   List<String> skills = []; // Default skills
+//   bool isFriend = false;
+//
+//   Future<void> checkFriend(int loggedId, int userId) async {
+//     try {
+//       final response = await SupabaseConfig.client
+//           .from('users')
+//           .select('friends')
+//           .eq('id', loggedId)  // Get the specific user's record
+//           .single();
+//
+//       List<dynamic> friendsList = response['friends'] as List;
+//       print("firends are $friendsList");
+//       List<int> friendIds = friendsList.map((friend) => friend['id'] as int).toList();
+//       print("firends are $friendIds");
+//
+//       setState(() {
+//         isFriend = friendIds.contains(userId);
+//       });
+//
+//     } catch (e) {
+//       print('Error updating friend status: $e');
+//       setState(() {
+//         isFriend = false;
+//       });
+//     }
+//   }
+//
+//
+//
+//
+//
+//   Future<void> fetchUserData() async {
+//     setState(() {
+//       isLoading = true;
+//     });
+//
+//
+//
+//     try {
+//       final response = await SupabaseConfig.client
+//           .from('users')
+//           .select()
+//           .eq('id', widget.profileUserId)
+//           .single();
+//
+//       print("RESPONSE $response");
+//
+//       if (response != null) {
+//         setState(() {
+//           name = response['name'] ?? name;
+//           email = response['email'] ?? email;
+//           bio = response['bio'] ?? bio;
+//           //print("Bio: $bio");
+//
+//           occupation = response['occupation'] ?? occupation;
+//           location = response['location'] ?? location;
+//          // profilePicture = response['profile_picture'] ?? profilePicture;
+//           profilePicture = (response['profile_picture'] != null && response['profile_picture'].isNotEmpty)
+//               ? response['profile_picture']
+//               : profilePicture;
+//           achievements = List<String>.from(response['achievements'] ?? []);
+//           //print("achievements: $achievements");
+//           skills = List<String>.from(response['skills'] ?? []);
+//         });
+//       }
+//
+//       // if (response.error != null) {
+//       //   print('Error fetching user data: ${response.error!.message}');
+//       //   ScaffoldMessenger.of(context).showSnackBar(
+//       //     SnackBar(content: Text('Error fetching user data: ${response.error!.message}')),
+//       //   );
+//       //   return;
+//       // }
+//       //
+//       // final data = response.data;
+//       //
+//       // if (data != null) {
+//       //   setState(() {
+//       //     name = data['name'] ?? name;
+//       //     email = data['email'] ?? email;
+//       //     bio = data['bio'] ?? bio;
+//       //     occupation = data['occupation'] ?? occupation;
+//       //     location = data['location'] ?? location;
+//       //     profilePicture = data['profile_picture'] ?? profilePicture;
+//       //     achievements = List<String>.from(data['achievements'] ?? []);
+//       //     skills = List<String>.from(data['skills'] ?? []);
+//       //   });
+//       // }
+//
+//
+//       // Calculate average rating from user feedback
+//       final feedbackResponse = await SupabaseConfig.client
+//           .from('users')
+//           .select('userFeedback')
+//           .eq('id', widget.profileUserId)
+//           .single();
+//
+//       if (feedbackResponse != null &&
+//           feedbackResponse['userFeedback'] != null) {
+//         List<dynamic> userFeedbacks = feedbackResponse['userFeedback'];
+//         double totalRating = 0;
+//         int feedbackCount = 0;
+//
+//         for (var feedbackItem in userFeedbacks) {
+//           if (feedbackItem['rating'] != null) {
+//             totalRating += feedbackItem['rating'];
+//             print("rating : $feedbackItem['rating']");
+//             feedbackCount++;
+//           }
+//         }
+//         print("total $totalRating");
+//
+//         double calculatedRating = feedbackCount > 0 ? totalRating / feedbackCount : 0;
+//
+//         // Update rating in the database
+//         await SupabaseConfig.client
+//             .from('users')
+//             .update({'rating': calculatedRating})
+//             .eq('id', widget.profileUserId);
+//
+//         setState(() {
+//           rating = calculatedRating;
+//         });
+//       }
+//
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text("Error fetching data: $e")),
+//       );
+//     } finally {
+//       setState(() {
+//         isLoading = false;
+//       });
+//     }
+//   }
+//
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchUserData();
+//     checkFriend(widget.loggedInUserId, widget.profileUserId);
+//
+//   }
+//
+//
+//
+//   Future<void> _launchEmail(String email) async {
+//     final Uri emailUri = Uri(
+//       scheme: 'mailto',
+//       path: email,
+//     );
+//     if (await canLaunchUrl(emailUri)) {
+//       await launchUrl(emailUri);
+//     } else {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text("Could not launch email client.")),
+//       );
+//     }
+//   }
+//
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//         appBar: AppBar(
+//           // title: const Text("Profile"),
+//           // backgroundColor:Colors.black,
+//           title: const Text(
+//             "Profile",
+//             style: TextStyle(
+//               fontWeight: FontWeight.bold, // Make the text bold
+//               fontSize: 20,
+//                 color: Colors.white// Adjust font size if needed
+//             ),
+//           ),
+//           centerTitle: true, // Center the title
+//           backgroundColor: Colors.black,
+//           actions: [
+//             if (isOwner)
+//               IconButton(
+//                 icon: const Icon(Icons.edit, color: Colors.white),
+//                 onPressed: () {
+//                   Navigator.push(
+//                     context,
+//                     MaterialPageRoute(
+//                       builder: (context) => EditProfile(
+//                         loggedInUserId: widget.loggedInUserId,
+//                         profileUserId: widget.profileUserId,
+//                       ),
+//                     ),
+//                   );
+//                 },
+//               ),
+//           ],
+//         ),
+//         body: isLoading
+//             ? const Center(
+//           child: CircularProgressIndicator(),
+//         )
+//             : SingleChildScrollView(
+//           child: Container(
+//             color:
+//             Colors.black12, // You can change this to any color you prefer
+//             padding: const EdgeInsets.all(8.0),
+//             child: Padding(
+//               padding: const EdgeInsets.all(8.0),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.center,
+//                 children: [
+//                   // Profile Picture and Rating Section
+//                   Row(
+//                     children: [
+//                       GestureDetector(
+//                         onTap: () {
+//                           Navigator.push(
+//                             context,
+//                             MaterialPageRoute(
+//                               // builder: (context) =>
+//                               //     FullScreenImage(imagePath: profilePicture),
+//                               builder: (context) => FullScreenImage(
+//                                 imagePath: profilePicture,
+//                                 isNetworkImage: profilePicture.startsWith('https://'),
+//                               ),
+//                             ),
+//                           );
+//                         },
+//                         child: Padding(
+//                             padding: const EdgeInsets.all(1.0),
+//                             // child: CircleAvatar(
+//                             //   radius: 50,
+//                             //   backgroundImage: AssetImage(profilePicture),
+//                             // ),
+//                             child: CircleAvatar(
+//                               radius: 50,
+//                               backgroundImage: profilePicture.startsWith('https://')
+//                                   ? NetworkImage(profilePicture)
+//                                   : AssetImage(profilePicture) as ImageProvider,
+//                             )
+//                         ),
+//                       ),
+//                       Column(
+//                         children: [
+//                         //  Expanded(child:
+//                           Row(
+//                              mainAxisAlignment: MainAxisAlignment.start, // Center-align stars
+//                              mainAxisSize: MainAxisSize.min, // Ensure the row doesn't take up extra space
+//                             children: List.generate(5, (index) {
+//                               return Padding(
+//                                 padding: const EdgeInsets.symmetric(horizontal: 0.0),
+//                                 child: IconButton(
+//                                   icon: Icon(
+//                                     index < rating
+//                                         ? Icons.star
+//                                         : Icons.star_border,
+//                                     color: Colors.yellow[700],
+//                                   ),
+//                                   onPressed:
+//                                   null, // Only owner can change rating
+//                                 ),
+//                               );
+//                             }),
+//                           ),
+//
+//
+//                           Text(
+//                             bio.isNotEmpty ? bio : "",
+//                             style: const TextStyle(
+//                                 fontSize: 18.0, fontWeight: FontWeight.bold,color: Colors.white),
+//                           ),
+//
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                   const SizedBox(height: 8),
+//
+//                   // User Name Section
+//                   // Text(
+//                   //   name,
+//                   //   style: const TextStyle(
+//                   //       fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
+//                   // ),
+//
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     children: [
+//                       Text(
+//                         name,
+//                         style: const TextStyle(
+//                             fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+//                       ),
+//                       //const SizedBox(width: 8),  // Adds some space between the name and the popup button
+//                       Expanded(child: Container()),  // Fills remaining space to push the popup button to the right
+//                       PopupMenuButton(
+//                         itemBuilder: (context) => [
+//                           PopupMenuItem(
+//                             value: 1,
+//                             child: Opacity(
+//                               opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
+//                               child: const Text(
+//                                 "Give Feedback",
+//                                 style: TextStyle(color: Colors.white, fontSize: 13.0),
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                         onSelected: (value) {
+//                           if (value == 1) {
+//                             print("id  $isFriend");
+//                             isOwner
+//                                 ? print("Owner, no feedback")
+//                                 : (isFriend
+//                                 ? showDialog(
+//                               context: context,
+//                               builder: (BuildContext context) {
+//                                 return SwapFeedback(
+//                                   loggedInUserId: widget.loggedInUserId,
+//                                   profileUserId: widget.profileUserId,
+//                                 );
+//                               },
+//                             )
+//                                 : ScaffoldMessenger.of(context).showSnackBar(
+//                               const SnackBar(content: Text("You must be friends to give feedback")),
+//                             ));
+//                           }
+//                         },
+//                       ),
+//                     ],
+//                   ),
+//
+//
+//
+//                   const SizedBox(height: 8),
+//
+//
+//
+//                   // Buttons: Swap, Message, Popup Menu
+//                   // Row(
+//                   //   children: [
+//                   //     Expanded(
+//                   //       child: InkWell(
+//                   //         onTap:
+//                   //         isOwner // Only allow navigation to EditProfile if the user is the owner
+//                   //             ? () {
+//                   //           Navigator.push(
+//                   //             context,
+//                   //             MaterialPageRoute(
+//                   //               builder: (context) =>
+//                   //                   EditProfile(
+//                   //                     loggedInUserId: widget.loggedInUserId,
+//                   //                     profileUserId: widget.profileUserId,
+//                   //                   ),
+//                   //             ),
+//                   //           );
+//                   //         }
+//                   //             : () {}, // Do nothing if not the owner
+//                   //         child: Container(
+//                   //           padding: const EdgeInsets.symmetric(
+//                   //               vertical: 10, horizontal: 20),
+//                   //           decoration: BoxDecoration(
+//                   //             color: const Color(0xFF009252),
+//                   //             borderRadius: BorderRadius.circular(12),
+//                   //           ),
+//                   //           child: Text(
+//                   //             isOwner
+//                   //                 ? 'Edit'
+//                   //                 : 'Swap', // Change the label if owner
+//                   //             style: const TextStyle(
+//                   //                 color: Colors.white, fontSize: 13.0),
+//                   //           ),
+//                   //          // child:  ElevatedButton(
+//                   //          //    onPressed: () async {
+//                   //          //      // Check if the user is not the owner and perform swap or unswap accordingly
+//                   //          //      if (!isOwner) {
+//                   //          //        if (isSwapped) {
+//                   //          //          await handleUnswap(); // Call Unswap
+//                   //          //        } else {
+//                   //          //          await handleSwap(); // Call Swap
+//                   //          //        }
+//                   //          //      }
+//                   //          //    },
+//                   //          //    style: ElevatedButton.styleFrom(
+//                   //          //      backgroundColor: isSwapped
+//                   //          //          ? Color(0xFFFDA89C) // Unswap Button Color
+//                   //          //          : Color(0xFF679186), // Swap Button Color
+//                   //          //    ),
+//                   //          //    child: Text(
+//                   //          //      isSwapped ? "Unswap" : "Swap", // Show Swap or Unswap based on isSwapped
+//                   //          //      style: const TextStyle(
+//                   //          //          color: Colors.white, fontSize: 13.0),
+//                   //          //    ),
+//                   //          //  ),
+//                   //
+//                   //         ),
+//                   //       ),
+//                   //     ),
+//                   //     const SizedBox(width: 16),
+//                   //     if (!isOwner)
+//                   //       Expanded(
+//                   //        child: InkWell(
+//                   //         onTap: () {
+//                   //           Navigator.push(
+//                   //             context,
+//                   //             MaterialPageRoute(builder: (context) =>  ChatPage()),
+//                   //           );
+//                   //         },
+//                   //          child: Container(
+//                   //           padding: const EdgeInsets.symmetric(
+//                   //               vertical: 10, horizontal: 20),
+//                   //           decoration: BoxDecoration(
+//                   //             color: const Color(0xFF009252),
+//                   //             borderRadius: BorderRadius.circular(12),
+//                   //           ),
+//                   //           child: const Text(
+//                   //             'Message',
+//                   //             style: TextStyle(
+//                   //                 color: Colors.white, fontSize: 13.0),
+//                   //           ),
+//                   //         ),
+//                   //       ),
+//                   //     ),
+//                   //     const SizedBox(width: 10),
+//                   //     PopupMenuButton(
+//                   //       itemBuilder: (context) => [
+//                   //         PopupMenuItem(
+//                   //           value: 1,
+//                   //           child: Opacity(
+//                   //             opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
+//                   //             child: const Text("Give Feedback", style: TextStyle(
+//                   //                 color: Colors.white, fontSize: 13.0),),
+//                   //           ),
+//                   //         ),
+//                   //       ],
+//                   //       onSelected: (value) {
+//                   //         if (value == 1) {
+//                   //           print("id  $isFriend");
+//                   //           isOwner
+//                   //               ? print("Owner, no feedback")
+//                   //               : (isFriend
+//                   //               ? showDialog(
+//                   //             context: context,
+//                   //             builder: (BuildContext context) {
+//                   //               return SwapFeedback( loggedInUserId: widget.loggedInUserId,
+//                   //                 profileUserId: widget.profileUserId,);
+//                   //             },
+//                   //           )
+//                   //               : ScaffoldMessenger.of(context).showSnackBar(
+//                   //             const SnackBar(content: Text("You must be friends to give feedback")),
+//                   //           ));
+//                   //         }
+//                   //       },
+//                   //     )
+//                   //     // PopupMenuButton(
+//                   //     //   itemBuilder: (context) => [
+//                   //     //     PopupMenuItem(
+//                   //     //       value: 1,
+//                   //     //       child: Opacity(
+//                   //     //         opacity: isOwner ? 0.5 : 1.0,  // Reduce opacity if isOwner is true
+//                   //     //         child: const Text("Give Feedback", style: TextStyle(
+//                   //     //             color: Colors.white, fontSize: 13.0),),
+//                   //     //       ),
+//                   //     //     ),
+//                   //     //   ],
+//                   //     //   onSelected: (value) {
+//                   //     //     if (value == 1) {
+//                   //     //        // Set this based on your logic
+//                   //     //
+//                   //     //       // If isOwner is false, show the feedback form, otherwise, do nothing
+//                   //     //       isOwner
+//                   //     //           ? print("Owner, no feedback") // If true, do nothing or handle owner logic
+//                   //     //           : showDialog(
+//                   //     //         context: context,
+//                   //     //         builder: (BuildContext context) {
+//                   //     //           return SwapFeedback(); // Show FeedbackForm for non-owners
+//                   //     //         },
+//                   //     //       );
+//                   //     //     }
+//                   //     //   },
+//                   //     // )
+//                   //
+//                   //     // PopupMenuButton(
+//                   //     //   itemBuilder: (context) => [
+//                   //     //     const PopupMenuItem(
+//                   //     //       value: 1,
+//                   //     //       child: Text("Give Feedback"),
+//                   //     //     ),
+//                   //     //   ],
+//                   //     //   onSelected: (value) {
+//                   //     //     if (value == 1) {
+//                   //     //       // Show the feedback form in a dialog
+//                   //     //       showDialog(
+//                   //     //         context: context,
+//                   //     //         builder: (BuildContext context) {
+//                   //     //           return SwapFeedback();
+//                   //     //         },
+//                   //     //       );
+//                   //     //     }
+//                   //     //   },
+//                   //     // )
+//                   //
+//                   //
+//                   //     // PopupMenuButton(
+//                   //     //   itemBuilder: (context) => [
+//                   //     //     const PopupMenuItem(
+//                   //     //         value: 1, child: Text("Give Feedback")),
+//                   //     //   ],
+//                   //     // ),
+//                   //   ],
+//                   // ),
+//                   //
+//                   // if (isOwner)
+//                   //   IconButton(
+//                   //     icon: const Icon(
+//                   //       Icons.edit,
+//                   //       color: Colors.white,
+//                   //     ),
+//                   //     onPressed: () {
+//                   //       Navigator.push(
+//                   //         context,
+//                   //         MaterialPageRoute(
+//                   //           builder: (context) => EditProfile(
+//                   //             loggedInUserId: widget.loggedInUserId,
+//                   //             profileUserId: widget.profileUserId,
+//                   //           ),
+//                   //         ),
+//                   //       );
+//                   //     },
+//                   //   ),
+//                   const SizedBox(height: 16),
+//                   // Email Section with Clipboard functionality
+//                   GestureDetector(
+//                     onLongPress: () {
+//                       Clipboard.setData(ClipboardData(text: email));
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         const SnackBar(
+//                             content: Text("Email copied to clipboard!")),
+//                       );
+//                     },
+//                     onTap: () => _launchEmail(email),
+//                     child: Container(
+//                       margin: const EdgeInsets.only(top: 8),
+//                       padding: const EdgeInsets.all(8),
+//                       decoration: BoxDecoration(
+//                         border: Border.all(color: Colors.grey),
+//                         borderRadius: BorderRadius.circular(8),
+//                       ),
+//                       child: Row(
+//                         children: [
+//                           const Icon(Icons.email, color: Color(0xFF009252)),
+//                           const SizedBox(width: 8),
+//                           Expanded(
+//                             child: Text(
+//                               email,
+//                               style: const TextStyle(fontSize: 16),
+//                               overflow: TextOverflow.ellipsis,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 16),
+//                   Row(
+//                     children: [
+//                       const Icon(Icons.work, color: Color(0xFF009252)),
+//                       const SizedBox(width: 8),
+//                       Expanded(
+//                         child: Text(
+//                           //occupation,
+//                           occupation.isNotEmpty ? occupation : "N/A",
+//                           style: const TextStyle(
+//                               color: Colors.white,
+//                               fontSize: 16, overflow: TextOverflow.ellipsis),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//
+//                   const SizedBox(height: 16),
+//                   Row(
+//                     children: [
+//                       const Icon(Icons.location_city, color: Color(0xFF009252)),
+//                       const SizedBox(width: 8),
+//                       Expanded(
+//                         child: Text(
+//                           //location,
+//                           location.isNotEmpty ? location : "N/A",
+//                           style: const TextStyle(
+//                               color: Colors.white,
+//                               fontSize: 16, overflow: TextOverflow.ellipsis),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//
+//                   const SizedBox(height: 16),
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const Text(
+//                         "Achievements",
+//                         style: TextStyle(
+//                             fontSize: 18, fontWeight: FontWeight.bold),
+//                       ),
+//                       const SizedBox(height: 8),
+//                       Wrap(
+//                         spacing: 5,
+//                         runSpacing: 5,
+//                         children: achievements.take(3).map((skill) {
+//                           return Chip(
+//                             label: Text(skill),
+//                             backgroundColor: Colors.black,
+//                           );
+//                         }).toList(),
+//                       ),
+//                       const SizedBox(height: 10),
+//                       Align(
+//                         alignment: Alignment.centerLeft,
+//                         child: ElevatedButton(
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: const Color(0xFF009252), // Set the button color
+//                           ),
+//                           onPressed: () {
+//                             Navigator.push(
+//                               context,
+//                               MaterialPageRoute(
+//                                 builder: (context) => AchievementsDetails(
+//                                   achievements: List<String>.from(achievements),
+//                                   isOwner: isOwner,
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                           child: const Text("View All Achievements", style: TextStyle(color: Colors.white)),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//
+//
+//                   // Skills Section with Slide-in effect
+//                   const SizedBox(height: 16),
+//
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const Text(
+//                         "Skills",
+//                         style: TextStyle(
+//                             fontSize: 18, fontWeight: FontWeight.bold),
+//                       ),
+//                       const SizedBox(height: 8),
+//                       Wrap(
+//                         spacing: 5,
+//                         runSpacing: 5,
+//                         children: skills.take(3).map((skill) {
+//                           return Chip(
+//                             label: Text(skill),
+//                             backgroundColor: Colors.black,
+//                           );
+//                         }).toList(),
+//                       ),
+//                       const SizedBox(height: 10),
+//                       Align(
+//                         alignment: Alignment.centerLeft,
+//                         child: ElevatedButton(
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: const Color(0xFF009252), // Set the button color
+//                           ),
+//                           onPressed: () {
+//                             Navigator.push(
+//                               context,
+//                               MaterialPageRoute(
+//                                 builder: (context) => SkillsDetailPage(
+//                                   skills: List<String>.from(skills),
+//                                   isOwner: isOwner,
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                           child: const Text("View All Skills",style: TextStyle(color: Colors.white)),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//
+//                   // Feedback Button with Hero Animation
+//                   const SizedBox(height: 8),
+//                   Align(
+//                     alignment: Alignment.centerLeft,
+//                     child: ElevatedButton(
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: const Color(0xFF009252), // Set the button color
+//                       ),
+//                       onPressed: () {
+//                         Navigator.push(
+//                           context,
+//                           MaterialPageRoute(
+//                             builder: (context) =>  UserFeedback(profileUserId : widget.profileUserId),
+//                           ),
+//                         );
+//                       },
+//                       child: const Text("Feedback",style: TextStyle(color: Colors.white)),
+//                     ),
+//                   ),
+//
+//                 ],
+//               ),
+//             ),
+//           ),
+//         )
+//     );
+//   }
+// }
+//
+
+
+
+
+//code for merge from mrittika
+
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For Clipboard functionality
+import 'package:flutter/services.dart';
 import 'package:learnloop/all_feedback/swap_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../chat/screen/ChatPage.dart';
 import '../supabase_config.dart';
 import 'Achievement.dart';
 import 'EditProfile.dart';
@@ -10,55 +775,53 @@ import 'FullScreenImage.dart';
 import 'Skill.dart';
 import 'UserFeedback.dart';
 
-
-
 class UserProfile extends StatefulWidget {
-  final int loggedInUserId; // Pass the authenticated user's ID
-  final int profileUserId; // The profile's owner ID
-
-
+  final int loggedInUserId;
+  final int profileUserId;
 
   const UserProfile(
       {super.key, required this.loggedInUserId, required this.profileUserId});
 
   @override
-  State <UserProfile> createState() => _UserProfileState();
+  State<UserProfile> createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile>
     with SingleTickerProviderStateMixin {
   String name = "";
   String email = "";
-  String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
+  String profilePicture =
+      "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"; //"assets/moha.jpg";
   bool isEditMode = false;
   bool isLoading = false;
   bool get isOwner =>
-      widget.loggedInUserId == widget.profileUserId; // Check ownership
+      widget.loggedInUserId == widget.profileUserId;
   String bio = "";
-  double rating = 0; // Default rating
+  double rating = 0;
   String occupation = "";
   String location = "";
   List<String> achievements = [];
-  List<String> skills = []; // Default skills
+  List<String> skills = [];
   bool isFriend = false;
+  String cvUrl = "";
 
   Future<void> checkFriend(int loggedId, int userId) async {
     try {
       final response = await SupabaseConfig.client
           .from('users')
           .select('friends')
-          .eq('id', loggedId)  // Get the specific user's record
+          .eq('id', loggedId)
           .single();
 
       List<dynamic> friendsList = response['friends'] as List;
       print("firends are $friendsList");
-      List<int> friendIds = friendsList.map((friend) => friend['id'] as int).toList();
+      List<int> friendIds =
+      friendsList.map((friend) => friend['id'] as int).toList();
       print("firends are $friendIds");
 
       setState(() {
         isFriend = friendIds.contains(userId);
       });
-
     } catch (e) {
       print('Error updating friend status: $e');
       setState(() {
@@ -67,16 +830,10 @@ class _UserProfileState extends State<UserProfile>
     }
   }
 
-
-
-
-
   Future<void> fetchUserData() async {
     setState(() {
       isLoading = true;
     });
-
-
 
     try {
       final response = await SupabaseConfig.client
@@ -92,43 +849,17 @@ class _UserProfileState extends State<UserProfile>
           name = response['name'] ?? name;
           email = response['email'] ?? email;
           bio = response['bio'] ?? bio;
-          //print("Bio: $bio");
-
           occupation = response['occupation'] ?? occupation;
           location = response['location'] ?? location;
-         // profilePicture = response['profile_picture'] ?? profilePicture;
-          profilePicture = (response['profile_picture'] != null && response['profile_picture'].isNotEmpty)
+          profilePicture = (response['profile_picture'] != null &&
+              response['profile_picture'].isNotEmpty)
               ? response['profile_picture']
               : profilePicture;
           achievements = List<String>.from(response['achievements'] ?? []);
-          //print("achievements: $achievements");
           skills = List<String>.from(response['skills'] ?? []);
+          cvUrl = response['cv_url'] ?? "";
         });
       }
-
-      // if (response.error != null) {
-      //   print('Error fetching user data: ${response.error!.message}');
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Error fetching user data: ${response.error!.message}')),
-      //   );
-      //   return;
-      // }
-      //
-      // final data = response.data;
-      //
-      // if (data != null) {
-      //   setState(() {
-      //     name = data['name'] ?? name;
-      //     email = data['email'] ?? email;
-      //     bio = data['bio'] ?? bio;
-      //     occupation = data['occupation'] ?? occupation;
-      //     location = data['location'] ?? location;
-      //     profilePicture = data['profile_picture'] ?? profilePicture;
-      //     achievements = List<String>.from(data['achievements'] ?? []);
-      //     skills = List<String>.from(data['skills'] ?? []);
-      //   });
-      // }
-
 
       // Calculate average rating from user feedback
       final feedbackResponse = await SupabaseConfig.client
@@ -152,19 +883,17 @@ class _UserProfileState extends State<UserProfile>
         }
         print("total $totalRating");
 
-        double calculatedRating = feedbackCount > 0 ? totalRating / feedbackCount : 0;
+        double calculatedRating =
+        feedbackCount > 0 ? totalRating / feedbackCount : 0;
 
         // Update rating in the database
-        await SupabaseConfig.client
-            .from('users')
-            .update({'rating': calculatedRating})
-            .eq('id', widget.profileUserId);
+        await SupabaseConfig.client.from('users').update(
+            {'rating': calculatedRating}).eq('id', widget.profileUserId);
 
         setState(() {
           rating = calculatedRating;
         });
       }
-
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching data: $e")),
@@ -176,16 +905,12 @@ class _UserProfileState extends State<UserProfile>
     }
   }
 
-
   @override
   void initState() {
     super.initState();
     fetchUserData();
     checkFriend(widget.loggedInUserId, widget.profileUserId);
-
   }
-
-
 
   Future<void> _launchEmail(String email) async {
     final Uri emailUri = Uri(
@@ -201,24 +926,26 @@ class _UserProfileState extends State<UserProfile>
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        // appBar: AppBar(
+        //   title: const Text("User Profile"),
+        //   backgroundColor: const Color(0xFF009252),
+
         appBar: AppBar(
-          // title: const Text("Profile"),
-          // backgroundColor:Colors.black,
-          title: const Text(
-            "Profile",
-            style: TextStyle(
-              fontWeight: FontWeight.bold, // Make the text bold
-              fontSize: 20,
-                color: Colors.white// Adjust font size if needed
-            ),
-          ),
-          centerTitle: true, // Center the title
-          backgroundColor: Colors.black,
+           // title: const Text("Profile"),
+           // backgroundColor:Colors.black,
+           title: const Text(
+             "Profile",
+             style: TextStyle(
+               fontWeight: FontWeight.bold, // Make the text bold
+               fontSize: 20,
+                 color: Colors.white// Adjust font size if needed
+             ),
+           ),
+           centerTitle: true, // Center the title
+           backgroundColor: Colors.black,
           actions: [
             if (isOwner)
               IconButton(
@@ -243,87 +970,85 @@ class _UserProfileState extends State<UserProfile>
         )
             : SingleChildScrollView(
           child: Container(
-            color:
-            Colors.black12, // You can change this to any color you prefer
+            color: Colors
+                .black12,
             padding: const EdgeInsets.all(8.0),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Profile Picture and Rating Section
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              // builder: (context) =>
-                              //     FullScreenImage(imagePath: profilePicture),
                               builder: (context) => FullScreenImage(
                                 imagePath: profilePicture,
-                                isNetworkImage: profilePicture.startsWith('https://'),
+                                isNetworkImage:
+                                profilePicture.startsWith('https://'),
+                                filePath: '',
                               ),
                             ),
                           );
                         },
                         child: Padding(
-                            padding: const EdgeInsets.all(1.0),
-                            // child: CircleAvatar(
-                            //   radius: 50,
-                            //   backgroundImage: AssetImage(profilePicture),
-                            // ),
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundImage: profilePicture.startsWith('https://')
-                                  ? NetworkImage(profilePicture)
-                                  : AssetImage(profilePicture) as ImageProvider,
-                            )
+                          padding: const EdgeInsets.all(1.0),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage:
+                            profilePicture.startsWith('https://')
+                                ? NetworkImage(profilePicture)
+                                : AssetImage(profilePicture)
+                            as ImageProvider,
+                          ),
                         ),
                       ),
-                      Column(
-                        children: [
-                        //  Expanded(child:
-                          Row(
-                             mainAxisAlignment: MainAxisAlignment.start, // Center-align stars
-                             mainAxisSize: MainAxisSize.min, // Ensure the row doesn't take up extra space
-                            children: List.generate(5, (index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                                child: IconButton(
-                                  icon: Icon(
-                                    index < rating
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.yellow[700],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: List.generate(5, (index) {
+                                  return IconButton(
+                                    icon: Icon(
+                                      index < rating
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: Colors.yellow[700],
+                                    ),
+                                    onPressed:
+                                    null,
+                                  );
+                                }),
+                              ),
+                            ),
+                            if (bio.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0),
+                                child: Text(
+                                  bio,
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
-                                  onPressed:
-                                  null, // Only owner can change rating
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
-                              );
-                            }),
-                          ),
-
-
-                          Text(
-                            bio.isNotEmpty ? bio : "",
-                            style: const TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.bold,color: Colors.white),
-                          ),
-
-                        ],
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-
-                  // User Name Section
-                  // Text(
-                  //   name,
-                  //   style: const TextStyle(
-                  //       fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
-                  // ),
+                  const SizedBox(height: 20),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -331,30 +1056,32 @@ class _UserProfileState extends State<UserProfile>
                       Text(
                         name,
                         style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
-                      //const SizedBox(width: 8),  // Adds some space between the name and the popup button
-                      Expanded(child: Container()),  // Fills remaining space to push the popup button to the right
-                      PopupMenuButton(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 1,
-                            child: Opacity(
-                              opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
-                              child: const Text(
-                                "Give Feedback",
-                                style: TextStyle(color: Colors.white, fontSize: 13.0),
+                      const SizedBox(height: 20),
+                      Expanded(
+                          child:
+                          Container()),
+
+                      IconButton(
+                        icon: const Icon(
+                          Icons.rate_review, // Feedback icon
+                          color: Colors.white, // Icon color
+                          size: 30, // Icon size
+                        ),
+                        onPressed: () {
+                          if (isOwner) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    "You can't give mentor feedback to yourself"),
                               ),
-                            ),
-                          ),
-                        ],
-                        onSelected: (value) {
-                          if (value == 1) {
-                            print("id  $isFriend");
-                            isOwner
-                                ? print("Owner, no feedback")
-                                : (isFriend
-                                ? showDialog(
+                            );
+                          } else if (isFriend) {
+                            // Show feedback dialog for friends
+                            showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return SwapFeedback(
@@ -362,10 +1089,15 @@ class _UserProfileState extends State<UserProfile>
                                   profileUserId: widget.profileUserId,
                                 );
                               },
-                            )
-                                : ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("You must be friends to give feedback")),
-                            ));
+                            );
+                          } else {
+                            // Show message for non-friends
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    "You must be friends to give feedback"),
+                              ),
+                            );
                           }
                         },
                       ),
@@ -373,203 +1105,6 @@ class _UserProfileState extends State<UserProfile>
                   ),
 
 
-
-                  const SizedBox(height: 8),
-
-
-
-                  // Buttons: Swap, Message, Popup Menu
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: InkWell(
-                  //         onTap:
-                  //         isOwner // Only allow navigation to EditProfile if the user is the owner
-                  //             ? () {
-                  //           Navigator.push(
-                  //             context,
-                  //             MaterialPageRoute(
-                  //               builder: (context) =>
-                  //                   EditProfile(
-                  //                     loggedInUserId: widget.loggedInUserId,
-                  //                     profileUserId: widget.profileUserId,
-                  //                   ),
-                  //             ),
-                  //           );
-                  //         }
-                  //             : () {}, // Do nothing if not the owner
-                  //         child: Container(
-                  //           padding: const EdgeInsets.symmetric(
-                  //               vertical: 10, horizontal: 20),
-                  //           decoration: BoxDecoration(
-                  //             color: const Color(0xFF009252),
-                  //             borderRadius: BorderRadius.circular(12),
-                  //           ),
-                  //           child: Text(
-                  //             isOwner
-                  //                 ? 'Edit'
-                  //                 : 'Swap', // Change the label if owner
-                  //             style: const TextStyle(
-                  //                 color: Colors.white, fontSize: 13.0),
-                  //           ),
-                  //          // child:  ElevatedButton(
-                  //          //    onPressed: () async {
-                  //          //      // Check if the user is not the owner and perform swap or unswap accordingly
-                  //          //      if (!isOwner) {
-                  //          //        if (isSwapped) {
-                  //          //          await handleUnswap(); // Call Unswap
-                  //          //        } else {
-                  //          //          await handleSwap(); // Call Swap
-                  //          //        }
-                  //          //      }
-                  //          //    },
-                  //          //    style: ElevatedButton.styleFrom(
-                  //          //      backgroundColor: isSwapped
-                  //          //          ? Color(0xFFFDA89C) // Unswap Button Color
-                  //          //          : Color(0xFF679186), // Swap Button Color
-                  //          //    ),
-                  //          //    child: Text(
-                  //          //      isSwapped ? "Unswap" : "Swap", // Show Swap or Unswap based on isSwapped
-                  //          //      style: const TextStyle(
-                  //          //          color: Colors.white, fontSize: 13.0),
-                  //          //    ),
-                  //          //  ),
-                  //
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 16),
-                  //     if (!isOwner)
-                  //       Expanded(
-                  //        child: InkWell(
-                  //         onTap: () {
-                  //           Navigator.push(
-                  //             context,
-                  //             MaterialPageRoute(builder: (context) =>  ChatPage()),
-                  //           );
-                  //         },
-                  //          child: Container(
-                  //           padding: const EdgeInsets.symmetric(
-                  //               vertical: 10, horizontal: 20),
-                  //           decoration: BoxDecoration(
-                  //             color: const Color(0xFF009252),
-                  //             borderRadius: BorderRadius.circular(12),
-                  //           ),
-                  //           child: const Text(
-                  //             'Message',
-                  //             style: TextStyle(
-                  //                 color: Colors.white, fontSize: 13.0),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     PopupMenuButton(
-                  //       itemBuilder: (context) => [
-                  //         PopupMenuItem(
-                  //           value: 1,
-                  //           child: Opacity(
-                  //             opacity: isOwner ? 0.5 : (isFriend ? 1.0 : 0.5),  // Update opacity based on both conditions
-                  //             child: const Text("Give Feedback", style: TextStyle(
-                  //                 color: Colors.white, fontSize: 13.0),),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //       onSelected: (value) {
-                  //         if (value == 1) {
-                  //           print("id  $isFriend");
-                  //           isOwner
-                  //               ? print("Owner, no feedback")
-                  //               : (isFriend
-                  //               ? showDialog(
-                  //             context: context,
-                  //             builder: (BuildContext context) {
-                  //               return SwapFeedback( loggedInUserId: widget.loggedInUserId,
-                  //                 profileUserId: widget.profileUserId,);
-                  //             },
-                  //           )
-                  //               : ScaffoldMessenger.of(context).showSnackBar(
-                  //             const SnackBar(content: Text("You must be friends to give feedback")),
-                  //           ));
-                  //         }
-                  //       },
-                  //     )
-                  //     // PopupMenuButton(
-                  //     //   itemBuilder: (context) => [
-                  //     //     PopupMenuItem(
-                  //     //       value: 1,
-                  //     //       child: Opacity(
-                  //     //         opacity: isOwner ? 0.5 : 1.0,  // Reduce opacity if isOwner is true
-                  //     //         child: const Text("Give Feedback", style: TextStyle(
-                  //     //             color: Colors.white, fontSize: 13.0),),
-                  //     //       ),
-                  //     //     ),
-                  //     //   ],
-                  //     //   onSelected: (value) {
-                  //     //     if (value == 1) {
-                  //     //        // Set this based on your logic
-                  //     //
-                  //     //       // If isOwner is false, show the feedback form, otherwise, do nothing
-                  //     //       isOwner
-                  //     //           ? print("Owner, no feedback") // If true, do nothing or handle owner logic
-                  //     //           : showDialog(
-                  //     //         context: context,
-                  //     //         builder: (BuildContext context) {
-                  //     //           return SwapFeedback(); // Show FeedbackForm for non-owners
-                  //     //         },
-                  //     //       );
-                  //     //     }
-                  //     //   },
-                  //     // )
-                  //
-                  //     // PopupMenuButton(
-                  //     //   itemBuilder: (context) => [
-                  //     //     const PopupMenuItem(
-                  //     //       value: 1,
-                  //     //       child: Text("Give Feedback"),
-                  //     //     ),
-                  //     //   ],
-                  //     //   onSelected: (value) {
-                  //     //     if (value == 1) {
-                  //     //       // Show the feedback form in a dialog
-                  //     //       showDialog(
-                  //     //         context: context,
-                  //     //         builder: (BuildContext context) {
-                  //     //           return SwapFeedback();
-                  //     //         },
-                  //     //       );
-                  //     //     }
-                  //     //   },
-                  //     // )
-                  //
-                  //
-                  //     // PopupMenuButton(
-                  //     //   itemBuilder: (context) => [
-                  //     //     const PopupMenuItem(
-                  //     //         value: 1, child: Text("Give Feedback")),
-                  //     //   ],
-                  //     // ),
-                  //   ],
-                  // ),
-                  //
-                  // if (isOwner)
-                  //   IconButton(
-                  //     icon: const Icon(
-                  //       Icons.edit,
-                  //       color: Colors.white,
-                  //     ),
-                  //     onPressed: () {
-                  //       Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //           builder: (context) => EditProfile(
-                  //             loggedInUserId: widget.loggedInUserId,
-                  //             profileUserId: widget.profileUserId,
-                  //           ),
-                  //         ),
-                  //       );
-                  //     },
-                  //   ),
                   const SizedBox(height: 16),
                   // Email Section with Clipboard functionality
                   GestureDetector(
@@ -585,12 +1120,13 @@ class _UserProfileState extends State<UserProfile>
                       margin: const EdgeInsets.only(top: 8),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(color: Colors.green),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.email, color: Color(0xFF009252)),
+                          const Icon(Icons.email,
+                              color: Color(0xFF009252)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -614,7 +1150,8 @@ class _UserProfileState extends State<UserProfile>
                           occupation.isNotEmpty ? occupation : "N/A",
                           style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 16, overflow: TextOverflow.ellipsis),
+                              fontSize: 16,
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ),
                     ],
@@ -623,7 +1160,50 @@ class _UserProfileState extends State<UserProfile>
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      const Icon(Icons.location_city, color: Color(0xFF009252)),
+                      const Icon(Icons.picture_in_picture,
+                          color: Color(0xFF009252)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: cvUrl != null && cvUrl.isNotEmpty
+                              ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FullScreenCV(
+                                  filePath: cvUrl,
+                                ),
+                              ),
+                            );
+                          }
+                              : null,
+                          child: Text(
+                            cvUrl != null && cvUrl.isNotEmpty
+                                ? 'View CV'
+                                : 'No CV uploaded',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: cvUrl != null && cvUrl.isNotEmpty
+                                  ? Colors.blue
+                                  : Colors.red,
+                              decoration:
+                              cvUrl != null && cvUrl.isNotEmpty
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Row(
+                    children: [
+                      const Icon(Icons.location_city,
+                          color: Color(0xFF009252)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -631,129 +1211,203 @@ class _UserProfileState extends State<UserProfile>
                           location.isNotEmpty ? location : "N/A",
                           style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 16, overflow: TextOverflow.ellipsis),
+                              fontSize: 16,
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Achievements",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.green,
+                        width: 1.0,
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 5,
-                        runSpacing: 5,
-                        children: achievements.take(3).map((skill) {
-                          return Chip(
-                            label: Text(skill),
-                            backgroundColor: Colors.black,
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF009252), // Set the button color
+                      borderRadius: BorderRadius.circular(
+                          8.0),
+                    ),
+                    padding: const EdgeInsets.all(
+                        16.0),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Achievements",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AchievementsDetails(
-                                  achievements: List<String>.from(achievements),
-                                  isOwner: isOwner,
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text("View All Achievements", style: TextStyle(color: Colors.white)),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 5,
+                          runSpacing: 5,
+                          children: achievements.take(3).map((skill) {
+                            return Chip(
+                              label: Text(skill),
+                              backgroundColor: Colors.black,
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AchievementsDetails(
+                                        achievements:
+                                        List<String>.from(achievements),
+                                        isOwner: isOwner,
+                                      ),
+                                ),
+                              );
+                            },
+                            iconSize:
+                            30,
+                            padding: const EdgeInsets.all(
+                                10),
+                            constraints:
+                            BoxConstraints(),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-
 
                   // Skills Section with Slide-in effect
                   const SizedBox(height: 16),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Skills",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border.all(
+                        color: Colors.green,
+                        width: 1.0,
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 5,
-                        runSpacing: 5,
-                        children: skills.take(3).map((skill) {
-                          return Chip(
-                            label: Text(skill),
-                            backgroundColor: Colors.black,
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF009252), // Set the button color
+                      borderRadius: BorderRadius.circular(
+                          8.0),
+                    ),
+                    padding: const EdgeInsets.all(
+                        16.0),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Skills",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SkillsDetailPage(
-                                  skills: List<String>.from(skills),
-                                  isOwner: isOwner,
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text("View All Skills",style: TextStyle(color: Colors.white)),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 5,
+                          runSpacing: 5,
+                          children: skills.take(3).map((skill) {
+                            return Chip(
+                              label: Text(skill),
+                              backgroundColor: Colors.black,
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SkillsDetailPage(
+                                    skills: List<String>.from(skills),
+                                    isOwner: isOwner,
+                                  ),
+                                ),
+                              );
+                            },
+                            iconSize:
+                            30, // Adjust the icon size as needed
+                            padding: const EdgeInsets.all(
+                                10),
+                            constraints:
+                            BoxConstraints(),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
 
                   // Feedback Button with Hero Animation
                   const SizedBox(height: 8),
+
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF009252), // Set the button color
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.green, // Border color
+                          width: 2, // Border width
+                        ),
+                        borderRadius:
+                        BorderRadius.circular(8), // Rounded corners
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>  UserFeedback(profileUserId : widget.profileUserId),
-                          ),
-                        );
-                      },
-                      child: const Text("Feedback",style: TextStyle(color: Colors.white)),
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserFeedback(
+                                  profileUserId: widget.profileUserId),
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize
+                              .min,
+                          children: [
+                            Icon(
+                              Icons.feedback, // Feedback icon
+                              color: Colors.white, // Icon color
+                            ),
+                            SizedBox(
+                                width:
+                                8),
+                            Text(
+                              "Feedback",
+                              style: TextStyle(
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-
+                  )
                 ],
               ),
             ),
           ),
-        )
-    );
+        ));
   }
 }
-

@@ -148,21 +148,7 @@ class _SwapFeedback extends State<SwapFeedback> {
                 ),
               ),
               const SizedBox(height: 20),
-              // ElevatedButton(
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.green,
-              //   ),
-              //
-              //   onPressed: () {
-              //     String feedback = _feedbackController.text.trim();
-              //     print("Rating: $_rating");
-              //     print("Feedback: $feedback");
-              //
-              //
-              //     Navigator.pop(context); // Close the dialog
-              //   },
-              //   child: const Text("Submit"),
-              // ),
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

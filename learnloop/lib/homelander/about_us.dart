@@ -1,55 +1,3 @@
-// import 'package:flutter/material.dart';
-//
-// class AboutScreen extends StatelessWidget {
-//   const AboutScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//         title: const Text(
-//           "About",
-//           style: TextStyle(
-//             fontFamily: 'PlayfairDisplay', // Beautiful Flutter font
-//             fontSize: 24,
-//             color: Colors.green,
-//           ),
-//         ),
-//         // leading: IconButton(
-//         //   icon: const Icon(Icons.arrow_back),
-//         //   onPressed: () {
-//         //    // Navigator.pop(context); // Navigate back to the previous screen
-//         //     Navigator.pushReplacementNamed(context, '/main');
-//         //   },
-//         // ),
-//       ),
-//       body: Container(
-//         color: Colors.black,
-//         child: const Center(
-//           child: Padding(
-//             padding: EdgeInsets.all(16.0),
-//             child: Text(
-//               "LearnLoop is an app designed to facilitate peer-to-peer skill sharing, enabling users to connect, share talents, and gain knowledge from one another. The app allows users to schedule lessons with peers, chat to arrange sessions, and submit and receive skill-swap requests.\n\n"
-//                   "Key features include personal profiles, a community area, access to both free and paid courses, and tools to monitor learning progress. LearnLoop aims to create a cooperative learning environment that fosters skill development and personal growth.\n\n"
-//                   "Additionally, the app features a “Fun Challenge” which offers tailored options based on skill level: users without skills can start with the “Learn” (free or paid) option, while users with existing skills can use the “Swap” (free) option to further enhance their abilities.",
-//               style: TextStyle(
-//                 fontFamily: 'PlayfairDisplay', // Built-in elegant font
-//                 fontSize: 18,
-//                 color: Colors.white,
-//                 height: 1.5, // Adjust line height for readability
-//               ),
-//               textAlign: TextAlign
-//                   .justify, // Justify the text for better appearance
-//             ),
-//           ),
-//         ),
-//
-//       ),
-//     );
-//   }
-// }
-
 
 import 'dart:io';
 
@@ -207,13 +155,7 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const SizedBox(height: 32),
-            // const Text(
-            //   'Key Features:',
-            //   style: TextStyle(
-            //     fontSize: 20,
-            //     fontWeight: FontWeight.bold,
-            //   ),
-            // ),
+
             const SizedBox(height: 8),
 
             Card(
@@ -530,63 +472,9 @@ class AboutScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Card(
-            //   elevation: 5,
-            //   shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(10),
-            //   ),
-            //   child: const ExpansionTile(
-            //     title: Row(
-            //       children: [
-            //
-            //         SizedBox(
-            //             width: 16), // Space between image and text
-            //         Expanded(
-            //           child: Column(
-            //             crossAxisAlignment: CrossAxisAlignment.start,
-            //             children: [
-            //               Text('Free course for beginners.',  style: TextStyle(
-            //                 fontSize: 16,
-            //                 color: Colors.white,
-            //               ),),
-            //             ],
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //     children: [
-            //       Padding(
-            //         padding: EdgeInsets.all(16.0),
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //
-            //             Row(
-            //               children: [
-            //
-            //                 SizedBox(width: 8),
-            //                 Expanded(child: Text('beginner friendly course'))
-            //               ],
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
 
-            //
-            //
-            // const Text(
-            //   'Peer-to-peer skill swap.\n'
-            //       'Free course for beginners.\n'
-            //       'Community to learn particular topics.\n'
-            //       'Fun challenge for refreshment.\n'
-            //       'Real-time chat to collaborate with others.\n'
-            //       'Categorized quizzes for learning advanced topics.\n'
-            //       'Personalized user profiles with feedback integration.\n',
-            //   style: TextStyle(fontSize: 16),
-            // ),
+
+
             const SizedBox(height: 32),
             const Text(
               'Developer Info:\nThis our CSE-2216 course project. Our team members are : ',
@@ -626,14 +514,7 @@ class AboutScreen extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              //const SizedBox(height: 4), // Space between name and role
-                              // Text(
-                              //   member['roll'] ?? 'Unknown',
-                              //   style: TextStyle(
-                              //     fontSize: 16,
-                              //     color: Colors.grey[700],
-                              //   ),
-                              // ),
+
                             ],
                           ),
                         ),
@@ -645,13 +526,7 @@ class AboutScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // const Text(
-                            //   "Details:",
-                            //   style: TextStyle(
-                            //     fontSize: 18,
-                            //     fontWeight: FontWeight.bold,
-                            //   ),
-                            // ),
+
                             const SizedBox(height: 8),
                             Row(
                               children: [
@@ -728,10 +603,7 @@ class AboutScreen extends StatelessWidget {
               'Our App Rating ',
               style: TextStyle(fontSize: 16),
             ),
-            // const Text(
-            //   'Version: 1.2.3',
-            //   style: TextStyle(fontSize: 16),
-            // ),
+
             const SizedBox(height: 16),
             const Text(
               'Last updated: Jan 11, 2025',
