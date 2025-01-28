@@ -192,13 +192,13 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
       "title": "Graphic Era",
       "description":
       "Unleash your creativity and join our vibrant community of graphic designers, where ideas ignite and talents flourish.",
-      "link": "https://discord.gg/6dmuHmVg",
+      "link": "https://discord.gg/4ffYbDDj5A",
       "name": "graphic_era", // Name in the Supabase table
     },
     {
       "title": "DesignConnect",
       "description": "Join a thriving community where inspiration flows.",
-      "link": "https://discord.gg/cNm2rj4Q",
+      "link": "https://discord.gg/EVndCxVf6G",
       "name": "design_connect", // Name in the Supabase table
     },
   ];
