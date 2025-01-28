@@ -4,11 +4,16 @@ import 'dart:io';
 import 'package:blinking_text/blinking_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+class _AboutScreenState extends State<AboutScreen> {
   final String email = 'a1ndroiddevelopment@gmail.com';
   final String phoneNumber = '01815267528';
 
@@ -38,6 +43,44 @@ class AboutScreen extends StatelessWidget {
       'email': 'mrittika@gmail.com',
     },
   ];
+
+  double _averageRating = 0.0; // To store the average rating
+  int _totalFeedbacks = 0; // To store the total feedback count
+
+  // Fetch the average rating and set state
+  Future<void> fetchAverageRating() async {
+    try {
+      final response = await Supabase.instance.client.from('app_feedback').select('rating');
+
+      if (response != null && response.isNotEmpty) {
+        final List data = response as List;
+
+        if (data.isNotEmpty) {
+          setState(() {
+            _totalFeedbacks = data.length;
+            _averageRating = data
+                .map((item) => (item['rating'] as num).toDouble())
+                .reduce((a, b) => a + b) /
+                _totalFeedbacks;
+          });
+        } else {
+          setState(() {
+            _totalFeedbacks = 0;
+            _averageRating = 0.0;
+          });
+        }
+      }
+    } catch (e) {
+      print('Exception occurred while fetching average rating: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAverageRating(); // Fetch rating on initialization
+  }
+
 
   Widget _buildContactCard(
       {required String title,
@@ -182,6 +225,8 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -229,6 +274,8 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -274,6 +321,8 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -318,6 +367,7 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -362,6 +412,8 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -398,7 +450,7 @@ class AboutScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          Text('Personalized user profiles with feedback integration.',  style: TextStyle(
+                          Text('Personalized user profiles with feedback integration and CV uploading facility.',  style: TextStyle(
                             fontSize: 16,
                             color: Colors.white,
                           ),),
@@ -408,6 +460,8 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -419,7 +473,54 @@ class AboutScreen extends StatelessWidget {
                           children: [
 
                             SizedBox(width: 8),
-                            Text('You can see the user feedback from that person"s profile. You can also give feedback to your mentor')
+                           Expanded(child: Text('You can see the user feedback from that person"s profile.You can also give feedback to your mentor and add CV in your own profile.'))
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const ExpansionTile(
+                title: Row(
+                  children: [
+
+                    SizedBox(
+                        width: 16), // Space between image and text
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Progress tracking facility.',  style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        Row(
+                          children: [
+
+                            SizedBox(width: 8),
+                            Expanded(child: Text('One can keep track of their progress by the count of their swap ratio.'))
                           ],
                         ),
                       ],
@@ -452,6 +553,8 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -496,9 +599,8 @@ class AboutScreen extends StatelessWidget {
                     title: Row(
                       children: [
                         CircleAvatar(
-                          radius: 40,
-                          backgroundImage: AssetImage(
-                            member['image'] ?? 'assets/default_image.png',
+                          radius: 20,
+                          backgroundImage: AssetImage('assets/default_image.jpg',
                           ),
                         ),
                         const SizedBox(
@@ -520,6 +622,8 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -599,9 +703,12 @@ class AboutScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-            const Text(
-              'Our App Rating ',
-              style: TextStyle(fontSize: 16),
+             Text(
+              'Our App Rating: ${_averageRating.toStringAsFixed(1)}',
+              style: TextStyle(fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.green, // Green for emphasis
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -614,7 +721,7 @@ class AboutScreen extends StatelessWidget {
               'Privacy Policy & Terms of Service',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.blue,
+                color: Colors.green,
                 decoration: TextDecoration.underline,
               ),
             ),

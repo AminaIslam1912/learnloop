@@ -941,12 +941,9 @@ class _EditProfileState extends State<EditProfile> {
 
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Edit Profile",style: TextStyle(color: Colors.white)),
-      //   backgroundColor: Color(0xFF009252),
+
       appBar: AppBar(
-         // title: const Text("Edit Profile",style: TextStyle(color: Colors.white)),
-         // backgroundColor: Colors.green,
+
          title: const Text(
            "Edit Profile",
            style: TextStyle(
@@ -959,7 +956,7 @@ class _EditProfileState extends State<EditProfile> {
          backgroundColor: Colors.black,
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: const Icon(Icons.save, color: Colors.white),
             onPressed: isLoading
                 ? null
                 : saveProfile,
@@ -1021,7 +1018,7 @@ class _EditProfileState extends State<EditProfile> {
                                         Opacity(
                                           opacity: canDeletePic ? 1.0 : 0.5,
                                           child: ListTile(
-                                            leading: const Icon(Icons.delete),
+                                            leading: const Icon(Icons.delete, color: Colors.red),
                                             title: const Text('Delete'),
                                             onTap: canDeletePic ? () {
                                               deleteProfilePicture();
@@ -1247,7 +1244,7 @@ class _EditProfileState extends State<EditProfile> {
                         const Spacer(),
                         IconButton(
                           onPressed: _editAchievement,
-                          icon: const Icon(Icons.add, color: Colors.white),
+                          icon: const Icon(Icons.add, color: Colors.green),
                           tooltip: "Edit Achievements",
                         ),
                       ],
@@ -1297,7 +1294,7 @@ class _EditProfileState extends State<EditProfile> {
                         const Spacer(),
                         IconButton(
                           onPressed: _editSkills,
-                          icon: const Icon(Icons.add, color: Colors.white),
+                          icon: const Icon(Icons.add, color: Colors.green),
                           tooltip: "Edit Skills",
                         ),
                       ],

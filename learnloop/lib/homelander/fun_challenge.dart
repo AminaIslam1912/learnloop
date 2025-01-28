@@ -40,11 +40,7 @@ class FunChallengeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Choose your challenge!!'),
-      //   centerTitle: true,
-      //   backgroundColor: Colors.teal,
-      // ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -62,27 +58,7 @@ class FunChallengeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              // child: const Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Text(
-              //       'Total Score',
-              //       style: TextStyle(
-              //         fontSize: 20,
-              //         color: Colors.white,
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //     Text(
-              //       '1500', // Example score
-              //       style: TextStyle(
-              //         fontSize: 20,
-              //         color: Colors.white,
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //   ],
-              // ),
+
             ),
             // Game Categories as Cards
             Padding(

@@ -47,7 +47,7 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
         title: const Text("Edit Achievements"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, color: Colors.green),
             onPressed: () async {
               final newAc = await _addAchievementsDialog();
               if (newAc != null && newAc.isNotEmpty) {
@@ -82,7 +82,7 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
                   return ListTile(
                     title: Text(achievements[index]),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () async{
                         setState(() {
                           achievements.removeAt(index); // Remove skill
@@ -100,30 +100,7 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
     );
   }
 
-  // Future<String?> _addAchievementsDialog() async {
-  //   TextEditingController acController = TextEditingController();
-  //   return showDialog<String>(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text("Add Achievements"),
-  //       content: TextField(
-  //         controller: acController,
-  //         decoration: const InputDecoration(hintText: "Enter new Achievements"),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("Cancel"),
-  //         ),
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context, acController.text),
-  //           child: const Text("Add"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-  //
+
 
   Future<String?> _addAchievementsDialog() async {
     TextEditingController acController = TextEditingController();
@@ -131,10 +108,25 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Add Achievements"),
-        content: TextField(
-          controller: acController,
-          decoration: const InputDecoration(hintText: "Enter new Achievements"),
-        ),
+         content:
+        // TextField(
+        //   controller: acController,
+        //   decoration: const InputDecoration(hintText: "Enter new Achievements"),
+        // ),
+         TextField(
+           controller: acController,
+           cursorColor: Colors.white, // Cursor color
+           decoration: InputDecoration(
+             hintText: "Enter new Achievements",
+             enabledBorder: UnderlineInputBorder(
+               borderSide: BorderSide(color: Colors.white), // Line color when not focused
+             ),
+             focusedBorder: UnderlineInputBorder(
+               borderSide: BorderSide(color: Colors.white), // Line color when focused
+             ),
+           ),
+         ),
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

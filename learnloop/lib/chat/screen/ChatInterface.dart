@@ -207,7 +207,14 @@ class _ChatInterfaceState extends State<ChatInterface> {
                   "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"), // Default image
             ),
             const SizedBox(width: 10),
-            Text(widget.userName),
+            //Text(widget.userName),
+            Text(
+              widget.userName,
+              style: const TextStyle(
+                fontSize: 14.0, // Set the font size (adjust as needed)
+              ),
+            ),
+
           ],
         ),
         actions: [
@@ -225,7 +232,17 @@ class _ChatInterfaceState extends State<ChatInterface> {
           ),
         ],
       ),
-      body: Column(
+      body:
+          Container(
+            decoration: BoxDecoration(
+            image: DecorationImage(
+            image: AssetImage('assets/chat-bg.jpg'), // Replace with your image path
+               fit: BoxFit.cover, // Ensures the image covers the entire background
+           ),
+              ),
+
+
+    child:   Column(
         children: [
           const Divider(),
           Expanded(
@@ -318,6 +335,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
           ),
         ],
       ),
+          )
     );
   }
 

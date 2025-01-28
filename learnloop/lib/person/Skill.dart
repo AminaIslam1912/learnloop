@@ -49,7 +49,7 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
         title: const Text("Edit Skills"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, color: Colors.green),
             onPressed: () async {
               final newSkill = await _addSkillDialog();
               if (newSkill != null && newSkill.isNotEmpty) {
@@ -74,7 +74,7 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
                   return ListTile(
                     title: Text(skills[index]),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () async {
                         setState(() {
                           skills.removeAt(index); // Remove skill
@@ -92,39 +92,30 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
     );
   }
 
-  // Future<String?> _addSkillDialog() async {
-  //   TextEditingController skillController = TextEditingController();
-  //   return showDialog<String>(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text("Add Skill"),
-  //       content: TextField(
-  //         controller: skillController,
-  //         decoration: const InputDecoration(hintText: "Enter new skill"),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("Cancel"),
-  //         ),
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context, skillController.text),
-  //           child: const Text("Add"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-  //
+
   Future<String?> _addSkillDialog() async {
     TextEditingController skillController = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Add Skill"),
-        content: TextField(
+        content:
+        // TextField(
+        //   controller: skillController,
+        //   decoration: const InputDecoration(hintText: "Enter new skill"),
+        // ),
+        TextField(
           controller: skillController,
-          decoration: const InputDecoration(hintText: "Enter new skill"),
+          cursorColor: Colors.white, // Cursor color
+          decoration: InputDecoration(
+            hintText: "Enter new Skill",
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white), // Line color when not focused
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white), // Line color when focused
+            ),
+          ),
         ),
         actions: [
           TextButton(
