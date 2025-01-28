@@ -195,13 +195,13 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
       "title": "Problem Solvers Community",
       "description":
       "Join a network of brilliant minds solving real-world challenges collaboratively.",
-      "link": "https://discord.gg/mNYuY94j",
+      "link": "https://discord.gg/7J5KkmXGcN",
       "name": "problem_solvers_community",
     },
     {
       "title": "Critical Thinkers",
       "description": "Sharpen your thinking and problem-solving skills.",
-      "link": "https://discord.gg/gxb2DHJP",
+      "link": "https://discord.gg/ma9fbccVTC",
       "name": "critical_thinkers",
     },
   ];
