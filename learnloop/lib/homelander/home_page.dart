@@ -54,21 +54,52 @@ class _HomePageState extends State<HomePage>
       itemBuilder: (context, index) {
         final course = savedCourses[index];
         return Dismissible(
-          key: Key(course["id"]
-              .toString()),
+          key: Key(course["id"].toString()),
           direction: DismissDirection.startToEnd,
-          onDismissed: (direction) {
-            setState(() {
-              savedCourses.removeAt(index);
-            });
-            _removeCourseFromDatabase(course["id"]);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("${course["title"]} deleted successfully."),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-              ),
-            );
+          onDismissed: (direction) async {
+            final user = Supabase.instance.client.auth.currentUser;
+            if (user != null) {
+              try {
+                // Fetch current saved courses from Supabase
+                final response = await Supabase.instance.client
+                    .from('users')
+                    .select('saved_courses')
+                    .eq('id', user.id)
+                    .single();
+
+                if (response != null && response['saved_courses'] != null) {
+                  List<int> currentSavedCourses = List<int>.from(response['saved_courses']);
+                  currentSavedCourses.remove(course["id"]);
+
+                  // Update saved_courses in Supabase
+                  await Supabase.instance.client
+                      .from('users')
+                      .update({'saved_courses': currentSavedCourses.cast<int>()})
+                      .eq('id', user.id);
+
+                  setState(() {
+                    savedCourses.removeAt(index);
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${course["title"]} deleted successfully."),
+                      backgroundColor: Colors.white,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              } catch (error) {
+                debugPrint('Error removing course: $error');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Error removing course. Please try again.'),
+                    backgroundColor: Colors.green
+                    ,
+                  ),
+                );
+              }
+            }
           },
           child: InkWell(
             onTap: () {
@@ -76,8 +107,7 @@ class _HomePageState extends State<HomePage>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        DynamicScreen(courseId: course["id"]!),
+                    builder: (context) => DynamicScreen(courseId: course["id"]!),
                   ),
                 );
               }
@@ -91,16 +121,15 @@ class _HomePageState extends State<HomePage>
               child: ListTile(
                 contentPadding: const EdgeInsets.all(16),
                 leading: CircleAvatar(
-                  backgroundImage: course["id"] != null &&
-                          courseImages.containsKey(course["id"])
+                  backgroundImage: course["id"] != null && courseImages.containsKey(course["id"])
                       ? NetworkImage(courseImages[course["id"]]!)
                       : AssetImage(course["image"]) as ImageProvider,
                 ),
                 title: Text(
                   course["title"],
                   style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
+                    color: Colors.white,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -108,7 +137,7 @@ class _HomePageState extends State<HomePage>
                   course["isFree"] ? "Free" : "Paid",
                   style: TextStyle(
                     color: course["isFree"] ? Colors.green : Colors.red,
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
                 ),
               ),
@@ -118,44 +147,26 @@ class _HomePageState extends State<HomePage>
       },
     );
   }
-
   Future<bool> _isUserLoggedIn() async {
     final session = Supabase.instance.client.auth.currentSession;
     return session != null;
   }
 
-
-  void _handleSaveCourse(
-      BuildContext context, Map<String, dynamic> course) async {
+  void _handleSaveCourse(BuildContext context, Map<String, dynamic> course) async {
     if (await _isUserLoggedIn()) {
-      if (!savedCourses
-          .any((savedCourse) => savedCourse["id"] == course["id"])) {
+      // Check if the course is already saved locally
+      if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
         setState(() {
-          savedCourses.add(course);
+          savedCourses.add(course); // Add course to the local list
         });
-        try {
-          final userId = widget.user?.id;
-          if (userId != null) {
-            await Supabase.instance.client.from('saved_courses').insert({
-              'user_id':
-                  int.parse(userId),
-              'course_id': course['id'],
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${course["title"]} saved successfully!')),
-            );
-          }
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save ${course["title"]}: $e')),
-          );
-        }
       } else {
+        // Notify the user if the course is already saved
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${course["title"]} is already saved!')),
         );
       }
     } else {
+      // If the user is not logged in, prompt them to log in
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -173,7 +184,7 @@ class _HomePageState extends State<HomePage>
               TextButton(
                 child: const Text(
                   'Cancel',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.green),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -185,12 +196,11 @@ class _HomePageState extends State<HomePage>
                   style: TextStyle(color: Colors.green),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/login')
-                      .then((value) async {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.pushReplacementNamed(context, '/login').then((value) async {
+                    // Check if the user is logged in after returning from the login page
                     if (await _isUserLoggedIn()) {
-                      _handleSaveCourse(
-                          context, course);
+                      _handleSaveCourse(context, course); // Retry saving the course
                     }
                   });
                 },
@@ -201,58 +211,94 @@ class _HomePageState extends State<HomePage>
       );
     }
   }
-
   Future<void> _fetchSavedCourses() async {
     try {
-      final userId = widget.user?.id;
-      if (userId == null) return;
-      final data = await Supabase.instance.client
-          .from('saved_courses')
-          .select('course_id, course(title, isFree, course_image)')
-          .eq('user_id', int.parse(userId));
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        final response = await Supabase.instance.client
+            .from('users')
+            .select('saved_courses')
+            .eq('id', user.id)
+            .single();
 
-      setState(() {
-        savedCourses = data.map<Map<String, dynamic>>((item) {
-          return {
-            "id": item['course_id'],
-            "title": item['course']['title'],
-            "isFree": item['course']['isFree'],
-            "image": item['course']['course_image'],
-          };
-        }).toList();
-      });
-    } catch (e) {
-      debugPrint("Error fetching saved courses: $e");
+        if (response != null && response['saved_courses'] != null) {
+          final savedCourseIds = List<int>.from(response['saved_courses']);
+
+          // Fetch course details for each saved course ID
+          final coursesResponse = await Supabase.instance.client
+              .from('course')
+              .select('*')
+              .inFilter('id', savedCourseIds);
+
+          setState(() {
+            savedCourses = List<Map<String, dynamic>>.from(coursesResponse);
+          });
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching saved courses: $error');
     }
   }
 
-  Future<void> _removeCourseFromDatabase(int courseId) async {
-    try {
-      final userId = widget.user?.id;
-      if (userId == null) return;
-      await Supabase.instance.client.from('saved_courses').delete().match({
-        'user_id': int.parse(userId),
-        'course_id': courseId
-      });
+  Future<void> onSaveAndWatchLater(int courseId, String courseTitle) async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      try {
+        final response = await Supabase.instance.client
+            .from('users')
+            .select('saved_courses')
+            .eq('id', user.id)
+            .single();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Course removed successfully!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove course: $e')),
-      );
+        List<int> currentSavedCourses = [];
+        if (response != null && response['saved_courses'] != null) {
+          currentSavedCourses = List<int>.from(response['saved_courses']);
+        }
+
+        if (!currentSavedCourses.contains(courseId)) {
+          currentSavedCourses.add(courseId);
+
+          await Supabase.instance.client
+              .from('users')
+              .update({'saved_courses': currentSavedCourses})
+              .eq('id', user.id);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$courseTitle saved successfully!')),
+          );
+          debugPrint("Course ID: $courseId saved successfully!");
+          _fetchSavedCourses(); // Refresh saved courses list
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$courseTitle is already saved!')),
+          );
+        }
+      } catch (error) {
+       // debugPrint('');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Course saved successfully!')),
+        );
+      }
     }
   }
+   Future<void> _fetchCourseImages() async {
 
-  Future<void> _fetchCourseImages() async {
     try {
+
       final data = await Supabase.instance.client
+
           .from('course')
+
           .select('id, course_image');
 
+
+
       setState(() {
+
         for (final course in data) {
+           
+               
+               
           courseImages[course['id']] = course['course_image'];
         }
 
@@ -531,7 +577,7 @@ class _HomePageState extends State<HomePage>
             prefixIcon: const Icon(Icons.search,
                 color: Colors.green),
 
-            hintStyle: TextStyle(color: Colors.white54),
+            hintStyle: TextStyle(color: Colors.green),
             border: InputBorder.none,
           ),
           style: const TextStyle(color: Colors.white),
@@ -798,9 +844,10 @@ class _HomePageState extends State<HomePage>
                           useNetworkImage: course["id"] != null &&
                               courseImages.containsKey(course["id"]),
                           course: course,
-                          onSaveAndWatchLater: () {
-                            _handleSaveCourse(context, course);
-                          },
+                         onSaveAndWatchLater: () {
+                              onSaveAndWatchLater(course["id"], course["title"]);
+                              _handleSaveCourse(context, course);
+                            },
                         ),
                       );
                     },
@@ -837,7 +884,8 @@ class _HomePageState extends State<HomePage>
                         useNetworkImage: course["id"] != null &&
                             courseImages.containsKey(course["id"]),
                         course: course,
-                        onSaveAndWatchLater: () {
+                       onSaveAndWatchLater: () {
+                          onSaveAndWatchLater(course["id"], course["title"]);
                           _handleSaveCourse(context, course);
                         },
                       ),
@@ -929,7 +977,7 @@ class _HomePageState extends State<HomePage>
                   try {
                     await Supabase.instance.client.auth.signOut();
                     print('Logged out successfully');
-                    Navigator.pushReplacementNamed(context, '/sign_up');
+                    Navigator.pop(context);
                   } catch (e) {
                     print('Logout exception: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
