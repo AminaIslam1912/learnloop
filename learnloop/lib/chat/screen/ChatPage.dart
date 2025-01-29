@@ -133,33 +133,46 @@ class _ChatPageState extends State<ChatPage> {
           },
         ),
 
-        title: isSearching
-            ? TextField(
-          autofocus: true,
-          onChanged: (value) {
-            setState(() {
-              searchQuery = value.trim().toLowerCase();
-            });
-          },
-          cursorColor: Colors.green,
-          decoration: const InputDecoration(
-            hintText: 'Search by name',
-            prefixIcon: Icon(Icons.search),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.only(left: 10.0, top: 11.0, bottom: 8.0),
+        title: isSearching ? TextField(
+        autofocus: true,
+        onChanged: (value) {
+          setState(() {
+            searchQuery = value.trim().toLowerCase();
+          });
+        },
+        cursorColor: Colors.green,
+        decoration: const InputDecoration(
+          hintText: 'Search by name',
+          hintStyle: TextStyle(
+            color: Colors.green, // Green hint text
           ),
-        )
-            : Text('Chat',style: TextStyle(
-            fontWeight: FontWeight.normal, // Make the text bold
-            fontSize: 20,
-            color: Colors.white// Adjust font size if needed
-        ),),
-      centerTitle: true,
+          prefixIcon: Icon(
+            Icons.search,
+            color: Colors.green, // Green search icon
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.only(left: 10.0, top: 11.0, bottom: 8.0),
+        ),
+      )
+
+      : const Text(
+          'Chat',
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // Bold text
+            fontSize: 20, // Adjust font size if needed
+            color: Colors.white, // Text color white
+          ),
+        ),
+
+        centerTitle: true,
       elevation: 4,
       backgroundColor: Colors.black,
         actions: [
           IconButton(
-            icon: Icon(isSearching ? Icons.close : Icons.search),
+            icon: Icon(
+              isSearching ? Icons.close : Icons.search,
+              color: Colors.green, // Green icon color
+            ),
             onPressed: () {
               setState(() {
                 if (isSearching) {
@@ -169,6 +182,7 @@ class _ChatPageState extends State<ChatPage> {
               });
             },
           ),
+
         ],
 
       ),

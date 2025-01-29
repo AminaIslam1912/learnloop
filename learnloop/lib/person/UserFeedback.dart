@@ -111,13 +111,50 @@ class _UserFeedbackState extends State<UserFeedback> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: searchController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Search Feedback on Topics",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.green, // Green color for label text
+                ),
+                prefixIcon: Icon(Icons.search, color: Colors.green), // Green search icon
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.green, // Green border by default
+                    width: 1.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.grey, // Green border when enabled
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.green, // Green border when focused
+                    width: 2.0, // Border thickness when focused
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.green, // Green border when error occurs
+                    width: 2.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.green, // Green border for error state
+                    width: 2.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onChanged: _filterFeedback, // Call _filterFeedback when text changes
             ),
+
           ),
           Expanded(
             child: ListView.builder(

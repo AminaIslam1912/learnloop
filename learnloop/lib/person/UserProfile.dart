@@ -945,7 +945,7 @@ class _UserProfileState extends State<UserProfile>
              ),
            ),
            centerTitle: true, // Center the title
-           backgroundColor: Colors.black,
+           //backgroundColor: Colors.black,
           actions: [
             if (isOwner)
               IconButton(
@@ -964,6 +964,7 @@ class _UserProfileState extends State<UserProfile>
               ),
           ],
         ),
+
         body: isLoading
             ? const Center(
           child: CircularProgressIndicator(),
@@ -1290,7 +1291,7 @@ class _UserProfileState extends State<UserProfile>
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      //color: Colors.black,
                       border: Border.all(
                         color: Colors.green,
                         width: 1.0,

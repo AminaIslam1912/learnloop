@@ -101,9 +101,35 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // return MaterialApp(
+    //   debugShowCheckedModeBanner: false,
+    //   theme: ThemeData.dark(),
+    //   // home: MainPage(),
+    //   // Define named routes here
+    //   initialRoute: '/',
+    //   routes: {
+    //     '/': (context) => SplashScreen(),
+    //     '/main': (context) => MainPage(),
+    //     // Add other routes as needed
+    //     // '/home/suggested': (context) => SuggestedForYou(),
+    //     '/home/community': (context) => CommunityUI(),
+    //     '/home/funChallenge': (context) =>  FunChallengeScreen(),
+    //     '/home/about': (context) => AboutScreen(),
+    //     '/login':(context)=>LoginPage(),
+    //     '/sign_up':(context)=>SignUpPage(),
+    //      //'/home/fun':(context)=>FunChallengeScreen()
+    //     '/chat':(context)=>ChatPage(),
+    //   },
+    // );
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.green, // Cursor green
+          selectionColor: Colors.greenAccent, // Selected text highlight color
+          selectionHandleColor: Colors.green, // Drop shape (handle) color
+        ),
+      ),
       // home: MainPage(),
       // Define named routes here
       initialRoute: '/',
@@ -113,14 +139,15 @@ class MyApp extends StatelessWidget {
         // Add other routes as needed
         // '/home/suggested': (context) => SuggestedForYou(),
         '/home/community': (context) => CommunityUI(),
-        '/home/funChallenge': (context) =>  FunChallengeScreen(),
+        '/home/funChallenge': (context) => FunChallengeScreen(),
         '/home/about': (context) => AboutScreen(),
-        '/login':(context)=>LoginPage(),
-        '/sign_up':(context)=>SignUpPage(),
-         //'/home/fun':(context)=>FunChallengeScreen()
-        '/chat':(context)=>ChatPage(),
+        '/login': (context) => LoginPage(),
+        '/sign_up': (context) => SignUpPage(),
+        // '/home/fun': (context) => FunChallengeScreen()
+        '/chat': (context) => ChatPage(),
       },
     );
+
   }
   Future<void> _loadSession(BuildContext context) async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);

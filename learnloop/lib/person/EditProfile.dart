@@ -1049,7 +1049,8 @@ class _EditProfileState extends State<EditProfile> {
                       padding: const EdgeInsets.all(16.0),
                       child: TextField(
                         controller: _bioController,
-                        maxLength: 20,
+                        maxLength: 60,
+                        cursorColor: Colors.green,
                         decoration: const InputDecoration(
                           labelText: 'Edit Bio',
                           labelStyle: const TextStyle(
@@ -1093,6 +1094,7 @@ class _EditProfileState extends State<EditProfile> {
               const SizedBox(height: 16),
               TextField(
                 controller: _occupationController,
+                cursorColor: Colors.green,
                 decoration: const InputDecoration(
                   labelText: 'Occupation',
                   labelStyle: const TextStyle(
@@ -1131,6 +1133,7 @@ class _EditProfileState extends State<EditProfile> {
               const SizedBox(height: 16),
               TextField(
                 controller: _locationController,
+
                 decoration: const InputDecoration(
                   labelText: 'Location',
                   labelStyle: const TextStyle(

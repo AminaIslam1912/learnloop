@@ -180,11 +180,16 @@ class _SkillsDetailPageState extends State<SkillsDetailPage> {
               controller: searchController,
               decoration: const InputDecoration(
                 labelText: "Search Skills",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Colors.green), // Focused hole text green hobe
+                prefixIcon: Icon(Icons.search, color: Colors.green), // Icon green hobe
+                border: OutlineInputBorder(), // Normal border
+                focusedBorder: OutlineInputBorder( // Focused state e green border
+                  borderSide: BorderSide(color: Colors.green, width: 2.0),
+                ),
               ),
-              onChanged: _filterSkills,
+              cursorColor: Colors.green, // Cursor er color green
             ),
+
             const SizedBox(height: 16),
 
             // Skills List
