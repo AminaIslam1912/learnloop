@@ -106,8 +106,8 @@ class _CookingScreenState extends State<CookingScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Search communities...',
-                        hintStyle: const TextStyle(color: Colors.white54),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white),
+                        hintStyle: const TextStyle(color: Colors.green),
+                        prefixIcon: const Icon(Icons.search, color: Colors.green),
                         filled: true,
                         fillColor: Colors.grey[850],
                         border: OutlineInputBorder(
