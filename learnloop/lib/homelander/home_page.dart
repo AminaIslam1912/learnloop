@@ -977,7 +977,7 @@ class _HomePageState extends State<HomePage>
                   try {
                     await Supabase.instance.client.auth.signOut();
                     print('Logged out successfully');
-                    Navigator.pop(context);
+                     Navigator.pushReplacementNamed(context, '/login');
                   } catch (e) {
                     print('Logout exception: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
