@@ -14,7 +14,7 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
     {
       "title": "Microsoft Tech Community",
       "description":
-      "Join a community of Microsoft enthusiasts sharing tech tips, coding projects, and career advice.",
+          "Join a community of Microsoft enthusiasts sharing tech tips, coding projects, and career advice.",
       "link": "https://discord.gg/bKwpUbxqQn",
       "name": "microsoft_tech_community",
     },
@@ -44,7 +44,7 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
       setState(() {
         for (var item in data) {
           communityImages[item['community_name'] as String] =
-          item['image'] as String;
+              item['image'] as String;
         }
         isLoading = false;
       });
@@ -53,6 +53,15 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  // _launchURL method to handle opening links
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -72,31 +81,31 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Container(
-        color: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: communities.length,
-                  itemBuilder: (context, index) {
-                    final community = communities[index];
-                    return _communityBox(
-                      name: community["name"]!,
-                      title: community["title"]!,
-                      description: community["description"]!,
-                      link: community["link"]!,
-                    );
-                  },
+              color: Colors.black,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: communities.length,
+                        itemBuilder: (context, index) {
+                          final community = communities[index];
+                          return _communityBox(
+                            name: community["name"]!,
+                            title: community["title"]!,
+                            description: community["description"]!,
+                            link: community["link"]!,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -148,13 +157,7 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
                   ),
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () async {
-                      if (await canLaunch(link)) {
-                        await launch(link);
-                      } else {
-                        throw 'Could not launch $link';
-                      }
-                    },
+                    onTap: () => _launchURL(link),  // Calls _launchURL method
                     child: const Text(
                       "Discord Server Link",
                       style: TextStyle(
