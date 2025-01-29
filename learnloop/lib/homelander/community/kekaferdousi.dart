@@ -14,7 +14,7 @@ class _CookingScreenState extends State<CookingScreen> {
     {
       "title": "MasterChefs Club",
       "description":
-      "Join a community of passionate cooks and professional chefs sharing tips, recipes, and culinary techniques.",
+          "Join a community of passionate cooks and professional chefs sharing tips, recipes, and culinary techniques.",
       "link": "https://discord.gg/KKp5NbtbsS",
       "name": "master_chefs_club",
     },
@@ -47,7 +47,7 @@ class _CookingScreenState extends State<CookingScreen> {
       setState(() {
         for (var item in data) {
           communityImages[item['community_name'] as String] =
-          item['image'] as String;
+              item['image'] as String;
         }
         isLoading = false;
       });
@@ -64,10 +64,19 @@ class _CookingScreenState extends State<CookingScreen> {
       searchQuery = query;
       filteredCommunities = communities
           .where((community) => community["title"]!
-          .toLowerCase()
-          .contains(searchQuery.toLowerCase()))
+              .toLowerCase()
+              .contains(searchQuery.toLowerCase()))
           .toList();
     });
+  }
+
+  // _launchURL method to handle opening links
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -86,46 +95,46 @@ class _CookingScreenState extends State<CookingScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Container(
-        color: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                onChanged: _updateSearchQuery,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Search communities...',
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[850],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none,
-                  ),
+              color: Colors.black,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      onChanged: _updateSearchQuery,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Search communities...',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        prefixIcon: const Icon(Icons.search, color: Colors.white),
+                        filled: true,
+                        fillColor: Colors.grey[850],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredCommunities.length,
+                        itemBuilder: (context, index) {
+                          final community = filteredCommunities[index];
+                          return _communityBox(
+                            name: community["name"]!,
+                            title: community["title"]!,
+                            description: community["description"]!,
+                            link: community["link"]!,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: filteredCommunities.length,
-                  itemBuilder: (context, index) {
-                    final community = filteredCommunities[index];
-                    return _communityBox(
-                      name: community["name"]!,
-                      title: community["title"]!,
-                      description: community["description"]!,
-                      link: community["link"]!,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -177,13 +186,7 @@ class _CookingScreenState extends State<CookingScreen> {
                   ),
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () async {
-                      if (await canLaunch(link)) {
-                        await launch(link);
-                      } else {
-                        throw 'Could not launch $link';
-                      }
-                    },
+                    onTap: () => _launchURL(link),  // Calls _launchURL method
                     child: const Text(
                       "Discord Server Link",
                       style: TextStyle(
