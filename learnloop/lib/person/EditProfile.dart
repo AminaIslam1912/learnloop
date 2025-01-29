@@ -763,7 +763,7 @@ class FullScreenCV extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("View CV", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF009252),
+        //backgroundColor: const Color(0xFF009252),
       ),
       body: Center(
         child: _buildViewer(),
