@@ -1,63 +1,5 @@
-// import 'package:flutter/material.dart';
-// import 'MainPage.dart';
-//
-// class SplashScreen extends StatefulWidget {
-//   @override
-//   _SplashScreenState createState() => _SplashScreenState();
-// }
-//
-// class _SplashScreenState extends State<SplashScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Navigate to the main page after 3 seconds
-//     Future.delayed(Duration(seconds: 3), () {
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(builder: (context) => MainPage()),
-//       );
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.black, // Background color of the splash screen
-//       body: Container(
-//         // decoration: const BoxDecoration(
-//         //   image: DecorationImage(
-//         //     image: AssetImage('assets/background_app.png'), // Background image
-//         //     fit: BoxFit.cover,
-//         //   ),
-//         // ),
-//         child: Center(
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//
-//               const SizedBox(height: 20),
-//               const Text(
-//                 'LearnLoop',
-//                 style: TextStyle(
-//                   fontSize: 32,
-//                   fontWeight: FontWeight.bold,
-//                   color: Color(0xFF264E70), // Customize text color
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-//import 'package:flutter/asset.dart';
-import 'package:flutter/widgets.dart';
-
 import 'MainPage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -69,7 +11,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate to the main page after 3 seconds
     Future.delayed(Duration(seconds: 5), () {
       Navigator.pushReplacement(
         context,
@@ -81,10 +22,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Black background for the splash screen
+      backgroundColor: Colors.black,
       body: Center(
         child: Image.asset(
-          'assets/learloop_splash.gif',  // Replace with the path to your gif file in the assets folder
+          'assets/learloop_splash.gif',
           fit: BoxFit.contain,
         ),
       ),

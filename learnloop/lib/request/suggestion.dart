@@ -16,7 +16,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
   List<Map<String, dynamic>> profiles = [];
   bool isLoading = true;
   int? _userId;
-  // Add the Set here to track swapped profiles
   Set<int> swappedProfiles = {};
   String profilePicture = "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";//"assets/moha.jpg";
 
@@ -24,29 +23,27 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
   void initState() {
     super.initState();
 
-    fetchUserId(); // Fetch user ID on initialization
-   // fetchProfiles();
+    fetchUserId();
     fetchUserId().then((_) => fetchProfiles());
-    fetchUserId().then((_) => fetchSwappedProfiles()); // Fetch swapped profiles after user ID
+    fetchUserId().then((_) => fetchSwappedProfiles());
   }
 
   Future<void> fetchUserId() async {
     final user =
-        context.read<UserProvider>().user; // Get the user from Provider
+        context.read<UserProvider>().user;
 
     if (user == null) return;
 
     try {
-      // Query the `users` table for the user with the corresponding email
       final response = await Supabase.instance.client
           .from('users')
           .select('id')
           .eq('email', user.email as Object)
-          .single(); // `.single()` fetches a single row
+          .single();
 
       if (response != null && response['id'] is int) {
         setState(() {
-          _userId = response['id']; // Store the fetched ID
+          _userId = response['id'];
         });
         print('Fetched User ID: $_userId');
       } else {
@@ -57,29 +54,11 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
     }
   }
 
-  // Future<void> fetchProfiles() async {
-  //   try {
-  //     final response = await supabase.from('users').select();
-  //
-  //     setState(() {
-  //       profiles = List<Map<String, dynamic>>.from(response);
-  //       isLoading = false;
-  //     });
-  //   } catch (error) {
-  //     print('Error fetching profiles: $error');
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-  //
-
   Future<void> fetchProfiles() async {
     try {
       final response = await supabase.from('users').select();
 
       setState(() {
-        // Filter out the logged-in user's profile
         profiles = List<Map<String, dynamic>>.from(response)
             .where((profile) => profile['id'] != _userId)
             .toList();
@@ -132,21 +111,21 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           padding: const EdgeInsets.all(16.0),
           child: TextField(
             onChanged: (value) => filterProfiles(value),
-            cursorColor: Colors.green, // Set cursor color to green
+            cursorColor: Colors.green,
             decoration: InputDecoration(
               labelText: "Search Profiles",
               labelStyle: const TextStyle(
-                color: Colors.green, // Green label text
+                color: Colors.green,
               ),
 
               prefixIcon: Icon(Icons.search, color: Colors.green),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12), // Rounded corners
+                borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Colors.green, // Green border on focus
-                  width: 2.0, // Thickness of the border
+                  color: Colors.green,
+                  width: 2.0,
                 ),
               ),
             ),
@@ -165,11 +144,9 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
                         return Column(
                           children: [
                             buildSuggestedCard(
-                              userId: profile['id'], // Pass the user's ID
+                              userId: profile['id'],
                               name: profile['name'] ?? 'Unknown',
                               ratings: profile['rating']?.toString() ?? 'N/A',
-                              // profileImageUrl: profile['profile_picture'] ??
-                              //     'https://via.placeholder.com/150',
                                 profileImageUrl : (profile['profile_picture'] != null && profile['profile_picture'].isNotEmpty)
                                     ? profile['profile_picture']
                                     : profilePicture,
@@ -195,272 +172,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
     });
   }
 
-  // Widget buildSuggestedCard({
-  //   required int userId,
-  //   required String name,
-  //   required String ratings,
-  //   required String profileImageUrl,
-  // }) {
-  //   return GestureDetector(
-  //     onTap: () {
-  //       navigateToUserProfile(userId);
-  //     },
-  //     child: Card(
-  //       color: Colors.black.withOpacity(0.5),
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //       child: Padding(
-  //         padding: const EdgeInsets.all(16.0),
-  //         child: Row(
-  //           children: [
-  //             CircleAvatar(
-  //               backgroundImage: NetworkImage(profileImageUrl),
-  //               radius: 30,
-  //             ),
-  //             SizedBox(width: 16),
-  //             Expanded(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     name,
-  //                     style: TextStyle(
-  //                         fontSize: 18,
-  //                         fontWeight: FontWeight.bold,
-  //                         color: Colors.white),
-  //                   ),
-  //                   Text(
-  //                     'Ratings: $ratings',
-  //                     style: TextStyle(color: Color(0xE1DADAFF)),
-  //                   ),
-  //                   SizedBox(height: 8), // Space between text and buttons
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.start,
-  //                     children: [
-  //                       ElevatedButton(
-  //                         onPressed:  () async {
-  //                            await handleSwap(userId); // Call the function to handle swapping
-  //     },
-  //                         style: ElevatedButton.styleFrom(
-  //                           backgroundColor: Color(0xFF679186),
-  //                         ),
-  //                         child: Text("Swap"),
-  //                       ),
-  //                       SizedBox(width: 8), // Space between buttons
-  //                       ElevatedButton(
-  //                         onPressed: () {
-  //                           // Add remove logic here
-  //                         },
-  //                         style: ElevatedButton.styleFrom(
-  //                           backgroundColor: Colors.green,
-  //                         ),
-  //                         child: Text("Message"),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-
-
-  // Widget buildSuggestedCard({
-  //   required int userId,
-  //   required String name,
-  //   required String ratings,
-  //   required String profileImageUrl,
-  // }) {
-  //   bool isSwapped = swappedProfiles.contains(userId);
-  //
-  //   return GestureDetector(
-  //     onTap: () {
-  //       navigateToUserProfile(userId);
-  //     },
-  //     child: Card(
-  //       color: Colors.black.withOpacity(0.5),
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //       child: Padding(
-  //         padding: const EdgeInsets.all(16.0),
-  //         child: Row(
-  //           children: [
-  //             CircleAvatar(
-  //               backgroundImage: NetworkImage(profileImageUrl),
-  //               radius: 30,
-  //             ),
-  //             SizedBox(width: 10),
-  //             Expanded(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     name,
-  //                     style: TextStyle(
-  //                         fontSize: 18,
-  //                         fontWeight: FontWeight.bold,
-  //                         color: Colors.white),
-  //                   ),
-  //                   Text(
-  //                     'Ratings: $ratings',
-  //                     style: TextStyle(color: Color(0xE1DADAFF)),
-  //                   ),
-  //                   SizedBox(height: 5), // Space between text and buttons
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.start,
-  //                     children: [
-  //                       // ElevatedButton(
-  //                       //   onPressed: () async {
-  //                       //     if (isSwapped) {
-  //                       //       await handleUnswap(userId); // Call Unswap
-  //                       //     } else {
-  //                       //       await handleSwap(userId); // Call Swap
-  //                       //     }
-  //                       //   },
-  //                       //   style: ElevatedButton.styleFrom(
-  //                       //     backgroundColor: isSwapped
-  //                       //         ? Color(0xFFFDA89C) // Unswap Button Color
-  //                       //         : Color(0xFF679186), // Swap Button Color
-  //                       //   ),
-  //                       //   child: Text(isSwapped ? "Unswap" : "Swap"),
-  //                       // ),
-  //                       // SizedBox(width: 8), // Space between buttons
-  //                       // ElevatedButton(
-  //                       //   onPressed: () {
-  //                       //     // Add message logic here
-  //                       //   },
-  //                       //   style: ElevatedButton.styleFrom(
-  //                       //     backgroundColor: Colors.green,
-  //                       //   ),
-  //                       //   child: Text("Message"),
-  //                       // ),
-  //                       // Swap IconButton
-  //                       IconButton(
-  //                         onPressed: () async {
-  //                           if (isSwapped) {
-  //                             await handleUnswap(userId); // Call Unswap
-  //                           } else {
-  //                             await handleSwap(userId); // Call Swap
-  //                           }
-  //                         },
-  //                         icon: Icon(
-  //                           isSwapped ? Icons.remove_circle : Icons.swap_horiz,
-  //                           color: isSwapped ? Color(0xFFFDA89C) : Color(0xFF679186),
-  //                         ),
-  //                       ),
-  //                       SizedBox(width: 10), // Space between icons
-  //                       // Message IconButton
-  //                       IconButton(
-  //                         onPressed: () {
-  //                           // Add message logic here
-  //                         },
-  //                         icon: Icon(
-  //                           Icons.message,
-  //                           color: Colors.green,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-
-  // Widget buildSuggestedCard({
-  //   required int userId,
-  //   required String name,
-  //   required String ratings,
-  //   required String profileImageUrl,
-  // }) {
-  //   bool isSwapped = swappedProfiles.contains(userId);
-  //
-  //   return GestureDetector(
-  //     onTap: () {
-  //       navigateToUserProfile(userId);
-  //     },
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: Colors.green, width: 2), // Green border
-  //         borderRadius: BorderRadius.circular(16),
-  //       ),
-  //       child: Card(
-  //         color: Colors.white.withOpacity(0.2),
-  //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(8.0), // Reduced padding
-  //           child: Row(
-  //             children: [
-  //               CircleAvatar(
-  //                 backgroundImage: NetworkImage(profileImageUrl),
-  //                 radius: 30,
-  //               ),
-  //               SizedBox(width: 15),
-  //               Expanded(
-  //                 child: Column(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [
-  //                     Text(
-  //                       name,
-  //                       style: TextStyle(
-  //                           fontSize: 16, // Reduced font size
-  //                           fontWeight: FontWeight.bold,
-  //                           color: Colors.white),
-  //                     ),
-  //                     Text(
-  //                       'Ratings: $ratings',
-  //                       style: TextStyle(color: Color(0xE1DADAFF)),
-  //                     ),
-  //                     SizedBox(height: 5), // Space between text and buttons
-  //                     Row(
-  //                       mainAxisAlignment: MainAxisAlignment.start,
-  //                       children: [
-  //                         // Swap IconButton
-  //                         IconButton(
-  //                           onPressed: () async {
-  //                             if (isSwapped) {
-  //                               await handleUnswap(userId); // Call Unswap
-  //                             } else {
-  //                               await handleSwap(userId); // Call Swap
-  //                             }
-  //                           },
-  //                           icon: Icon(
-  //                             isSwapped ? Icons.cancel_outlined : Icons.swap_horiz,
-  //                             color: isSwapped ? Colors.red : Colors.green,
-  //                           ),
-  //                         ),
-  //                         SizedBox(width: 20), // Space between icons
-  //                         // Message IconButton
-  //                         // IconButton(
-  //                         //   onPressed: () {
-  //                         //     // Add message logic here
-  //                         //   },
-  //                         //   icon: Icon(
-  //                         //     Icons.message,
-  //                         //     color: Colors.green,
-  //                         //   ),
-  //                         // ),
-  //                       ],
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget buildSuggestedCard({
     required int userId,
     required String name,
@@ -475,14 +186,14 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
       },
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.green, width: 2), // Green border
+          border: Border.all(color: Colors.green, width: 2),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Card(
           color: Colors.white.withOpacity(0.2),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
-            padding: const EdgeInsets.all(8.0), // Reduced padding
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 CircleAvatar(
@@ -501,19 +212,19 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
                             child: Text(
                               name,
                               style: TextStyle(
-                                fontSize: 16, // Reduced font size
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
-                              overflow: TextOverflow.clip, // Prevents overflow
+                              overflow: TextOverflow.clip,
                             ),
                           ),
                           IconButton(
                             onPressed: () async {
                               if (isSwapped) {
-                                await handleUnswap(userId); // Call Unswap
+                                await handleUnswap(userId);
                               } else {
-                                await handleSwap(userId); // Call Swap
+                                await handleSwap(userId);
                               }
                             },
                             icon: Icon(
@@ -549,7 +260,7 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
             _userId == null
                 ? const Center(
                     child: CircularProgressIndicator(),
-                  ) // Show a loading indicator while fetching
+                  )
                 : UserProfile(
                     loggedInUserId: _userId!,
                     profileUserId: userId,
@@ -557,101 +268,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
       ),
     );
   }
-
-  // Future<void> handleSwap(int profileId) async {
-  //   try {
-  //     final user = context.read<UserProvider>().user;
-  //
-  //     if (user == null) {
-  //       print('No logged-in user found.');
-  //       return;
-  //     }
-  //
-  //     if (_userId == null) {
-  //       print('Logged-in User ID is not set');
-  //       return;
-  //     }
-  //
-  //
-  //     // Fetch current request_sent value
-  //     final response = await supabase
-  //         .from('users')
-  //         .select('request_sent')
-  //         .eq('id', _userId as Object)
-  //         .single();
-  //
-  //     if (response == null || response['request_sent'] == null) {
-  //       print('Error fetching request_sent: Response or request_sent is null');
-  //       return;
-  //     }
-  //
-  //     List<dynamic> requestSent = response['request_sent'];
-  //     requestSent.add({'id': profileId});
-  //
-  //     // Update and request the updated value to be returned
-  //     final updateResponse = await supabase
-  //         .from('users')
-  //         .update({'request_sent': requestSent})
-  //         .eq('id', _userId as Object)
-  //         .select(); // Explicitly request updated data
-  //
-  //     if (updateResponse == null || updateResponse.isEmpty) {
-  //       print('Error updating request_sent: Update response is null or empty');
-  //       return;
-  //     }
-  //
-  //     print('Profile added to request_sent: $profileId');
-  //     print('Updated Response: $updateResponse'); // Debugging
-  //
-  //     // Fetch the current `request_received` value for the target profile
-  //     final response2 = await supabase
-  //         .from('users')
-  //         .select('request_received')
-  //         .eq('id', profileId) // Target profile ID
-  //         .single();
-  //
-  //     if (response2 == null || response2['request_received'] == null) {
-  //       print('Error fetching request_received: Response or request_received is null');
-  //       return;
-  //     }
-  //
-  //     // Parse the current `request_received` JSON list
-  //     List<dynamic> requestReceived = response2['request_received'];
-  //
-  //     // Check if the logged-in user ID already exists in the list
-  //     bool userExists = requestReceived.any((entry) => entry['id'] == _userId);
-  //
-  //     if (userExists) {
-  //       print('User already in request_received list');
-  //       return;
-  //     }
-  //
-  //     // Add the logged-in user's ID as a new JSON object to the list
-  //     requestReceived.add({'id': _userId});
-  //
-  //     // Update the `request_received` column for the target user
-  //     final updateResponse2 = await supabase
-  //         .from('users')
-  //         .update({'request_received': requestReceived})
-  //         .eq('id', profileId) // Target profile ID
-  //         .select(); // Request updated data
-  //
-  //     if (updateResponse2 == null || updateResponse2.isEmpty) {
-  //       print('Error updating request_received: Update response is null or empty');
-  //       return;
-  //     }
-  //
-  //     print('Logged-in User ID added to request_received for profile ID: $profileId');
-  //     print('Updated Response: $updateResponse2'); // Debugging
-  //
-  //
-  //
-  //
-  //
-  //   } catch (error) {
-  //     print('Error handling swap: $error');
-  //   }
-  // }
 
   Future<void> handleSwap(int profileId) async {
     try {
@@ -662,7 +278,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
         return;
       }
 
-      // Fetch current request_sent value
       final response = await supabase
           .from('users')
           .select('request_sent')
@@ -677,7 +292,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           .update({'request_sent': requestSent})
           .eq('id', _userId!);
 
-      // Fetch current request_received for the target profile
       final response2 = await supabase
           .from('users')
           .select('request_received')
@@ -693,7 +307,7 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           .eq('id', profileId);
 
       setState(() {
-        swappedProfiles.add(profileId); // Mark profile as swapped
+        swappedProfiles.add(profileId);
       });
 
       print('Profile swapped successfully');
@@ -710,7 +324,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
         return;
       }
 
-      // Fetch current request_sent value
       final response = await supabase
           .from('users')
           .select('request_sent')
@@ -732,8 +345,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           .single();
 
       List<dynamic> requestReceived = response2['request_received'] ?? [];
-     // requestReceived.add({'id': _userId});
-     // requestReceived.add({'id': _userId});
       requestReceived.removeWhere((entry) => entry['id'] == _userId);
 
       await supabase
@@ -741,7 +352,6 @@ class _SuggestedForYouTabState extends State<SuggestedForYouTab> {
           .update({'request_received': requestReceived})
           .eq('id', profileId);
 
-      // Remove from swappedProfiles set
       setState(() {
         swappedProfiles.remove(profileId);
       });
@@ -770,108 +380,3 @@ extension on PostgrestFilterBuilder<PostgrestList> {
 
 
 
-// Future<void> handleSwap(int profileId) async {
-//   try {
-//     final user = context.read<UserProvider>().user;
-//
-//     if (user == null) {
-//       print('No logged-in user found.');
-//       return;
-//     }
-//
-//     if (_userId == null) {
-//       print('User ID is not set');
-//       return;
-//     }
-//
-//     // Fetch current request_sent value
-//     final response = await supabase
-//         .from('users')
-//         .select('request_sent')
-//         .eq('id', _userId as Object)
-//         .single();
-//
-//     if (response == null || response['request_sent'] == null) {
-//       print('Error fetching request_sent: Response or request_sent is null');
-//       return;
-//     }
-//
-//     List<dynamic> requestSent = response['request_sent'];
-//     requestSent.add({'id': profileId});
-//
-//     // Update and request the updated value to be returned
-//     final updateResponse = await supabase
-//         .from('users')
-//         .update({'request_sent': requestSent})
-//         .eq('id', _userId as Object)
-//         .select(); // Explicitly request updated data
-//
-//     if (updateResponse == null || updateResponse.isEmpty) {
-//       print('Error updating request_sent: Update response is null or empty');
-//       return;
-//     }
-//
-//     print('Profile added to request_sent: $profileId');
-//     print('Updated Response: $updateResponse'); // Debugging
-//
-//   } catch (error) {
-//     print('Error handling swap: $error');
-//   }
-// }
-
-
-//list diye korse
-// Future<void> handleSwap(int profileId) async {
-//   try {
-//     final user = context.read<UserProvider>().user;
-//
-//     if (user == null) {
-//       print('No logged-in user found.');
-//       return;
-//     }
-//
-//     if (_userId == null) {
-//       print('Logged-in User ID is not set');
-//       return;
-//     }
-//
-//     // Fetch the current `request_received` value for the target profile
-//     final response = await supabase
-//         .from('users')
-//         .select('request_received')
-//         .eq('id', profileId) // Target profile ID
-//         .single();
-//
-//     if (response == null || response['request_received'] == null) {
-//       print('Error fetching request_received: Response or request_received is null');
-//       return;
-//     }
-//
-//     // Add the logged-in user's ID to the target user's request_received list
-//     List<dynamic> requestReceived = response['request_received'];
-//     if (!requestReceived.contains(_userId)) {
-//       requestReceived.add(_userId);
-//     } else {
-//       print('User already in request_received list');
-//       return;
-//     }
-//
-//     // Update the `request_received` column for the target user
-//     final updateResponse = await supabase
-//         .from('users')
-//         .update({'request_received': requestReceived})
-//         .eq('id', profileId) // Target profile ID
-//         .select(); // Request updated data
-//
-//     if (updateResponse == null || updateResponse.isEmpty) {
-//       print('Error updating request_received: Update response is null or empty');
-//       return;
-//     }
-//
-//     print('Logged-in User ID added to request_received for profile ID: $profileId');
-//     print('Updated Response: $updateResponse'); // Debugging
-//
-//   } catch (error) {
-//     print('Error handling swap: $error');
-//   }
-// }

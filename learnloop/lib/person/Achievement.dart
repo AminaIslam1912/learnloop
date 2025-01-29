@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../main.dart';
 import '../supabase_config.dart';
 
 class AchievementEditPage extends StatefulWidget {
@@ -26,7 +24,7 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
     try {
       await SupabaseConfig.client
           .from('users')
-          .update({'achievements': achievements}) // Update database with new skills list
+          .update({'achievements': achievements})
           .eq('id', widget.profileUserId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Achievements updated successfully!")),
@@ -40,7 +38,6 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    //TextEditingController acController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
@@ -64,16 +61,6 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // TextField(
-            //   controller: acController,
-            //   decoration: const InputDecoration(labelText: "Add Achievements"),
-            //   onSubmitted: (value) {
-            //     setState(() {
-            //       achievements.add(value);
-            //       acController.clear();
-            //     });
-            //   },
-            // ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -85,7 +72,7 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () async{
                         setState(() {
-                          achievements.removeAt(index); // Remove skill
+                          achievements.removeAt(index);
                         });
                         await _updateAchievementsInDatabase();
                       },
@@ -109,20 +96,16 @@ class _AchievementEditPageState extends State<AchievementEditPage> {
       builder: (context) => AlertDialog(
         title: const Text("Add Achievements"),
          content:
-        // TextField(
-        //   controller: acController,
-        //   decoration: const InputDecoration(hintText: "Enter new Achievements"),
-        // ),
          TextField(
            controller: acController,
-           cursorColor: Colors.white, // Cursor color
+           cursorColor: Colors.white,
            decoration: InputDecoration(
              hintText: "Enter new Achievements",
              enabledBorder: UnderlineInputBorder(
-               borderSide: BorderSide(color: Colors.white), // Line color when not focused
+               borderSide: BorderSide(color: Colors.white),
              ),
              focusedBorder: UnderlineInputBorder(
-               borderSide: BorderSide(color: Colors.white), // Line color when focused
+               borderSide: BorderSide(color: Colors.white),
              ),
            ),
          ),
@@ -173,7 +156,6 @@ class _AchievementsDetailsState extends State<AchievementsDetails> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Achievements List
             Expanded(
               child: ListView.builder(
                 itemCount: displayedAchievements.length,

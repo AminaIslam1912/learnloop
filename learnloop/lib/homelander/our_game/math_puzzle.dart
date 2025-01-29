@@ -38,12 +38,10 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
       num2 = random.nextInt(isHardMode ? 100 : 20) + 1;
 
       if (isHardMode && random.nextBool()) {
-        // Introduce complex operations
         int num3 = random.nextInt(50) + 1;
         operator = '*';
         correctAnswer = (num1 + num2) * num3;
       } else {
-        // Basic operations
         int op = random.nextInt(4);
         switch (op) {
           case 0:
@@ -61,11 +59,11 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
           case 3:
             operator = '/';
             correctAnswer = (num1 / num2).floor();
-            num1 = correctAnswer * num2; // Clean division
+            num1 = correctAnswer * num2;
             break;
         }
       }
-      timerCount = isHardMode ? 5 : 10; // Adjust timer for hard mode
+      timerCount = isHardMode ? 5 : 10;
     });
   }
 
@@ -77,7 +75,7 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
 
     if (userAnswer == correctAnswer) {
       setState(() {
-        score += 10 ; // Bonus for streak
+        score += 10 ;
         streak++;
         feedbackMessage = 'Correct! 🎉';
         generateProblem();
@@ -85,7 +83,7 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
       });
     } else {
       setState(() {
-        streak = 0; // Reset streak
+        streak = 0;
         feedbackMessage = 'Wrong Answer. Try again! 😞';
       });
     }
@@ -109,7 +107,7 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
     setState(() {
       isHardMode = !isHardMode;
       feedbackMessage = isHardMode ? 'Hard Mode Activated!' : 'Easy Mode Activated!';
-      score = 0; // Reset score for fairness
+      score = 0;
       streak = 0;
       generateProblem();
     });
@@ -117,8 +115,7 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
 
   void resetGame() {
     setState(() {
-      //leaderboard.add('Score: $score (Streak: $streak)');
-      leaderboard = leaderboard.take(5).toList(); // Keep top 5 scores
+      leaderboard = leaderboard.take(5).toList();
       score = 0;
       streak = 0;
       feedbackMessage = 'Game Reset! Start Again.';
@@ -142,16 +139,12 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
             icon: const Icon(Icons.refresh,color: Colors.green),
             onPressed: resetGame,
           ),
-          // IconButton(
-          //   icon: Icon(Icons.exit_to_app),
-          //   onPressed: quitGame,
-          // ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Vertically centered
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
@@ -161,15 +154,13 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
                 OutlinedButton(
                   onPressed: toggleDifficulty,
                   style: OutlinedButton.styleFrom(
-                   // padding: const EdgeInsets.all(20), // Square shape with equal padding
-                   // side: const BorderSide(color: Colors.green, width: 2), // Green border
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)), // Slightly rounded corners
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
                   ),
                   child: Text(
                     isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
-                    style: const TextStyle(fontSize: 18, color: Colors.green), // Green text
+                    style: const TextStyle(fontSize: 18, color: Colors.green),
                   ),
                 ),
 
@@ -177,7 +168,6 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
               ],
             ),
             const SizedBox(height: 30),
-            // Scoreboard and Timer
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -204,62 +194,46 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
             TextField(
               controller: answerController,
               keyboardType: TextInputType.number,
-              cursorColor: Colors.green, // Set cursor color to green
+              cursorColor: Colors.green,
 
               decoration: InputDecoration(
                 labelText: "Enter your answer",
                 labelStyle: const TextStyle(
-                  color: Colors.green, // Green label text
+                  color: Colors.green,
                 ),
 
 
                 border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Colors.green, // Green border on focus
-                    width: 2.0, // Thickness of the border
+                    color: Colors.green,
+                    width: 2.0,
                   ),
                 ),
               ),
             ),
 
             const SizedBox(height: 30),
-            // Submit Button
-            // ElevatedButton(
-            //   onPressed: checkAnswer,
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Colors.green,
-            //     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            //   ),
-            //   child: const Text(
-            //     'Submit',
-            //     style: TextStyle(fontSize: 18, color: Colors.white),
-            //   ),
-            // ),
-            // Submit Button (Square, Green Text, Green Border)
             OutlinedButton(
               onPressed: checkAnswer,
               style: OutlinedButton.styleFrom(
-                //padding: const EdgeInsets.all(20), // Square shape with equal padding
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Rectangular shape with more width
-              //  side: const BorderSide(color: Colors.green, width: 2), // Green border
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 backgroundColor: Colors.green,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15)), // Slightly rounded corners
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
                 ),
               ),
 
               child: const Text(
                 'Submit',
-                style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.bold), // Green text
+                style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.bold),
               ),
             ),
 
 
             const SizedBox(height: 20),
-            // Feedback Message
             Text(
               feedbackMessage,
               style: TextStyle(
@@ -271,38 +245,7 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
               ),
             ),
             const SizedBox(height: 20),
-            // Toggle Difficulty
-            // ElevatedButton(
-            //   onPressed: toggleDifficulty,
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: isHardMode ? Colors.black : Colors.black,
-            //   ),
-            //   child: Text(
-            //     isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
-            //   ),
-            // ),
-            // Toggle Difficulty (Square, Green Text, Green Border)
-            // OutlinedButton(
-            //   onPressed: toggleDifficulty,
-            //   style: OutlinedButton.styleFrom(
-            //     padding: const EdgeInsets.all(20), // Square shape with equal padding
-            //     side: const BorderSide(color: Colors.green, width: 2), // Green border
-            //     shape: const RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.all(Radius.circular(8)), // Slightly rounded corners
-            //     ),
-            //   ),
-            //   child: Text(
-            //     isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
-            //     style: const TextStyle(fontSize: 18, color: Colors.green), // Green text
-            //   ),
-            // ),
-
             const SizedBox(height: 20),
-            // Leaderboard
-            // const Text(
-            //   'Leaderboard',
-            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            // ),
             for (String scoreEntry in leaderboard)
               Text(
                 scoreEntry,

@@ -16,17 +16,17 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
       "description":
       "Join a community of Microsoft enthusiasts sharing tech tips, coding projects, and career advice.",
       "link": "https://discord.gg/bKwpUbxqQn",
-      "name": "microsoft_tech_community", // Name in the Supabase table
+      "name": "microsoft_tech_community",
     },
     {
       "title": "Azure DevOps Network",
       "description": "A space for Azure DevOps users to exchange solutions, tips, and DevOps practices.",
       "link": "https://discord.gg/hDsptZNseJ",
-      "name": "azure_devops_network", // Name in the Supabase table
+      "name": "azure_devops_network",
     },
   ];
 
-  Map<String, String> communityImages = {}; // Maps `community_name` to image URL
+  Map<String, String> communityImages = {};
   bool isLoading = true;
 
   @override
@@ -37,7 +37,6 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
 
   Future<void> _fetchCommunityImages() async {
     try {
-      // Fetch all images and community names from the Supabase table
       final data = await Supabase.instance.client
           .from('community')
           .select('community_name, image');
@@ -107,7 +106,7 @@ class _BillJobsScreenState extends State<BillJobsScreen> {
     required String description,
     required String link,
   }) {
-    final backgroundImage = communityImages[name]; // Fetch based on `community_name`
+    final backgroundImage = communityImages[name];
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ClipRRect(

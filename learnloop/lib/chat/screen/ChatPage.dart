@@ -13,8 +13,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final currentUser = FirebaseAuth.instance.currentUser;
-  String searchQuery = ""; // Holds the search query
-  bool isSearching = false; // To track search mode
+  String searchQuery = "";
+  bool isSearching = false;
 
   Future<List<int>> fetchFriends() async {
     try {
@@ -144,11 +144,11 @@ class _ChatPageState extends State<ChatPage> {
         decoration: const InputDecoration(
           hintText: 'Search by name',
           hintStyle: TextStyle(
-            color: Colors.green, // Green hint text
+            color: Colors.green,
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: Colors.green, // Green search icon
+            color: Colors.green,
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.only(left: 10.0, top: 11.0, bottom: 8.0),
@@ -158,9 +158,9 @@ class _ChatPageState extends State<ChatPage> {
       : const Text(
           'Chat',
           style: TextStyle(
-            fontWeight: FontWeight.bold, // Bold text
-            fontSize: 20, // Adjust font size if needed
-            color: Colors.white, // Text color white
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.white,
           ),
         ),
 
@@ -171,7 +171,7 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             icon: Icon(
               isSearching ? Icons.close : Icons.search,
-              color: Colors.green, // Green icon color
+              color: Colors.green,
             ),
             onPressed: () {
               setState(() {

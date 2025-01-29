@@ -44,10 +44,9 @@ class _AboutScreenState extends State<AboutScreen> {
     },
   ];
 
-  double _averageRating = 0.0; // To store the average rating
-  int _totalFeedbacks = 0; // To store the total feedback count
+  double _averageRating = 0.0;
+  int _totalFeedbacks = 0;
 
-  // Fetch the average rating and set state
   Future<void> fetchAverageRating() async {
     try {
       final response = await Supabase.instance.client.from('app_feedback').select('rating');
@@ -78,38 +77,14 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    fetchAverageRating(); // Fetch rating on initialization
+    fetchAverageRating();
   }
-
-
-  // Widget _buildContactCard(
-  //     {required String title,
-  //       required String subtitle,
-  //       required IconData icon,
-  //       required VoidCallback onTap}) {
-  //   return Card(
-  //     elevation: 4,
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.circular(12),
-  //     ),
-  //     child: ListTile(
-  //       leading: Icon(icon, color: Colors.blueAccent),
-  //       title: Text(
-  //         title,
-  //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-  //       ),
-  //       subtitle: Text(subtitle, style: TextStyle(fontSize: 16)),
-  //       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-  //       onTap: onTap,
-  //     ),
-  //   );
-  // }
 
   Widget _buildContactCard(
       {required String title,
         required String subtitle,
         required IconData icon,
-        Color iconColor = Colors.green, // Default color is green
+        Color iconColor = Colors.green,
         required VoidCallback onTap}) {
     return Card(
       elevation: 4,
@@ -117,7 +92,7 @@ class _AboutScreenState extends State<AboutScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: iconColor), // Set icon color to green
+        leading: Icon(icon, color: iconColor),
         title: Text(
           title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -129,16 +104,13 @@ class _AboutScreenState extends State<AboutScreen> {
     );
   }
 
-  // Function to launch email intent
   void _launchEmail(String email) async {
     Uri emailUri;
 
     if (kIsWeb) {
-      // Use Gmail's web URL for the web environment
       emailUri =
           Uri.parse('https://mail.google.com/mail/?view=cm&fs=1&to=$email');
     } else if (Platform.isAndroid || Platform.isIOS) {
-      // Use the mailto scheme for mobile (Android/iOS)
       emailUri = Uri(
         scheme: 'mailto',
         path: email,
@@ -154,7 +126,6 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
-  // Function to launch phone dialer intent
   void _launchPhone(String phoneNumber) async {
     final Uri phoneUri = Uri(
       scheme: 'tel',
@@ -178,13 +149,13 @@ class _AboutScreenState extends State<AboutScreen> {
             const Text(
               '          Learnloop',
               style: TextStyle(
-                fontSize: 30, // Increase font size for better prominence
-                fontWeight: FontWeight.bold, // Bold text for emphasis
-                fontFamily: 'Roboto', // Optional: Use a custom font family
-                color: Colors.white, // Attractive color
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Roboto',
+                color: Colors.white,
                 letterSpacing:
-                1.5, // Slightly increase letter spacing for better readability
-                height: 1.4, // Adjust height for improved line spacing
+                1.5,
+                height: 1.4,
               ),
             ),
 
@@ -193,14 +164,14 @@ class _AboutScreenState extends State<AboutScreen> {
               '        Share, learn and grow skills',
               duration: Duration(seconds: 1),
               style: TextStyle(
-                fontSize: 18, // Slightly larger text size for better visibility
-                fontWeight: FontWeight.bold, // Makes the text bold
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
                 fontFamily:
-                'Roboto Mono', // Optional: Customize font family for a more unique look
-                color: Colors.green, // Change text color to blue
+                'Roboto Mono',
+                color: Colors.green,
 
-                letterSpacing: 1.2, // Adds some spacing between letters
-                height: 1.5, // Adjusts line height for better readability
+                letterSpacing: 1.2,
+                height: 1.5,
               ),
             ),
 
@@ -235,7 +206,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +220,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -283,7 +254,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +269,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -330,7 +301,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,7 +316,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -377,7 +348,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,7 +362,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
                 children: [
                   Padding(
                     padding: EdgeInsets.all(16.0),
@@ -422,7 +393,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +407,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -468,7 +439,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,7 +455,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -517,7 +488,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,7 +502,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -563,7 +534,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   children: [
 
                     SizedBox(
-                        width: 16), // Space between image and text
+                        width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +548,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ],
                 ),
-                trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                trailing: Icon( Icons.expand_more, color: Colors.green),
 
                 children: [
                   Padding(
@@ -628,7 +599,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           ),
                         ),
                         const SizedBox(
-                            width: 16), // Space between image and text
+                            width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,7 +617,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         ),
                       ],
                     ),
-                    trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                    trailing: Icon( Icons.expand_more, color: Colors.green),
 
                     children: [
                       Padding(
@@ -731,7 +702,7 @@ class _AboutScreenState extends State<AboutScreen> {
               'Our App Rating: ${_averageRating.toStringAsFixed(1)}',
               style: TextStyle(fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.green, // Green for emphasis
+                color: Colors.green,
               ),
             ),
 

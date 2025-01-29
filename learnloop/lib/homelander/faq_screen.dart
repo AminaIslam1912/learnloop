@@ -26,7 +26,7 @@ class _FAQScreenState extends State<FAQScreen> {
     }
     setState(() {
       _faqs = faqs;
-      _filteredFaqs = faqs; // Initialize filteredFaqs with all data
+      _filteredFaqs = faqs;
     });
   }
 
@@ -42,7 +42,7 @@ class _FAQScreenState extends State<FAQScreen> {
   @override
   void initState() {
     super.initState();
-    fetchFAQs(); // Fetch FAQs on screen load
+    fetchFAQs();
   }
 
   @override
@@ -50,15 +50,15 @@ class _FAQScreenState extends State<FAQScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('FAQ', style: TextStyle(
-            fontWeight: FontWeight.normal, // Make the text bold
+            fontWeight: FontWeight.normal,
             fontSize: 20,
-            color: Colors.white// Adjust font size if needed
+            color: Colors.white
         ),),
         centerTitle: true,
         elevation: 4,
         backgroundColor: Colors.black,
       ),
-      body: _faqs.isEmpty // Check if the FAQs have been fetched
+      body: _faqs.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
@@ -71,42 +71,33 @@ class _FAQScreenState extends State<FAQScreen> {
                   child: TextField(
 
                     controller: _searchController,
-                    cursorColor: Colors.green, // Set cursor color to green
+                    cursorColor: Colors.green,
 
                     onChanged: _filterFAQs,
                     decoration: InputDecoration(
                       labelText: 'Search FAQs...',
                       labelStyle: const TextStyle(
-                        color: Colors.green, // Green label text
+                        color: Colors.green,
                       ),
-                      prefixIcon: const Icon(Icons.search, color: Colors.green), // Green search icon inside input box
+                      prefixIcon: const Icon(Icons.search, color: Colors.green),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12), // Rounded corners
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12), // Rounded corners
+                        borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Colors.green, // Green border on focus
-                          width: 2.0, // Thickness of the border
+                          color: Colors.green,
+                          width: 2.0,
                         ),
                       ),
-
-                     // border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-                // IconButton(
-                //   icon: const Icon(Icons.search),
-                //   onPressed: () {
-                //     _filterFAQs(_searchController.text);
-                //   },
-                // ),
               ],
             ),
 
           ),
 
-          // FAQ list
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
@@ -116,7 +107,6 @@ class _FAQScreenState extends State<FAQScreen> {
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: Card(
                     elevation: 6,
-                    //shadowColor: Colors.grey.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -130,7 +120,7 @@ class _FAQScreenState extends State<FAQScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      trailing: Icon( Icons.expand_more, color: Colors.green), // Make the arrow green ),
+                      trailing: Icon( Icons.expand_more, color: Colors.green),
 
                       children: [
                         Padding(

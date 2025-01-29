@@ -142,24 +142,6 @@ class _SwappedState extends State<Swapped> {
         child: isLoading
             ? Center(child: CircularProgressIndicator())
             :
-        // ListView.builder(
-        //   padding: EdgeInsets.all(16),
-        //   itemCount: friendsProfiles.length,
-        //   itemBuilder: (context, index) {
-        //     final profile = friendsProfiles[index];
-        //     final userId = profile['id'];
-        //     if (userId == null) {
-        //       return SizedBox.shrink(); // Skip invalid profiles
-        //     }
-        //     return buildFriendCard(
-        //       userId: userId,
-        //       name: profile['name'] ?? 'Unknown',
-        //       occupation: profile['occupation'] ?? 'Unknown',
-        //       profileImageUrl: profile['profile_picture'] ??
-        //           'https://via.placeholder.com/150',
-        //     );
-        //   },
-        // ),
         ListView.builder(
           padding: EdgeInsets.all(16),
           itemCount: friendsProfiles.length,
@@ -175,13 +157,12 @@ class _SwappedState extends State<Swapped> {
                   userId: userId,
                   name: profile['name'] ?? 'Unknown',
                   occupation: profile['occupation'] ?? 'Unknown',
-                //  profileImageUrl: profile['profile_picture'] ?? 'https://via.placeholder.com/150',
                   profileImageUrl : (profile['profile_picture'] != null && profile['profile_picture'].isNotEmpty)
                       ? profile['profile_picture']
                       : profilePicture,
 
                 ),
-                SizedBox(height: 16), // This increases the gap between cards
+                SizedBox(height: 16),
               ],
             );
           },
@@ -203,7 +184,7 @@ class _SwappedState extends State<Swapped> {
       },
       child: Container(
       decoration: BoxDecoration(
-      border: Border.all(color: Colors.green, width: 2), // Green border
+      border: Border.all(color: Colors.green, width: 2),
       borderRadius: BorderRadius.circular(16),
     ),
       child:
@@ -232,28 +213,13 @@ class _SwappedState extends State<Swapped> {
                     ],
                   ),
                 ),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     print('Message button pressed for user ID: $userId');
-                //     // Navigate to chat or message functionality
-                //   },
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Color(0xFF679186),
-                //     foregroundColor: Colors.white,
-                //   ),
-                //   child: Text('Message'),
-                // ),
-                // Message IconButton
                 IconButton(
                   onPressed: () {
                     print('Message icon pressed for user ID: $userId');
-                   // Navigator.pushReplacement(context, "/chat" as Route<Object?>);
-                  //Navigator.push(context, "/chat" as Route<Object?>)  ;
                     Navigator.push(
                              context,
                              MaterialPageRoute(builder: (context) =>  ChatPage()),
                            );
-                    // Navigate to chat or message functionality
                   },
                   icon: Icon(
                     Icons.message,

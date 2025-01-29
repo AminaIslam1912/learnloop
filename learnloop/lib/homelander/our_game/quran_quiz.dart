@@ -23,9 +23,9 @@ class QuranQuiz extends StatelessWidget {
       body: GridView.builder(
         padding: const EdgeInsets.only(top: 16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,  // 2 cards per row
-          crossAxisSpacing: 10,  // Spacing between columns
-          mainAxisSpacing: 10,  // Spacing between rows
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
@@ -252,10 +252,7 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
       ],
     };
 
-    // Select the correct category's question pool
     questionPool = allQuestions[widget.category] ?? [];
-
-    // Shuffle the questions to make each game unique
     questionPool.shuffle();
   }
 
@@ -329,7 +326,6 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Progress Bar
               LinearProgressIndicator(
                 value: (_currentQuestionIndex + 1) / questionPool.length,
                 backgroundColor: Colors.grey.shade300,
@@ -356,14 +352,12 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
                 ],
               ),
 
-              // Question Header
               Text(
                 'Question ${_currentQuestionIndex + 1}/${questionPool.length}',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
               ),
               const SizedBox(height: 10),
 
-              // Question Card
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -385,7 +379,6 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Options with Equal Button Size
               Expanded(
                 child: ListView.builder(
                   itemCount: questionPool[_currentQuestionIndex]['options'].length,
@@ -394,7 +387,7 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       width: double.infinity,
-                      height: 60, // Set a fixed height for all buttons
+                      height: 60,
                       child: ElevatedButton(
                         onPressed: () {
                           _checkAnswer(option);
@@ -418,27 +411,6 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Current Score
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Text(
-              //       'Score: $_score',
-              //       style: const TextStyle(
-              //         fontSize: 18,
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //     if (_selectedAnswer != null)
-              //       Icon(
-              //         _isAnswerCorrect ? Icons.check_circle : Icons.error,
-              //         color: _isAnswerCorrect ? Colors.green : Colors.green,
-              //         size: 30,
-              //       ),
-              //   ],
-              // ),
-
-              // Feedback Section
               if (_selectedAnswer != null && !_isAnswerCorrect)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),

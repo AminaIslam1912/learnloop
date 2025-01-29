@@ -26,7 +26,7 @@ class FunChallengeScreen extends StatelessWidget {
   ];
 
   final List<String> categoryImages = [
-    'https://cdn.vectorstock.com/i/500p/54/94/text-math-with-formula-border-background-vector-48965494.jpg', // Replace with actual image URLs
+    'https://cdn.vectorstock.com/i/500p/54/94/text-math-with-formula-border-background-vector-48965494.jpg',
     'https://play-lh.googleusercontent.com/c2Ie9UaD1d9EFi2bdKnFNH8udqXf7aGdlFSmbW_J35JD5eHiQrJTOVpB21FrNzRd6GzL',
     'https://play-lh.googleusercontent.com/nzLlY6sVzACWwIQSKHLZdp9QY2UIhXUH3K4zzrfs0JG-cfq0xmR51ivmAPcXG26JYw',
     'https://images.squarespace-cdn.com/content/v1/586d154f03596e5605562ea7/1679947945289-Q4ADX5L0D8V8DI35ILOR/unsplash-image-lKbz2ejxYbA.jpg',
@@ -44,12 +44,10 @@ class FunChallengeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Total Scoreboard
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                // color: Colors.teal,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: const [
                   BoxShadow(
@@ -60,12 +58,11 @@ class FunChallengeScreen extends StatelessWidget {
               ),
 
             ),
-            // Game Categories as Cards
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Wrap(
-                spacing: 8.0, // Horizontal spacing between cards
-                runSpacing: 8.0, // Vertical spacing between rows
+                spacing: 8.0,
+                runSpacing: 8.0,
                 children: List.generate(categories.length, (index) {
                   return GestureDetector(
                     onTap: () {
@@ -73,7 +70,7 @@ class FunChallengeScreen extends StatelessWidget {
                     },
                     child: Container(
                       width: MediaQuery.of(context).size.width / 3 - 16,
-                      height: 160, // Adjusted height for the whole card
+                      height: 160,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         gradient: const LinearGradient(
@@ -90,14 +87,13 @@ class FunChallengeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          // Image takes up the full space of the box
                           Container(
                             width: double.infinity,
-                            height: 120, // Image takes most of the card
+                            height: 120,
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 image: NetworkImage(categoryImages[index]),
-                                fit: BoxFit.cover, // Ensure the image covers the box
+                                fit: BoxFit.cover,
                               ),
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(12),
@@ -105,7 +101,6 @@ class FunChallengeScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // Title below the box
                           const SizedBox(height: 8),
                           Text(
                             categories[index],

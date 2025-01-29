@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../main.dart';
 import '../supabase_config.dart';
-
-
 
 class SkillsEditPage extends StatefulWidget {
   final List<String> skills;
@@ -28,7 +24,7 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
     try {
       await SupabaseConfig.client
           .from('users')
-          .update({'skills': skills}) // Update database with new skills list
+          .update({'skills': skills})
           .eq('id', widget.profileUserId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Skills updated successfully!")),
@@ -42,7 +38,6 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    //TextEditingController skillController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
@@ -56,7 +51,7 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
                 setState(() {
                   skills.add(newSkill);
                 });
-                await _updateSkillsInDatabase();  // Update in database
+                await _updateSkillsInDatabase();
               }
             },
           ),
@@ -77,9 +72,9 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () async {
                         setState(() {
-                          skills.removeAt(index); // Remove skill
+                          skills.removeAt(index);
                         });
-                        await _updateSkillsInDatabase();  // Update in database
+                        await _updateSkillsInDatabase();
                       },
                     ),
                   );
@@ -100,20 +95,16 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
       builder: (context) => AlertDialog(
         title: const Text("Add Skill"),
         content:
-        // TextField(
-        //   controller: skillController,
-        //   decoration: const InputDecoration(hintText: "Enter new skill"),
-        // ),
         TextField(
           controller: skillController,
-          cursorColor: Colors.white, // Cursor color
+          cursorColor: Colors.white,
           decoration: InputDecoration(
             hintText: "Enter new Skill",
             enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white), // Line color when not focused
+              borderSide: BorderSide(color: Colors.white),
             ),
             focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white), // Line color when focused
+              borderSide: BorderSide(color: Colors.white),
             ),
           ),
         ),
@@ -133,7 +124,6 @@ class _SkillsEditPageState extends State<SkillsEditPage> {
 }
 
 
-// Skills Detail Page with Search
 class SkillsDetailPage extends StatefulWidget {
   final List<String> skills;
   final bool isOwner;
@@ -180,14 +170,14 @@ class _SkillsDetailPageState extends State<SkillsDetailPage> {
               controller: searchController,
               decoration: const InputDecoration(
                 labelText: "Search Skills",
-                labelStyle: TextStyle(color: Colors.green), // Focused hole text green hobe
-                prefixIcon: Icon(Icons.search, color: Colors.green), // Icon green hobe
-                border: OutlineInputBorder(), // Normal border
-                focusedBorder: OutlineInputBorder( // Focused state e green border
+                labelStyle: TextStyle(color: Colors.green),
+                prefixIcon: Icon(Icons.search, color: Colors.green),
+                border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.green, width: 2.0),
                 ),
               ),
-              cursorColor: Colors.green, // Cursor er color green
+              cursorColor: Colors.green,
             ),
 
             const SizedBox(height: 16),

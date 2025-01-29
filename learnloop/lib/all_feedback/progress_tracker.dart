@@ -13,11 +13,11 @@ class ProgressTracker extends StatefulWidget {
 
 class _ProgressTrackerState extends State<ProgressTracker> {
   late User? _user;
-  int? _intId; // Logged-in user's integer ID
-  int taughtThemCount = 0; // Number of people taught
-  int taughtMeCount = 0; // Number of times taught by others
-  bool _isLoading = true; // Loading state
-  String? _errorMessage; // Error message
+  int? _intId;
+  int taughtThemCount = 0;
+  int taughtMeCount = 0;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -35,7 +35,6 @@ class _ProgressTrackerState extends State<ProgressTracker> {
 
   Future<void> _fetchUserIntId() async {
     try {
-      // Fetch the logged-in user's integer ID and data
       final response = await Supabase.instance.client
           .from('users')
           .select('id, userFeedback, friends')
@@ -44,12 +43,10 @@ class _ProgressTrackerState extends State<ProgressTracker> {
 
       final intId = response['id'] as int;
 
-      // Check if userFeedback is not null and safely parse it
       final userFeedback = response['userFeedback'] != null && response['userFeedback'] is String
           ? jsonDecode(response['userFeedback']) as List
           : response['userFeedback'] as List? ?? [];
 
-      // Check if friends is not null and safely parse it
       final friends = response['friends'] != null && response['friends'] is String
           ? jsonDecode(response['friends']) as List
           : response['friends'] as List? ?? [];
@@ -61,7 +58,6 @@ class _ProgressTrackerState extends State<ProgressTracker> {
 
       int taughtMe = 0;
       for (var friend in friends) {
-        // Fetch each friend's userFeedback
         final friendResponse = await Supabase.instance.client
             .from('users')
             .select('userFeedback')
@@ -72,7 +68,6 @@ class _ProgressTrackerState extends State<ProgressTracker> {
             ? jsonDecode(friendResponse['userFeedback']) as List
             : friendResponse['userFeedback'] as List? ?? [];
 
-        // Count occurrences of the logged-in user's int ID in the friend's feedback
         taughtMe += friendFeedback.where((feedback) => feedback['id'] == intId).length;
       }
 
@@ -103,15 +98,8 @@ class _ProgressTrackerState extends State<ProgressTracker> {
             ? const CircularProgressIndicator()
             : _errorMessage != null
             ?
-        // Text(
-        //   _errorMessage!,
-        //   style: const TextStyle(color: Colors.red),
-        // )
         (() {
-          // Log the error message to the terminal
           print('Error: $_errorMessage');
-
-          // Show a Snackbar with a white background
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -124,7 +112,7 @@ class _ProgressTrackerState extends State<ProgressTracker> {
               ),
             );
           });
-          return Container(); // Don't show the error message on screen
+          return Container();
         })()
             : Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -155,9 +143,9 @@ class _ProgressTrackerState extends State<ProgressTracker> {
               legendOptions: const LegendOptions(
                 showLegends: true,
               ),
-              colorList: [
-                Colors.green, // Color for "Guided Others"
-                Colors.white, // Color for "Received Guidance"
+              colorList: const [
+                Colors.green,
+                Colors.white,
               ],
             ),
           ],

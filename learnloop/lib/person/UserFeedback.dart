@@ -29,7 +29,7 @@ class _UserFeedbackState extends State<UserFeedback> {
     fetchFeedback();
   }
 
-  // Filter feedback based on search query
+
   void _filterFeedback(String query) {
     setState(() {
       filteredFeedback = feedbackData
@@ -56,7 +56,7 @@ class _UserFeedbackState extends State<UserFeedback> {
           final feedbackId = feedbackItem['id'];
           final userResponse = await supabase
               .from('users')
-              .select('name, profile_picture') // Correct way to select multiple fields
+              .select('name, profile_picture')
               .eq('id', feedbackId)
               .single();
 
@@ -67,7 +67,7 @@ class _UserFeedbackState extends State<UserFeedback> {
 
         setState(() {
           feedbackData = userFeedbacks.cast<Map<String, dynamic>>();
-          filteredFeedback = feedbackData; // Set filteredFeedback to all initially
+          filteredFeedback = feedbackData;
           isLoading = false;
         });
       } else {
@@ -99,7 +99,7 @@ class _UserFeedbackState extends State<UserFeedback> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Feedback'),
-        backgroundColor:const Color(0xFF009252),
+        //backgroundColor:const Color(0xFF009252),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -114,52 +114,52 @@ class _UserFeedbackState extends State<UserFeedback> {
               decoration: InputDecoration(
                 labelText: "Search Feedback on Topics",
                 labelStyle: const TextStyle(
-                  color: Colors.green, // Green color for label text
+                  color: Colors.green,
                 ),
-                prefixIcon: Icon(Icons.search, color: Colors.green), // Green search icon
+                prefixIcon: Icon(Icons.search, color: Colors.green),
                 border: OutlineInputBorder(
                   borderSide: const BorderSide(
-                    color: Colors.green, // Green border by default
+                    color: Colors.green,
                     width: 1.0,
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderSide: const BorderSide(
-                    color: Colors.grey, // Green border when enabled
+                    color: Colors.grey,
                     width: 1.0,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: const BorderSide(
-                    color: Colors.green, // Green border when focused
-                    width: 2.0, // Border thickness when focused
+                    color: Colors.green,
+                    width: 2.0,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderSide: const BorderSide(
-                    color: Colors.green, // Green border when error occurs
+                    color: Colors.green,
                     width: 2.0,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderSide: const BorderSide(
-                    color: Colors.green, // Green border for error state
+                    color: Colors.green,
                     width: 2.0,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onChanged: _filterFeedback, // Call _filterFeedback when text changes
+              onChanged: _filterFeedback,
             ),
 
           ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(8.0),
-              itemCount: filteredFeedback.length, // Use filteredFeedback length
+              itemCount: filteredFeedback.length,
               itemBuilder: (context, index) {
                 final feedback = filteredFeedback[index];
                 return GestureDetector(
@@ -174,7 +174,6 @@ class _UserFeedbackState extends State<UserFeedback> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CircleAvatar(
-                            // Use the profile picture URL if available, otherwise fall back to a default image
                             backgroundImage: feedback['profile_picture'] != null
                                 ? NetworkImage(feedback['profile_picture'])
                                 :  NetworkImage(profilePicture) ,

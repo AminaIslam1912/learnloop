@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,7 +26,7 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
     },
   ];
 
-  Map<String, String> communityImages = {}; // Maps `community_name` to image URL
+  Map<String, String> communityImages = {};
   bool isLoading = true;
 
   @override
@@ -40,7 +37,6 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
 
   Future<void> _fetchCommunityImages() async {
     try {
-      // Fetch all images and community names from the Supabase table
       final data = await Supabase.instance.client
           .from('community')
           .select('community_name, image');
@@ -111,7 +107,7 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
     required String description,
     required String discordLink,
   }) {
-    final backgroundImage = communityImages[name]; // Fetch based on `community_name`
+    final backgroundImage = communityImages[name];
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ClipRRect(
@@ -129,7 +125,7 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[850]!.withOpacity(0.8), // Ensure visibility
+                color: Colors.grey[850]!.withOpacity(0.8),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

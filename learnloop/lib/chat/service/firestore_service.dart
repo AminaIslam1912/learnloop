@@ -4,19 +4,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Send a message
   Future<void> sendMessage({
     required String senderId,
     required String receiverId,
     required String message,
   }) async {
     try {
-      // Unique chat ID based on sender and receiver IDs
       final chatId = senderId.compareTo(receiverId) < 0
           ? '${senderId}_$receiverId'
           : '${receiverId}_$senderId';
 
-      // Add message to Firestore
       await _firestore.collection('chats').doc(chatId).collection('messages').add({
         'senderId': senderId,
         'receiverId': receiverId,
@@ -28,18 +25,15 @@ class FirestoreService {
     }
   }
 
-  // Fetch messages
   Stream<List<Map<String, dynamic>>> getMessages({
     required String userId,
     required String peerId,
   }) {
     try {
-      // Unique chat ID based on sender and receiver IDs
       final chatId = userId.compareTo(peerId) < 0
           ? '${userId}_$peerId'
           : '${peerId}_$userId';
 
-      // Listen to messages in the chat
       return _firestore
           .collection('chats')
           .doc(chatId)
@@ -53,8 +47,6 @@ class FirestoreService {
     }
   }
 
-
-  // Fetch the last message and timestamp between two users
   Future<Map<String, dynamic>> getLastMessage({
     required String userId,
     required String peerId,

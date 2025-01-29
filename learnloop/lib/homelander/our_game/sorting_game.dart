@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 
@@ -124,7 +122,7 @@ class _PuzzleScreenState extends State<SortingGame> {
         padding: const EdgeInsets.only(top: 16.0),
         child: Column(
           children: [
-            const Spacer(), // Adds space above the grid
+            const Spacer(),
             Expanded(
               flex: 6,
               child: GridView.builder(
@@ -152,29 +150,19 @@ class _PuzzleScreenState extends State<SortingGame> {
               ),
             ),
             const Spacer(flex: 1),
-            // ElevatedButton(
-            //
-            //   onPressed: _shuffleGrid,
-            //
-            //   child: const Text("Shuffle",style: TextStyle(backgroundColor: Colors.black),),
-            //
-            // ),
-            //
             OutlinedButton(
               onPressed: _shuffleGrid,
               style: OutlinedButton.styleFrom(
-                //padding: const EdgeInsets.all(20), // Square shape with equal padding
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Rectangular shape with more width
-                //  side: const BorderSide(color: Colors.green, width: 2), // Green border
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 backgroundColor: Colors.green,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15)), // Slightly rounded corners
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
                 ),
               ),
 
               child: const Text(
                 'Shuffle',
-                style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.bold), // Green text
+                style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.bold),
               ),
             ),
 

@@ -79,8 +79,7 @@ class _TypingSpeedScreenState extends State<TypingSpeedScreen> {
   }
 
   void _calculateWpm() {
-    // Words Per Minute calculation
-    double secondsTaken = (30 - _timeLeft).toDouble(); // Convert to double
+    double secondsTaken = (30 - _timeLeft).toDouble();
     double minutesTaken = secondsTaken / 60;
     double wpm = (_typedCharacterCount / 5) / minutesTaken;
 

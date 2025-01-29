@@ -3,9 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FeedbackFormDialog {
   static void showFeedbackForm(BuildContext context) {
-    double _rating = 0; // User's rating
+    double _rating = 0;
     TextEditingController _feedbackController = TextEditingController();
-    double _averageRating = 0; // Average rating fetched from Supabase
+    double _averageRating = 0;
     int _totalFeedbacks = 0;
 
     Future<void> fetchAverageRating() async {
@@ -19,19 +19,15 @@ class FeedbackFormDialog {
 
           if (data.isNotEmpty) {
             _totalFeedbacks = data.length;
-
-            // Convert ratings to double safely
             _averageRating = data
-                .map((item) => (item['rating'] as num).toDouble()) // Ensure 'rating' is converted to double
-                .reduce((a, b) => a + b) / // Sum ratings
+                .map((item) => (item['rating'] as num).toDouble())
+                .reduce((a, b) => a + b) /
                 _totalFeedbacks;
           } else {
-            // Reset values if there's no feedback
             _totalFeedbacks = 0;
             _averageRating = 0;
           }
         } else {
-          // Handle empty or null response
           _totalFeedbacks = 0;
           _averageRating = 0;
           print('No data found in app_feedback table.');
@@ -68,11 +64,6 @@ class FeedbackFormDialog {
                           "Give Us Your Thoughts",
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        // const SizedBox(height: 20),
-                        // const Text(
-                        //   "Rate Us",
-                        //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                        // ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -85,7 +76,7 @@ class FeedbackFormDialog {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _rating = index + 1.0; // Update rating
+                                  _rating = index + 1.0;
                                 });
                               },
                             );
@@ -121,7 +112,6 @@ class FeedbackFormDialog {
                             }
 
                             try {
-                              // Insert feedback into Supabase
                               await Supabase.instance.client
                                   .from('app_feedback')
                                   .insert({
@@ -133,12 +123,7 @@ class FeedbackFormDialog {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Feedback submitted successfully!')),
                               );
-
-                              // Close the dialog
                               Navigator.pop(context);
-
-                              // Refresh the average rating (optional, as the dialog is already closed)
-
                             } catch (e) {
                               print('Error saving feedback: $e');
                               ScaffoldMessenger.of(context).showSnackBar(

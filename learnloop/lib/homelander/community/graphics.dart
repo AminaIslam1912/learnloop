@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,17 +16,17 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
       "description":
       "Unleash your creativity and join our vibrant community of graphic designers, where ideas ignite and talents flourish.",
       "link": "https://discord.gg/4ffYbDDj5A",
-      "name": "graphic_era", // Name in the Supabase table
+      "name": "graphic_era",
     },
     {
       "title": "DesignConnect",
       "description": "Join a thriving community where inspiration flows.",
       "link": "https://discord.gg/EVndCxVf6G",
-      "name": "design_connect", // Name in the Supabase table
+      "name": "design_connect",
     },
   ];
 
-  Map<String, String> communityImages = {}; // Maps `community_name` to image URL
+  Map<String, String> communityImages = {};
   bool isLoading = true;
 
   @override
@@ -39,7 +37,6 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
 
   Future<void> _fetchCommunityImages() async {
     try {
-      // Fetch all images and community names from the Supabase table
       final data = await Supabase.instance.client
           .from('community')
           .select('community_name, image');
@@ -110,7 +107,7 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
     required String description,
     required String link,
   }) {
-    final backgroundImage = communityImages[name]; // Fetch based on `community_name`
+    final backgroundImage = communityImages[name];
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ClipRRect(

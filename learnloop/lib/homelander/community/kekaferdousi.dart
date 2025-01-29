@@ -16,17 +16,17 @@ class _CookingScreenState extends State<CookingScreen> {
       "description":
       "Join a community of passionate cooks and professional chefs sharing tips, recipes, and culinary techniques.",
       "link": "https://discord.gg/KKp5NbtbsS",
-      "name": "master_chefs_club", // Name in the Supabase table
+      "name": "master_chefs_club",
     },
     {
       "title": "Baking Bliss",
       "description": "A paradise for baking enthusiasts to share recipes, tips, and beautiful creations.",
       "link": "https://discord.gg/R2sYPwZR3Q",
-      "name": "baking_bliss", // Name in the Supabase table
+      "name": "baking_bliss",
     },
   ];
 
-  Map<String, String> communityImages = {}; // Maps `community_name` to image URL
+  Map<String, String> communityImages = {};
   bool isLoading = true;
   String searchQuery = "";
   List<Map<String, String>> filteredCommunities = [];
@@ -40,7 +40,6 @@ class _CookingScreenState extends State<CookingScreen> {
 
   Future<void> _fetchCommunityImages() async {
     try {
-      // Fetch all images and community names from the Supabase table
       final data = await Supabase.instance.client
           .from('community')
           .select('community_name, image');
@@ -136,7 +135,7 @@ class _CookingScreenState extends State<CookingScreen> {
     required String description,
     required String link,
   }) {
-    final backgroundImage = communityImages[name]; // Fetch based on `community_name`
+    final backgroundImage = communityImages[name];
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ClipRRect(

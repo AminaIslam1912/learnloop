@@ -1,12 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:learnloop/login.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'MainPage.dart';
-import 'landing_page.dart';
-import 'login.dart';
 
-// SignUp Page
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
@@ -22,122 +18,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool _isLoading = false;
   String _errorMessage = '';
-  bool _isPasswordVisible = false; // Track password visibility
-  bool _isConfirmPasswordVisible = false; // Track confirm password visibility
-
-  // Future<void> _signUp() async {
-  //   final username = _usernameController.text;
-  //   final email = _emailController.text;
-  //   final password = _passwordController.text;
-  //   final confirmPassword = _confirmPasswordController.text;
-  //
-  //   if (password != confirmPassword) {
-  //     setState(() {
-  //       _errorMessage = 'Passwords do not match!';
-  //     });
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //     _errorMessage = '';
-  //   });
-  //
-  //   try {
-  //
-  //     // Sign up the user with Firebase Authentication
-  //     UserCredential firebaseUser = await FirebaseAuth.instance
-  //         .createUserWithEmailAndPassword(email: email, password: password);
-  //
-  //     if (firebaseUser.user == null) {
-  //       throw Exception('Firebase sign-up failed');
-  //     }
-  //
-  //     final firebaseUserId = firebaseUser.user!.uid;
-  //
-  //
-  //     // Sign up the user with Supabase authentication
-  //     final response = await Supabase.instance.client.auth.signUp(
-  //       email: email,
-  //       password: password,
-  //     );
-  //
-  //     if (response.user == null) {
-  //       setState(() {
-  //         _errorMessage = 'Sign-up failed:  "Unknown error"}';
-  //       });
-  //       return;
-  //     }
-  //
-  //     final user = response.user;
-  //
-  //     // Insert the profile data (username, email) into the 'profiles' table
-  //     final profileResponse = await Supabase.instance.client
-  //         .from('profiles')
-  //         .insert([
-  //       {
-  //         'user_id': user?.id, // Storing the UUID in the new column
-  //         'name': username,
-  //         'email': email,
-  //         'created_at': DateTime.now().toUtc().toIso8601String(),
-  //         'password': password,
-  //        // 'fire_id': firebaseUserId,
-  //       }
-  //     ])
-  //         .select();
-  //
-  //     final userResponse = await Supabase.instance.client
-  //         .from('users')
-  //         .insert([
-  //       {
-  //         'sup_id': user?.id, // Storing the UUID in the new column
-  //         'name': username,
-  //         'email': email,
-  //        // 'created_at': DateTime.now().toUtc().toIso8601String(),
-  //        // 'password': password
-  //         'fire_id': firebaseUserId,
-  //         'friends': [], // Insert an empty JSON array
-  //         'request_sent': [], // Insert an empty JSON array
-  //         'request_received': [], // Insert an empty JSON array
-  //         'rating':0,
-  //         'userFeedback':[],
-  //         'bio':"",
-  //         'occupation':'',
-  //         'location':'',
-  //         'achievements':[],
-  //         'skills':[],
-  //         'profile_picture':'',
-  //
-  //
-  //       }
-  //     ])
-  //         .select();
-  //
-  //
-  //     if (profileResponse == null) {
-  //       setState(() {
-  //         _errorMessage = 'Profile insertion failed: unknown error';
-  //       });
-  //       // print('Supabase Insert Error: ${profileResponse.error!.message}');
-  //       return;
-  //     }
-  //
-  //     // Navigate to the login page
-  //     Navigator.pushReplacementNamed(context, '/login');
-  //     //  Navigator.push(
-  //     //    context,
-  //     //    MaterialPageRoute(builder: (context) => const LoginPage()),
-  //     //  );
-  //   } catch (e) {
-  //     setState(() {
-  //       _errorMessage = 'An unexpected error occurred: $e';
-  //     });
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   Future<void> _signUp() async {
     final username = _usernameController.text.trim();
@@ -145,7 +27,6 @@ class _SignUpPageState extends State<SignUpPage> {
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
-    // Check for missing inputs
     if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -156,7 +37,6 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    // Check if passwords match
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -172,7 +52,6 @@ class _SignUpPageState extends State<SignUpPage> {
     });
 
     try {
-      // Sign up with Firebase Authentication
       UserCredential firebaseUser = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -182,7 +61,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
       final firebaseUserId = firebaseUser.user!.uid;
 
-      // Sign up with Supabase
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
@@ -191,10 +69,7 @@ class _SignUpPageState extends State<SignUpPage> {
       if (response.user == null) {
         throw Exception('Supabase sign-up failed');
       }
-
       final user = response.user;
-
-      // Insert profile data into the 'profiles' table
       final profileResponse = await Supabase.instance.client
           .from('profiles')
           .insert([
@@ -207,7 +82,6 @@ class _SignUpPageState extends State<SignUpPage> {
         }
       ]);
 
-      // Insert additional user data into the 'users' table
       await Supabase.instance.client
           .from('users')
           .insert([
@@ -230,18 +104,14 @@ class _SignUpPageState extends State<SignUpPage> {
         }
       ]);
 
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Congratulations!!! Registration completed.'),
           backgroundColor: Colors.white,
         ),
       );
-
-      // Navigate to the login page
       Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('An error occurred. Please, try again!!'),
@@ -260,13 +130,11 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black, // Set a background color for the AppBar
-        elevation: 0, // Remove shadow
+        backgroundColor: Colors.black,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            // Navigator.pop(context); // Navigate back to the previous screen
-            //  Navigator.pushReplacement(context, "")
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => MainPage()),
@@ -283,16 +151,15 @@ class _SignUpPageState extends State<SignUpPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 10),
-                // Add the image widget above the "SignUp" text
                 const Center(
 
                   child: Image(
-                    image: AssetImage('assets/reg.png'), // Replace with your image path
-                    height: 100, // Adjust the height as needed
-                    width: 100, // Adjust the width as needed
+                    image: AssetImage('assets/reg.png'),
+                    height: 100,
+                    width: 100,
                   ),
                 ),
-                const SizedBox(height: 10), // Add spacing between the image and the "SignUp" text
+                const SizedBox(height: 10),
 
                 const Center(
                   child: Text(
@@ -305,8 +172,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                //const Text(
-                 //   'Username', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _usernameController,
                   decoration: InputDecoration(
@@ -326,7 +191,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-               // const Text('Email', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -347,8 +211,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
-               // const Text(
-                  //  'Password', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _passwordController,
                   obscureText: !_isPasswordVisible,
@@ -382,8 +244,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-               // const Text('Re-enter Password',
-                //    style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _confirmPasswordController,
                   obscureText: !_isConfirmPasswordVisible,
@@ -442,11 +302,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      // Navigator.pop(context);
-                      //  Navigator.push(
-                      //    context,
-                      //    MaterialPageRoute(builder: (context) => const LoginPage()),
-                      //  );
                       Navigator.pushReplacementNamed(context, '/login');
                     },
                     child: const Text(

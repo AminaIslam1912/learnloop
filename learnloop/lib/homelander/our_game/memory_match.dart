@@ -61,7 +61,6 @@ class GameBoardState extends State<GameBoard> {
           matches++;
 
           if (matches == cardContent.length ~/ 2) {
-            // Game completed
             showDialog(
               context: context,
               builder: (context) => AlertDialog(

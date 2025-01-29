@@ -1,5 +1,4 @@
 
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,7 +7,6 @@ import 'package:mailer/smtp_server.dart';
 import 'dart:math';
 import 'MainPage.dart';
 import 'UserProvider.dart';
-import 'homelander/community/Community_ui.dart';
 import 'sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -33,135 +31,52 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleGoogleSignIn(BuildContext context, Function(String) showSnackBar) async {
     try {
-      // Trigger Google Sign-In using Firebase
       final UserCredential userCredential = await signInWithGoogle();
-
-      // Show a snackbar on error
       if (userCredential.user == null) {
         showSnackBar("Error signing in with Google");
         return;
       }
 
-      // Extract user details
       final String fire_id = userCredential.user?.uid ?? '';
       final String email = userCredential.user?.email ?? '';
-      // final String displayName = userCredential.user?.displayName ?? '';
-      // final String photoUrl = userCredential.user?.photoURL ?? '';
-
-      // Insert or update user in the Supabase users table
       final supabase = Supabase.instance.client;
       final response = await supabase.from('users').upsert({
-        'id': fire_id, // Firebase UID as the unique identifier
+        'id': fire_id,
         'email': email,
-        // 'full_name': displayName,
-        // 'photo_url': photoUrl,
       });
 
-      // Navigate to the main screen on successful login
       if (fire_id.isNotEmpty) {
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
-      // Handle errors and show a snackbar
       print(e);
       showSnackBar("Error signing in with Google: ${e.toString()}");
     }
   }
 
-  /// This function handles Google Sign-In and returns a [UserCredential].
   Future<UserCredential> signInWithGoogle() async {
     try {
-      // Create a GoogleSignIn instance
       final GoogleSignIn googleSignIn = GoogleSignIn.standard();
-
-      // Sign out any existing user to prompt the account selection dialog
       await googleSignIn.signOut();
-
-      // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-      // Check if the sign-in was successful
       if (googleUser == null) {
         throw Exception('Google sign-in was cancelled');
       }
-
-      // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      // Create a new credential
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
-      // Once signed in, return the UserCredential
       return await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
-      // Handle sign-in errors
       throw Exception('Failed to sign in with Google: $e');
     }
   }
-
-
-  // Future<void> _login() async {
-  //   final email = _emailController.text;
-  //   final password = _passwordController.text;
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //     _errorMessage = '';
-  //   });
-  //
-  //   try {
-  //     // Login with Supabase
-  //     final supabaseResponse = await Supabase.instance.client.auth.signInWithPassword(
-  //       email: email,
-  //       password: password,
-  //     );
-  //
-  //     if (supabaseResponse.session == null) {
-  //       setState(() {
-  //         _errorMessage =
-  //         'Supabase login failed: ${supabaseResponse.session?.error?.message ?? "Unknown error"}';
-  //         return;
-  //       });
-  //     }
-  //
-  //     // Login with Firebase
-  //     try {
-  //       final firebaseUser = await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //         email: email,
-  //         password: password,
-  //       );
-  //
-  //       print("Firebase login successful: ${firebaseUser.user?.email}");
-  //     } catch (firebaseError) {
-  //       print('Firebase login failed: $firebaseError');
-  //       throw Exception('Firebase login failed: $firebaseError');
-  //     }
-  //
-  //     // If both logins succeed, proceed to the main page
-  //     final user = supabaseResponse.user;
-  //     context.read<UserProvider>().setUser(user!);
-  //
-  //     // Navigate to the main page
-  //     Navigator.pushReplacementNamed(context, '/main');
-  //   } catch (e) {
-  //     setState(() {
-  //       _errorMessage = 'An unexpected error occurred: $e';
-  //     });
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    // Check if inputs are empty
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -177,13 +92,10 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Login with Supabase
       final supabaseResponse = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
-
-      // Check if Supabase login fails
       if (supabaseResponse.session == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -193,8 +105,6 @@ class _LoginPageState extends State<LoginPage> {
         );
         return;
       }
-
-      // Login with Firebase
       try {
         final firebaseUser = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email,
@@ -219,15 +129,11 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Colors.white,
         ),
       );
-
-      // If both logins succeed, proceed to the main page
       final user = supabaseResponse.user;
       context.read<UserProvider>().setUser(user!);
-
-      // Navigate to the main page
       Navigator.pushReplacementNamed(context, '/main');
     } catch (e) {
-      print('Error occurred: $e'); // Log error for debugging
+      print('Error occurred: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Invalid credentials, Try again!!'),
@@ -389,9 +295,9 @@ class _LoginPageState extends State<LoginPage> {
       // First check if the user exists
       final response = await Supabase.instance.client
           .from('profiles')
-          .select()  // Remove 'password' to select all columns
+          .select()
           .eq('email', email)
-          .single();  // Get a single record
+          .single();
 
       if (response != null && response.containsKey('password')) {
         final currentPassword = response['password'] as String;
@@ -405,7 +311,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      print('Error fetching password: $e'); // For debugging
+      print('Error fetching password: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error fetching password: ${e.toString()}'),
@@ -418,17 +324,17 @@ class _LoginPageState extends State<LoginPage> {
   void _showCurrentPasswordDialog(String currentPassword) {
     showDialog(
       context: context,
-      barrierDismissible: false, // User must click button
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           title: const Text('Your Current Password'),
-          content: SelectableText(currentPassword), // Makes password copyable
+          content: SelectableText(currentPassword),
           actions: [
             ElevatedButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: currentPassword)); // Copy to clipboard
-                Navigator.pop(context); // Close dialog
-                ScaffoldMessenger.of(context).showSnackBar( // Show toast
+                Clipboard.setData(ClipboardData(text: currentPassword));
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Password copied to clipboard!'),
                     backgroundColor: Colors.green,
@@ -451,13 +357,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black, // Set a background color for the AppBar
-        elevation: 0, // Remove shadow
+        backgroundColor: Colors.black,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-           // Navigator.pop(context); // Navigate back to the previous screen
-          //  Navigator.pushReplacement(context, "")
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => MainPage()),
@@ -473,15 +377,14 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Add the image widget here
                 const Center(
                   child: Image(
-                    image: AssetImage('assets/login_logo-removebg-preview.png'), // Replace with your image path
-                    height: 100, // Adjust the height as needed
-                    width: 100, // Adjust the width as needed
+                    image: AssetImage('assets/login_logo-removebg-preview.png'),
+                    height: 100,
+                    width: 100,
                   ),
                 ),
-                const SizedBox(height: 10), // Add spacing between the image and the text
+                const SizedBox(height: 10),
                 const Center(
                   child: Text(
                     'Login',
@@ -493,7 +396,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                //const Text('Email', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -515,7 +417,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // const Text('Password', style: TextStyle(color: Colors.white70)),
                 TextField(
                   controller: _passwordController,
                   obscureText:  !_isPasswordVisible,
@@ -578,8 +479,6 @@ class _LoginPageState extends State<LoginPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-
-                    // Add spacing between the two texts
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -591,7 +490,7 @@ class _LoginPageState extends State<LoginPage> {
                           "Don't have an account? Sign Up",
                           style: TextStyle(
                             color: Color(0xFF009252),
-                            fontSize: 14, // Standard font size for this text
+                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -602,7 +501,7 @@ class _LoginPageState extends State<LoginPage> {
                           'Forgot Password?',
                           style: TextStyle(
                             color: Colors.blue,
-                            fontSize: 8, // Smaller font size for "Forgot Password"
+                            fontSize: 8,
                           ),
                         ),
                       ),

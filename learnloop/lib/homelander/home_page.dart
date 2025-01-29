@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:learnloop/homelander/faq_screen.dart';
 import 'package:marquee/marquee.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../UserProvider.dart';
 import '../all_feedback/app_feedback.dart';
 import '../all_feedback/progress_tracker.dart';
-import '../login.dart';
 import 'about_us.dart';
 import '../sign_up.dart';
 import 'community/Community_ui.dart';
@@ -38,7 +34,6 @@ class _HomePageState extends State<HomePage>
 
   List<Map<String, dynamic>> similarCourses = [];
 
-  //Change started, Kawser.
   List<Map<String, dynamic>> savedCourses = [];
 
   Widget _buildSavedCourses() {
@@ -60,15 +55,13 @@ class _HomePageState extends State<HomePage>
         final course = savedCourses[index];
         return Dismissible(
           key: Key(course["id"]
-              .toString()), // Unique key for each item to ensure smooth dismissal
+              .toString()),
           direction: DismissDirection.startToEnd,
           onDismissed: (direction) {
-            // Remove the course from the list and show a success message
             setState(() {
               savedCourses.removeAt(index);
             });
             _removeCourseFromDatabase(course["id"]);
-            // Show a snack bar with the course name and a success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text("${course["title"]} deleted successfully."),
@@ -135,21 +128,18 @@ class _HomePageState extends State<HomePage>
   void _handleSaveCourse(
       BuildContext context, Map<String, dynamic> course) async {
     if (await _isUserLoggedIn()) {
-      // Check if the course is already saved locally
       if (!savedCourses
           .any((savedCourse) => savedCourse["id"] == course["id"])) {
         setState(() {
-          savedCourses.add(course); // Add course to the local list
+          savedCourses.add(course);
         });
-
-        // Save the course to Supabase
         try {
-          final userId = widget.user?.id; // Fetch the logged-in user's ID
+          final userId = widget.user?.id;
           if (userId != null) {
             await Supabase.instance.client.from('saved_courses').insert({
               'user_id':
-                  int.parse(userId), // Ensure the user_id is int8-compatible
-              'course_id': course['id'], // Ensure course_id is int8-compatible
+                  int.parse(userId),
+              'course_id': course['id'],
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('${course["title"]} saved successfully!')),
@@ -161,13 +151,11 @@ class _HomePageState extends State<HomePage>
           );
         }
       } else {
-        // Notify the user if the course is already saved
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${course["title"]} is already saved!')),
         );
       }
     } else {
-      // If the user is not logged in, prompt them to log in
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -197,13 +185,12 @@ class _HomePageState extends State<HomePage>
                   style: TextStyle(color: Colors.green),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                   Navigator.pushReplacementNamed(context, '/login')
                       .then((value) async {
-                    // Check if the user is logged in after returning from the login page
                     if (await _isUserLoggedIn()) {
                       _handleSaveCourse(
-                          context, course); // Retry saving the course
+                          context, course);
                     }
                   });
                 },
@@ -219,17 +206,15 @@ class _HomePageState extends State<HomePage>
     try {
       final userId = widget.user?.id;
       if (userId == null) return;
-
-      // Fetch saved courses from Supabase
       final data = await Supabase.instance.client
           .from('saved_courses')
           .select('course_id, course(title, isFree, course_image)')
-          .eq('user_id', int.parse(userId)); // Use int.parse to match int8 type
+          .eq('user_id', int.parse(userId));
 
       setState(() {
         savedCourses = data.map<Map<String, dynamic>>((item) {
           return {
-            "id": item['course_id'], // Match course_id from the database
+            "id": item['course_id'],
             "title": item['course']['title'],
             "isFree": item['course']['isFree'],
             "image": item['course']['course_image'],
@@ -245,12 +230,10 @@ class _HomePageState extends State<HomePage>
     try {
       final userId = widget.user?.id;
       if (userId == null) return;
-
-      // Delete saved course from the Supabase table
       await Supabase.instance.client.from('saved_courses').delete().match({
         'user_id': int.parse(userId),
         'course_id': courseId
-      }); // Match int8 types
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Course removed successfully!')),
@@ -449,7 +432,6 @@ class _HomePageState extends State<HomePage>
 
     if (query.isEmpty) return [];
 
-    // Create sets to track unique courses by title
     final Set<String> processedTitles = {};
 
     for (var section in courseSections) {
@@ -463,14 +445,11 @@ class _HomePageState extends State<HomePage>
         }
       }
     }
-
-    // Return exact matches if any, otherwise return similar courses
     if (exactMatches.isNotEmpty) {
       return exactMatches;
     } else if (similarCourses.isNotEmpty) {
       return similarCourses;
     } else {
-      // Show a predefined set of suggestions when no matches are found
       return _getSuggestedCourses();
     }
   }
@@ -480,8 +459,6 @@ class _HomePageState extends State<HomePage>
     for (var course in courses) {
       String courseTitle = course["title"].toString().toLowerCase();
       String searchQuery = query.toLowerCase();
-
-      // Skip if we've already processed this course title
       if (processedTitles.contains(courseTitle)) {
         continue;
       }
@@ -531,9 +508,7 @@ class _HomePageState extends State<HomePage>
     return matrix[s1.length][s2.length];
   }
 
-// Returns a predefined list of suggested courses when no match is found
   List<Map<String, dynamic>> _getSuggestedCourses() {
-    // This can be replaced with dynamic suggestions from your dataset
     return [
       {"title": "Introduction to Programming", "id": 1},
       {"title": "Data Structures and Algorithms", "id": 2},
@@ -551,10 +526,10 @@ class _HomePageState extends State<HomePage>
           decoration: const InputDecoration(
             labelText: "Search courses...",
             labelStyle: const TextStyle(
-              color: Colors.green, // Green label text
+              color: Colors.green,
             ),
             prefixIcon: const Icon(Icons.search,
-                color: Colors.green), // Green prefix icon
+                color: Colors.green),
 
             hintStyle: TextStyle(color: Colors.white54),
             border: InputBorder.none,
@@ -565,7 +540,7 @@ class _HomePageState extends State<HomePage>
               searchQuery = value;
             });
           },
-          cursorColor: Colors.green, // Set cursor color to green
+          cursorColor: Colors.green,
         ),
         actions: [],
       ),
@@ -583,11 +558,11 @@ class _HomePageState extends State<HomePage>
                 Tab(
                   child: Marquee(
                     blankSpace: 25,
-                    text: "Suggested for You", // The text that will scroll
+                    text: "Suggested for You",
                     style: TextStyle(color: Colors.green), // Text style
-                    velocity: 15, // Speed of the scrolling
+                    velocity: 15,
                     pauseAfterRound:
-                        Duration(seconds: 2), // Pause after each cycle
+                        Duration(seconds: 2),
                   ),
                 ),
                 Tab(
@@ -597,7 +572,6 @@ class _HomePageState extends State<HomePage>
                     style: TextStyle(color: Colors.green),
                     velocity: 15,
                     pauseAfterRound: Duration(seconds: 2),
-                    // scrollAxis: Axis.horizontal,
                   ),
                 ),
                 Tab(
@@ -607,7 +581,6 @@ class _HomePageState extends State<HomePage>
                     style: const TextStyle(color: Colors.green),
                     velocity: 15,
                     pauseAfterRound: Duration(seconds: 2),
-                    // scrollAxis: Axis.horizontal,
                   ),
                 ),
                 Tab(
@@ -627,15 +600,11 @@ class _HomePageState extends State<HomePage>
             child: TabBarView(
               controller: _tabController,
               children: [
-                // _buildCourseSections(),
                 searchQuery.isEmpty
                     ? _buildCourseSections()
                     : _buildSearchResults(_searchCourses(searchQuery)),
-                // const Center(child: Text("Community Section", style: TextStyle(color: Colors.white))),
                 const CommunityUI(),
-                // const Center(child: Text("Fun Challenge Section", style: TextStyle(color: Colors.white))),
                 FunChallengeScreen(),
-                // const Center(child: Text("About Section", style: TextStyle(color: Colors.white))),
                 const AboutScreen()
               ],
             ),
@@ -829,11 +798,9 @@ class _HomePageState extends State<HomePage>
                           useNetworkImage: course["id"] != null &&
                               courseImages.containsKey(course["id"]),
                           course: course,
-                          //Change started, Kawser.
                           onSaveAndWatchLater: () {
                             _handleSaveCourse(context, course);
                           },
-                          //Change ended, Kawser.
                         ),
                       );
                     },
@@ -869,12 +836,10 @@ class _HomePageState extends State<HomePage>
                         isFree: course["isFree"],
                         useNetworkImage: course["id"] != null &&
                             courseImages.containsKey(course["id"]),
-                        //Change started, Kawser.
                         course: course,
                         onSaveAndWatchLater: () {
                           _handleSaveCourse(context, course);
                         },
-                        //Change ended, Kawser.
                       ),
                     );
                   },
@@ -889,7 +854,7 @@ class _HomePageState extends State<HomePage>
 
   Widget _buildSettingsDrawer(BuildContext context) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.6, // Adjust width as needed
+      width: MediaQuery.of(context).size.width * 0.6,
       child: Drawer(
         child: Container(
           color: Colors.black.withOpacity(0.5),
@@ -897,7 +862,7 @@ class _HomePageState extends State<HomePage>
             padding: EdgeInsets.zero,
             children: [
               SizedBox(
-                height: 120, // Set the desired height for the header
+                height: 120,
                 child: DrawerHeader(
                   decoration:
                       BoxDecoration(color: Colors.green.withOpacity(0.5)),
@@ -912,7 +877,6 @@ class _HomePageState extends State<HomePage>
                 title: Text('Progress Tracker',
                     style: TextStyle(color: Colors.white)),
                 onTap: () {
-                  // Navigate to ProgressTracker screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -921,13 +885,6 @@ class _HomePageState extends State<HomePage>
                   );
                 },
               ),
-              // ListTile(
-              //   leading: Icon(Icons.lock, color: Colors.white),
-              //   title: Text('Change Password', style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     // Navigator.pushNamed(context, '/change-password');
-              //   },
-              // ),
               ListTile(
                 leading: Icon(Icons.help_outline, color: Colors.white),
                 title: Text('FAQ', style: TextStyle(color: Colors.white)),
@@ -943,18 +900,14 @@ class _HomePageState extends State<HomePage>
                 title: Text('Send Feedback',
                     style: TextStyle(color: Colors.white)),
                 onTap: () {
-                  // Redirect to feedback form
                   FeedbackFormDialog.showFeedbackForm(context);
                 },
               ),
-              //Change started, Kawser.
               ListTile(
                 leading: const Icon(Icons.bookmark, color: Colors.white),
                 title: const Text('Saved Courses',
                     style: TextStyle(color: Colors.white)),
                 onTap: () {
-                  // Navigate to the saved courses page
-                  //Navigator.pushNamed(context, '/saved-courses');
                   showModalBottomSheet(
                     context: context,
                     backgroundColor: Colors.black,
@@ -966,7 +919,6 @@ class _HomePageState extends State<HomePage>
                   );
                 },
               ),
-              //Change ended, Kawser.
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.white),
                 title: const Text(
@@ -1001,7 +953,6 @@ class CourseCard extends StatelessWidget {
   final String title;
   final bool isFree;
   final bool useNetworkImage;
-  // eta add koris.
   final VoidCallback onSaveAndWatchLater;
   final Map<String, dynamic> course;
 
@@ -1011,74 +962,11 @@ class CourseCard extends StatelessWidget {
     required this.title,
     required this.isFree,
     this.useNetworkImage = false,
-    // eta add koris.
     required this.onSaveAndWatchLater,
-    //eta add koris
     required this.course,
   });
 
   @override
-  // Widget build(BuildContext context) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(left: 16.0, right: 8.0),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Container(
-  //           width: 100,
-  //           height: 120,
-  //           decoration: BoxDecoration(
-  //             borderRadius: BorderRadius.circular(8),
-  //             image: DecorationImage(
-  //               image: useNetworkImage ? NetworkImage(image) : AssetImage(image) as ImageProvider,
-  //               fit: BoxFit.cover,
-  //               onError: (exception, stackTrace) {
-  //                 debugPrint('Error loading image: $exception');
-  //               },
-  //             ),
-  //           ),
-  //         ),
-  //         //Change started, Kawser.
-  //         Positioned(
-  //           right: 0,
-  //           child: PopupMenuButton<String>(
-  //             onSelected: (value) {
-  //               if (value == 'Save and Watch Later') {
-  //                 onSaveAndWatchLater();
-  //               }
-  //             },
-  //             itemBuilder: (context) =>
-  //             [
-  //               const PopupMenuItem(
-  //                 value: 'Save and Watch Later',
-  //                 child: Text('Save and Watch Later'),
-  //               ),
-  //             ],
-  //             icon: const Icon(
-  //               Icons.more_vert,
-  //               color: Colors.white,
-  //             ),
-  //           ),
-  //         ),
-  //         //Change ended, Kawser.
-  //         const SizedBox(height: 8),
-  //         Text(
-  //           title,
-  //           style: const TextStyle(color: Colors.white, fontSize: 12),
-  //           overflow: TextOverflow.ellipsis,
-  //         ),
-  //         const SizedBox(height: 4),
-  //         Text(
-  //           isFree ? "Free" : "Paid",
-  //           style: TextStyle(color: isFree ? Colors.green : Colors.red, fontSize: 10),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-  //
-  @override
-  // Change started, Kawser.
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, right: 8.0),
@@ -1134,7 +1022,7 @@ class CourseCard extends StatelessWidget {
                 icon: const Icon(
                   Icons.more_vert,
                   color: Colors.white,
-                  size: 14, // Smaller size for the three dots
+                  size: 14,
                 ),
               ),
             ],
@@ -1144,276 +1032,5 @@ class CourseCard extends StatelessWidget {
     );
   }
 
-// Change ended, Kawser.
 }
 
-// gpt code
-
-// import 'package:flutter/material.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
-// import '../login.dart';
-// import 'about_us.dart';
-// import '../sign_up.dart';
-// import 'community/Community_ui.dart';
-// import 'fun_challenge.dart';
-//
-// class HomePage extends StatefulWidget {
-//   final User? user;
-//
-//   const HomePage({Key? key, this.user}) : super(key: key);
-//   @override
-//   _HomePageState createState() => _HomePageState();
-// }
-//
-// class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-//   late TabController _tabController;
-//   bool isLoading = true;
-//   List<dynamic> courses = [];
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _tabController = TabController(length: 4, vsync: this);
-//
-//     // Tab navigation listeners
-//     _tabController.addListener(() {
-//       if (_tabController.index == 1) {
-//         _checkSession();
-//       } else if (_tabController.index == 2) {
-//         FunChallengeScreen();
-//       } else if (_tabController.index == 3) {
-//         AboutScreen();
-//       }
-//     });
-//
-//     fetchCourses();
-//   }
-//
-//   Future<void> fetchCourses() async {
-//     setState(() {
-//       isLoading = true;
-//     });
-//
-//     try {
-//       final response = await Supabase.instance.client
-//           .from('course')
-//           .select('id, thumbnail_image, title, description, is_free')
-//           .execute();
-//
-//       if (response.error == null) {
-//         setState(() {
-//           courses = response.data as List<dynamic>;
-//         });
-//       } else {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Error fetching courses: ${response.error!.message}')),
-//         );
-//       }
-//     } catch (e) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('An error occurred: $e')),
-//       );
-//     } finally {
-//       setState(() {
-//         isLoading = false;
-//       });
-//     }
-//   }
-//
-//   void _checkSession() async {
-//     final session = Supabase.instance.client.auth.currentSession;
-//
-//     if (session != null) {
-//       setState(() {
-//         _tabController.index = 1;
-//         CommunityUI(user: session.user);
-//       });
-//     } else {
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(builder: (context) => const SignUpPage()),
-//       );
-//     }
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//         elevation: 2,
-//         title: const TextField(
-//           decoration: InputDecoration(
-//             hintText: "Search courses...",
-//             hintStyle: TextStyle(color: Colors.white54),
-//             border: InputBorder.none,
-//           ),
-//           style: TextStyle(color: Colors.white),
-//         ),
-//       ),
-//       drawer: _buildSettingsDrawer(context),
-//       body: Column(
-//         children: [
-//           Container(
-//             color: Colors.black,
-//             child: TabBar(
-//               controller: _tabController,
-//               labelColor: Colors.green,
-//               unselectedLabelColor: Colors.white,
-//               indicatorColor: Colors.green,
-//               tabs: const [
-//                 Tab(text: "Suggested for You"),
-//                 Tab(text: "Community"),
-//                 Tab(text: "Fun Challenge"),
-//                 Tab(text: "About"),
-//               ],
-//             ),
-//           ),
-//           Expanded(
-//             child: TabBarView(
-//               controller: _tabController,
-//               children: [
-//                 _buildCourseSections(),
-//                 const CommunityUI(),
-//                 FunChallengeScreen(),
-//                 const AboutScreen()
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Widget _buildCourseSections() {
-//     if (isLoading) {
-//       return const Center(
-//         child: CircularProgressIndicator(color: Colors.green),
-//       );
-//     }
-//
-//     if (courses.isEmpty) {
-//       return const Center(
-//         child: Text("No courses available", style: TextStyle(color: Colors.white)),
-//       );
-//     }
-//
-//     return SingleChildScrollView(
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-//             child: Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text(
-//                 "Suggested Courses",
-//                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-//               ),
-//             ),
-//           ),
-//           SizedBox(
-//             height: 220,
-//             child: ListView.builder(
-//               scrollDirection: Axis.horizontal,
-//               itemCount: courses.length,
-//               itemBuilder: (context, index) {
-//                 final course = courses[index];
-//                 return CourseCard(
-//                   image: course['thumbnail_image'] ?? 'assets/default_image.jpg',
-//                   title: course['title'] ?? 'No Title',
-//                   isFree: course['is_free'] ?? false,
-//                 );
-//               },
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Widget _buildSettingsDrawer(BuildContext context) {
-//     return Drawer(
-//       child: Container(
-//         color: Colors.black.withOpacity(0.5),
-//         child: ListView(
-//           padding: EdgeInsets.zero,
-//           children: [
-//             DrawerHeader(
-//               decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
-//               child: const Text(
-//                 'Settings',
-//                 style: TextStyle(color: Colors.white, fontSize: 24),
-//               ),
-//             ),
-//             ListTile(
-//               leading: const Icon(Icons.logout, color: Colors.white),
-//               title: const Text('Logout', style: TextStyle(color: Colors.white)),
-//               onTap: () async {
-//                 try {
-//                   await Supabase.instance.client.auth.signOut();
-//                   Navigator.pushReplacementNamed(context, '/sign_up');
-//                 } catch (e) {
-//                   ScaffoldMessenger.of(context).showSnackBar(
-//                     SnackBar(content: Text('Failed to log out. Please try again.')),
-//                   );
-//                 }
-//               },
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// extension on PostgrestFilterBuilder<PostgrestList> {
-//   execute() {}
-// }
-//
-// class CourseCard extends StatelessWidget {
-//   final String image;
-//   final String title;
-//   final bool isFree;
-//
-//   const CourseCard({
-//     super.key,
-//     required this.image,
-//     required this.title,
-//     required this.isFree,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.only(left: 16.0, right: 8.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Container(
-//             width: 100,
-//             height: 120,
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(8),
-//               image: DecorationImage(
-//                 image: NetworkImage(image),
-//                 fit: BoxFit.cover,
-//                 onError: (_, __) => AssetImage('assets/default_image.jpg'),
-//               ),
-//             ),
-//           ),
-//           const SizedBox(height: 8),
-//           Text(
-//             title,
-//             style: const TextStyle(color: Colors.white, fontSize: 12),
-//             overflow: TextOverflow.ellipsis,
-//           ),
-//           const SizedBox(height: 4),
-//           Text(
-//             isFree ? "Free" : "Paid",
-//             style: TextStyle(color: isFree ? Colors.green : Colors.red, fontSize: 10),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

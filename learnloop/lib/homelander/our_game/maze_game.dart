@@ -97,7 +97,6 @@ class _MazeScreenState extends State<MazeScreen> {
         playerX = newX;
         moves++;
 
-        // Check if player reached the goal
         if (currentMaze[playerY][playerX] == 3) {
           if (currentLevel < levels.length - 1) {
             // Next level
@@ -105,7 +104,6 @@ class _MazeScreenState extends State<MazeScreen> {
             _findPlayerStart();
             moves = 0;
           } else {
-            // Game completed
             hasWon = true;
           }
         }

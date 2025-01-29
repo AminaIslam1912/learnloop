@@ -7,9 +7,9 @@ import 'package:learnloop/chat/screen/ChatPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ChatInterface extends StatefulWidget {
-  final String userId; // Current logged-in user's ID
-  final String userName; // The name of the other user in the chat
-  final String peerId; // The ID of the user being chatted with
+  final String userId;
+  final String userName;
+  final String peerId;
   final String peerProfilePicture;
 
   const ChatInterface({
@@ -29,7 +29,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
   final FirestoreService _firestoreService = FirestoreService();
   String? peerPhotoUrl;
 
-  // Send a message to the Firestore database.
   void _sendMessage() {
     final message = _messageController.text.trim();
 
@@ -43,7 +42,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
     }
   }
 
-  // Open a calendar to pick a date and time for scheduling a class
   Future<void> _scheduleClass() async {
     DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -53,13 +51,13 @@ class _ChatInterfaceState extends State<ChatInterface> {
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: Colors.green, // Selected date's circle color
-              onPrimary: Colors.black, // Text inside the selected date circle
-              surface: Colors.black, // Dialog background color
-              onSurface: Colors.white, // Text color for unselected dates
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.green,
+              onPrimary: Colors.black,
+              surface: Colors.black,
+              onSurface: Colors.white,
             ),
-            dialogBackgroundColor: Colors.black, // Background for the entire dialog
+            dialogBackgroundColor: Colors.black,
           ),
           child: child!,
         );
@@ -73,30 +71,30 @@ class _ChatInterfaceState extends State<ChatInterface> {
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.dark(
-                primary: Colors.green, // Selected time highlight
-                onPrimary: Colors.black, // Text inside selected highlight (AM/PM block)
-                surface: Colors.black, // Dialog background color
-                onSurface: Colors.white, // Text for unselected options
+              colorScheme: const ColorScheme.dark(
+                primary: Colors.green,
+                onPrimary: Colors.black,
+                surface: Colors.black,
+                onSurface: Colors.white,
               ),
-              dialogBackgroundColor: Colors.black, // Background for the entire dialog
+              dialogBackgroundColor: Colors.black,
               timePickerTheme: TimePickerThemeData(
                 dayPeriodColor: WidgetStateColor.resolveWith((states) =>
                 states.contains(WidgetState.selected)
-                    ? Colors.green // Selected AM/PM block color
-                    : Colors.black), // Unselected AM/PM block color
+                    ? Colors.green
+                    : Colors.black),
                 dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
                 states.contains(WidgetState.selected)
-                    ? Colors.black // Text inside selected AM/PM block
-                    : Colors.white), // Text inside unselected AM/PM block
+                    ? Colors.black
+                    : Colors.white),
                 hourMinuteColor: WidgetStateColor.resolveWith((states) =>
                 states.contains(WidgetState.selected)
-                    ? Colors.green // Selected hour/minute block color
-                    : Colors.black), // Unselected hour/minute block color
+                    ? Colors.green
+                    : Colors.black),
                 hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
                 states.contains(WidgetState.selected)
-                    ? Colors.black // Text inside selected hour/minute block
-                    : Colors.white), // Text inside unselected hour/minute block
+                    ? Colors.black
+                    : Colors.white),
               ),
             ),
             child: child!,
@@ -164,7 +162,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
             ),
             const SizedBox(width: 10),
             Text(widget.userName,style: const TextStyle(
-              fontSize: 12.0, // Set the font size (adjust as needed)
+              fontSize: 12.0,
             ),
             ),
           ],

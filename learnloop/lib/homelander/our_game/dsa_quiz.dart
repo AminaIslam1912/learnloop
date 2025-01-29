@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
-
 class DsaQuiz extends StatelessWidget {
   final List<String> categories = [
     'Arrays', 'Linked Lists', 'Stacks', 'Queues', 'Trees', 'Graphs'
@@ -208,7 +205,7 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                       _selectedAnswer = value!;
                     });
                   },
-                  activeColor: Colors.green, // Set the selected radio button color to green
+                  activeColor: Colors.green,
                 );
               }).toList(),
             ),

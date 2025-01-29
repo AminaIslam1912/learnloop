@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:learnloop/homelander/webview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class DynamicScreen extends StatefulWidget {
   final int courseId;

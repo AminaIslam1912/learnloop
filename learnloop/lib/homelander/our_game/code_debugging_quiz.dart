@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class CodeDebuggingQuiz extends StatelessWidget {
   final List<String> categories = ['C', 'C++', 'Python', 'Java'];
 
@@ -27,7 +25,7 @@ class CodeDebuggingQuiz extends StatelessWidget {
                   crossAxisCount: 2, // Two categories per row
                   crossAxisSpacing: 16.0,
                   mainAxisSpacing: 16.0,
-                  childAspectRatio: 2.0, // Adjust the aspect ratio for card size
+                  childAspectRatio: 2.0,
                 ),
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
@@ -316,8 +314,8 @@ class _QuizScreenState extends State<QuizScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close the dialog
-              Navigator.pop(context); // Go back to the previous page (category selection)
+              Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: Text('Finish'),
           ),

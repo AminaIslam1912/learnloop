@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SwapFeedback extends StatefulWidget {
 
-  final int loggedInUserId; // Authenticated user's ID
+  final int loggedInUserId;
   final int profileUserId;
 
 
@@ -44,21 +44,18 @@ class _SwapFeedback extends State<SwapFeedback> {
     };
 
     try {
-      // Fetch existing feedback
       final response = await Supabase.instance.client
           .from('users')
           .select('userFeedback')
           .eq('id', widget.profileUserId)
-          .maybeSingle(); // Use maybeSingle() for a single record or null.
+          .maybeSingle();
 
       List<dynamic> userFeedback = response != null && response['userFeedback'] != null
           ? List<dynamic>.from(response['userFeedback'])
           : [];
 
-      // Add the new feedback
       userFeedback.add(newFeedback);
 
-      // Update the userFeedback column
       await Supabase.instance.client
           .from('users')
           .update({'userFeedback': userFeedback})
@@ -67,7 +64,7 @@ class _SwapFeedback extends State<SwapFeedback> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Feedback submitted successfully!")),
       );
-      Navigator.pop(context); // Close the dialog
+      Navigator.pop(context);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $error")),
@@ -119,7 +116,7 @@ class _SwapFeedback extends State<SwapFeedback> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _rating = index + 1.0; // Update rating on click
+                        _rating = index + 1.0;
                       });
                     },
                   );

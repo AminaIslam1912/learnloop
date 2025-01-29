@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:learnloop/homelander/community/problemsolvers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:ui';
 import '../../MainPage.dart';
 import 'graphics.dart';
-import '../home_page.dart';
 import 'kekaferdousi.dart';
 import 'billjobs.dart';
 class CommunityUI extends StatefulWidget {
@@ -22,7 +20,6 @@ class _CommunityUIState extends State<CommunityUI> {
   bool isLoading = true;
   String searchQuery = "";
 
-  // Predefined list of community titles and their IDs
   final List<Map<String, dynamic>> communities = [
     {'id': 1, 'name': 'Graphic Design'},
     {'id': 2, 'name': 'Problem Solvers'},
@@ -35,13 +32,12 @@ class _CommunityUIState extends State<CommunityUI> {
   @override
   void initState() {
     super.initState();
-    filteredCommunities = List.from(communities); // Initialize with all communities
+    filteredCommunities = List.from(communities);
     _fetchCommunityImages();
   }
 
   Future<void> _fetchCommunityImages() async {
     try {
-      // Fetch images corresponding to the community IDs from Supabase
       final data = await Supabase.instance.client
           .from('community')
           .select('id, image');
@@ -55,7 +51,6 @@ class _CommunityUIState extends State<CommunityUI> {
     } catch (error) {
       debugPrint("Error fetching community images: $error");
 
-      // Stop the loading spinner even if an error occurs
       setState(() {
         isLoading = false;
       });
@@ -125,24 +120,21 @@ class _CommunityUIState extends State<CommunityUI> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   onChanged: _updateSearchQuery,
-                  cursorColor: Colors.green, // Set cursor color to green
+                  cursorColor: Colors.green,
                   decoration: InputDecoration(
                     labelText: 'Search community',
                     labelStyle: const TextStyle(
-                      color: Colors.green, // Green label text
+                      color: Colors.green,
                     ),
-                   // hintStyle: const TextStyle(color: Colors.white54),
-                   // prefixIcon: const Icon(Icons.search, color: Colors.green), // Green prefix icon
 
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                     // borderSide: const BorderSide(color: Colors.white54),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12), // Rounded corners
                       borderSide: const BorderSide(
-                        color: Colors.green, // Green border on focus
-                        width: 2.0, // Thickness of the border
+                        color: Colors.green,
+                        width: 2.0,
                       ),
                     ),
                     filled: true,
