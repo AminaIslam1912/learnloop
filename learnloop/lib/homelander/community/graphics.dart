@@ -16,27 +16,32 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
       "description":
       "Unleash your creativity and join our vibrant community of graphic designers, where ideas ignite and talents flourish.",
       "link": "https://discord.gg/4ffYbDDj5A",
-      "name": "graphic_era",
+      "name": "graphic_era", // Name in the Supabase table
     },
     {
       "title": "DesignConnect",
       "description": "Join a thriving community where inspiration flows.",
       "link": "https://discord.gg/EVndCxVf6G",
-      "name": "design_connect",
+      "name": "design_connect", // Name in the Supabase table
     },
   ];
 
-  Map<String, String> communityImages = {};
+  Map<String, String> communityImages = {}; // Maps `community_name` to image URL
   bool isLoading = true;
+  List<Map<String, String>> filteredCommunities = [];
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _fetchCommunityImages();
+    filteredCommunities = communities; // Initially show all communities
   }
 
   Future<void> _fetchCommunityImages() async {
     try {
+      // Fetch all images and community names from the Supabase table
       final data = await Supabase.instance.client
           .from('community')
           .select('community_name, image');
@@ -56,12 +61,24 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
     }
   }
 
+  void _updateSearchQuery(String query) {
+    setState(() {
+      searchQuery = query;
+      filteredCommunities = communities
+          .where((community) => community["title"]!
+          .toLowerCase()
+          .contains(searchQuery.toLowerCase()))
+          .toList();
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text('Graphic Designer'),
+        title: const Text('Graphic Design'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -78,12 +95,27 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              TextField(
+                onChanged: _updateSearchQuery,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Search communities...',
+                  hintStyle: const TextStyle(color: Colors.green),
+                  prefixIcon: const Icon(Icons.search, color: Colors.green),
+                  filled: true,
+                  fillColor: Colors.grey[850],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
-                  itemCount: communities.length,
+                  itemCount: filteredCommunities.length,
                   itemBuilder: (context, index) {
-                    final community = communities[index];
+                    final community = filteredCommunities[index];
                     return _communityBox(
                       name: community["name"]!,
                       title: community["title"]!,
@@ -97,7 +129,6 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
           ),
         ),
       ),
-
     );
   }
 
@@ -107,7 +138,7 @@ class _GraphicDesignerScreenState extends State<GraphicDesignerScreen> {
     required String description,
     required String link,
   }) {
-    final backgroundImage = communityImages[name];
+    final backgroundImage = communityImages[name]; // Fetch based on `community_name`
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ClipRRect(
