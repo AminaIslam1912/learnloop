@@ -26,17 +26,20 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
     },
   ];
 
-  Map<String, String> communityImages = {};
+  Map<String, String> communityImages = {}; // Maps `community_name` to image URL
   bool isLoading = true;
-
+  String searchQuery = "";
+  List<Map<String, String>> filteredCommunities = [];
   @override
   void initState() {
     super.initState();
     _fetchCommunityImages();
+    filteredCommunities = communities;
   }
 
   Future<void> _fetchCommunityImages() async {
     try {
+      // Fetch all images and community names from the Supabase table
       final data = await Supabase.instance.client
           .from('community')
           .select('community_name, image');
@@ -56,12 +59,23 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
     }
   }
 
+  void _updateSearchQuery(String query) {
+    setState(() {
+      searchQuery = query;
+      filteredCommunities = communities
+          .where((community) => community["title"]!
+          .toLowerCase()
+          .contains(searchQuery.toLowerCase()))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text('Problem Solvers'),
+        title: const Text('Problem Solving'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -78,17 +92,32 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              TextField(
+                onChanged: _updateSearchQuery,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Search communities...',
+                  hintStyle: const TextStyle(color: Colors.green),
+                  prefixIcon: const Icon(Icons.search, color: Colors.green),
+                  filled: true,
+                  fillColor: Colors.grey[850],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
-                  itemCount: communities.length,
+                  itemCount: filteredCommunities.length,
                   itemBuilder: (context, index) {
-                    final community = communities[index];
+                    final community = filteredCommunities[index];
                     return _communityBox(
                       name: community["name"]!,
                       title: community["title"]!,
                       description: community["description"]!,
-                      discordLink: community["link"]!,
+                      link: community["link"]!,
                     );
                   },
                 ),
@@ -97,17 +126,15 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
           ),
         ),
       ),
-
     );
   }
-
   Widget _communityBox({
     required String name,
     required String title,
     required String description,
-    required String discordLink,
+    required String link,
   }) {
-    final backgroundImage = communityImages[name];
+    final backgroundImage = communityImages[name]; // Fetch based on `community_name`
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ClipRRect(
@@ -125,7 +152,7 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[850]!.withOpacity(0.8),
+                color: Colors.grey[850]!.withOpacity(0.8), // Ensure visibility
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,10 +176,10 @@ class _ProblemSolversScreenState extends State<ProblemSolversScreen> {
                   const SizedBox(height: 16),
                   GestureDetector(
                     onTap: () async {
-                      if (await canLaunch(discordLink)) {
-                        await launch(discordLink);
+                      if (await canLaunch(link)) {
+                        await launch(link);
                       } else {
-                        throw 'Could not launch $discordLink';
+                        throw 'Could not launch $link';
                       }
                     },
                     child: const Text(
