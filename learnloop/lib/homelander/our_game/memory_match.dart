@@ -101,7 +101,7 @@ class GameBoardState extends State<GameBoard> {
         title: const Text('Memory Game'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh,color: Colors.green,),
             onPressed: resetGame,
           ),
         ],

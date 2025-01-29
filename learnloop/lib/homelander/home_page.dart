@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:learnloop/homelander/faq_screen.dart';
 import 'package:marquee/marquee.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../UserProvider.dart';
 import '../all_feedback/app_feedback.dart';
 import '../all_feedback/progress_tracker.dart';
 import '../login.dart';
@@ -20,9 +22,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  int? _userId;
 
   String searchQuery = '';
 
@@ -55,7 +59,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       itemBuilder: (context, index) {
         final course = savedCourses[index];
         return Dismissible(
-          key: Key(course["id"].toString()), // Unique key for each item to ensure smooth dismissal
+          key: Key(course["id"]
+              .toString()), // Unique key for each item to ensure smooth dismissal
           direction: DismissDirection.startToEnd,
           onDismissed: (direction) {
             // Remove the course from the list and show a success message
@@ -78,7 +83,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DynamicScreen(courseId: course["id"]!),
+                    builder: (context) =>
+                        DynamicScreen(courseId: course["id"]!),
                   ),
                 );
               }
@@ -92,7 +98,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: ListTile(
                 contentPadding: const EdgeInsets.all(16),
                 leading: CircleAvatar(
-                  backgroundImage: course["id"] != null && courseImages.containsKey(course["id"])
+                  backgroundImage: course["id"] != null &&
+                          courseImages.containsKey(course["id"])
                       ? NetworkImage(courseImages[course["id"]]!)
                       : AssetImage(course["image"]) as ImageProvider,
                 ),
@@ -118,15 +125,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       },
     );
   }
+
   Future<bool> _isUserLoggedIn() async {
     final session = Supabase.instance.client.auth.currentSession;
     return session != null;
   }
 
-  void _handleSaveCourse(BuildContext context, Map<String, dynamic> course) async {
+
+  void _handleSaveCourse(
+      BuildContext context, Map<String, dynamic> course) async {
     if (await _isUserLoggedIn()) {
       // Check if the course is already saved locally
-      if (!savedCourses.any((savedCourse) => savedCourse["id"] == course["id"])) {
+      if (!savedCourses
+          .any((savedCourse) => savedCourse["id"] == course["id"])) {
         setState(() {
           savedCourses.add(course); // Add course to the local list
         });
@@ -136,8 +147,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           final userId = widget.user?.id; // Fetch the logged-in user's ID
           if (userId != null) {
             await Supabase.instance.client.from('saved_courses').insert({
-              'user_id': int.parse(userId), // Ensure the user_id is int8-compatible
-              'course_id': course['id'],   // Ensure course_id is int8-compatible
+              'user_id':
+                  int.parse(userId), // Ensure the user_id is int8-compatible
+              'course_id': course['id'], // Ensure course_id is int8-compatible
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('${course["title"]} saved successfully!')),
@@ -186,10 +198,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog
-                  Navigator.pushReplacementNamed(context, '/login').then((value) async {
+                  Navigator.pushReplacementNamed(context, '/login')
+                      .then((value) async {
                     // Check if the user is logged in after returning from the login page
                     if (await _isUserLoggedIn()) {
-                      _handleSaveCourse(context, course); // Retry saving the course
+                      _handleSaveCourse(
+                          context, course); // Retry saving the course
                     }
                   });
                 },
@@ -233,10 +247,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       if (userId == null) return;
 
       // Delete saved course from the Supabase table
-      await Supabase.instance.client
-          .from('saved_courses')
-          .delete()
-          .match({'user_id': int.parse(userId), 'course_id': courseId}); // Match int8 types
+      await Supabase.instance.client.from('saved_courses').delete().match({
+        'user_id': int.parse(userId),
+        'course_id': courseId
+      }); // Match int8 types
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Course removed successfully!')),
@@ -248,127 +262,100 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
   }
 
-
   Future<void> _fetchCourseImages() async {
-
     try {
-
       final data = await Supabase.instance.client
-
           .from('course')
-
           .select('id, course_image');
 
-
-
       setState(() {
-
         for (final course in data) {
-
           courseImages[course['id']] = course['course_image'];
-
         }
 
         isLoading = false;
-
       });
-
     } catch (error) {
-
       debugPrint("Error fetching courses: $error");
 
       setState(() {
-
         isLoading = false;
-
       });
-
     }
-
   }
 
-
-
   void _checkSession() async {
-
     final session = Supabase.instance.client.auth.currentSession;
 
-
-
     if (session != null) {
-
       setState(() {
-
         _tabController.index = 1;
 
         CommunityUI(user: session.user);
-
       });
-
     } else {
-
       Navigator.pushReplacement(
-
         context,
-
         MaterialPageRoute(builder: (context) => const SignUpPage()),
-
       );
-
     }
-
   }
 
-
-
   @override
-
   void initState() {
-
     super.initState();
 
     _tabController = TabController(length: 4, vsync: this);
 
 
-
     _tabController.addListener(() {
-
       if (_tabController.index == 1) {
-
         _checkSession();
-
       } else if (_tabController.index == 2) {
-
-        FunChallengeScreen();
-
+        final session = Supabase.instance.client.auth.currentSession;
+        if(session!=null)
+          FunChallengeScreen();
+        else{
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const SignUpPage()),
+          );
+        }
       } else if (_tabController.index == 3) {
-
         const AboutScreen();
-
       }
-
     });
-
 
     _fetchSavedCourses();
 
     _fetchCourseImages();
-
   }
-
-
-
 
   final List<Map<String, dynamic>> courseSections = [
     {
       "title": "Free Courses",
       "courses": [
-        {"image": "assets/Quran.jpg", "title": "Quran Recitation", "isFree": true, "id": 1},
-        {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
-        {"image": "assets/digitalmarketing.jpeg", "title": "Digital Marketing", "isFree": true, "id": 6},
+        {
+          "image": "assets/Quran.jpg",
+          "title": "Quran Recitation",
+          "isFree": true,
+          "id": 1
+        },
+        {
+          "image": "assets/python.jpg",
+          "title": "Python",
+          "isFree": true,
+          "id": 2
+        },
+        {
+          "image": "assets/digitalmarketing.jpeg",
+          "title": "Digital Marketing",
+          "isFree": true,
+          "id": 6
+        },
         {"title": "Cooking", "isFree": true, "id": 12},
-        {"title":"Swimming", "isFree": true, "id": 16},
-        {"title":"Problem Solving", "isFree": true, "id": 17},
+        {"title": "Swimming", "isFree": true, "id": 16},
+        {"title": "Problem Solving", "isFree": true, "id": 17},
       ],
     },
     {
@@ -377,23 +364,53 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         {
           "category": "Programming",
           "courses": [
-            {"image": "assets/python.jpg", "title": "Python", "isFree": true, "id": 2},
-            {"image": "assets/C.jpeg", "title": "C Programming", "isFree": false, "id": 7},
-            {"image": "assets/java.jpeg", "title": "Java Programming", "isFree": true, "id": 4},
-            {"title": "Assembly Language", "isFree":true, "id":13},
-            {"title":"Ruby", "isFree": true, "id": 18},
-            {"title":"Rust", "isFree": true, "id": 19},
+            {
+              "image": "assets/python.jpg",
+              "title": "Python",
+              "isFree": true,
+              "id": 2
+            },
+            {
+              "image": "assets/C.jpeg",
+              "title": "C Programming",
+              "isFree": false,
+              "id": 7
+            },
+            {
+              "image": "assets/java.jpeg",
+              "title": "Java Programming",
+              "isFree": true,
+              "id": 4
+            },
+            {"title": "Assembly Language", "isFree": true, "id": 13},
+            {"title": "Ruby", "isFree": true, "id": 18},
+            {"title": "Rust", "isFree": true, "id": 19},
           ],
         },
         {
           "category": "Web Development",
           "courses": [
-            {"image": "assets/js.jpg", "title": "Frontend Basics", "isFree": true, "id": 5},
-            {"image": "assets/react.jpeg", "title": "ReactJS", "isFree": false, "id": 8},
-            {"image": "assets/node.png", "title": "NodeJS", "isFree": true, "id": 3},
-            {"title":"MongoDB", "isFree":true, "id":14},
-            {"title":"Javascipt DOM", "isFree": true, "id": 20},
-            {"title":"PHP With Laravel", "isFree": true, "id": 21},
+            {
+              "image": "assets/js.jpg",
+              "title": "Frontend Basics",
+              "isFree": true,
+              "id": 5
+            },
+            {
+              "image": "assets/react.jpeg",
+              "title": "ReactJS",
+              "isFree": false,
+              "id": 8
+            },
+            {
+              "image": "assets/node.png",
+              "title": "NodeJS",
+              "isFree": true,
+              "id": 3
+            },
+            {"title": "MongoDB", "isFree": true, "id": 14},
+            {"title": "Javascipt DOM", "isFree": true, "id": 20},
+            {"title": "PHP With Laravel", "isFree": true, "id": 21},
           ],
         },
       ],
@@ -401,20 +418,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     {
       "title": "Paid Courses",
       "courses": [
-        {"image": "assets/gd.jpeg", "title": "Graphics Design", "isFree": false, "id": 9},
-        {"image": "assets/leadership.jpeg", "title": "Leadership", "isFree": false, "id": 10},
-        {"image": "assets/singer.jpeg", "title": "Music", "isFree": false, "id": 11},
-        {"title":"Microsoft Bundle", "isFree":false, "id":15},
-        {"title":"Time Management", "isFree": false, "id": 22},
-        {"title":"Communication", "isFree": false, "id": 23},
+        {
+          "image": "assets/gd.jpeg",
+          "title": "Graphics Design",
+          "isFree": false,
+          "id": 9
+        },
+        {
+          "image": "assets/leadership.jpeg",
+          "title": "Leadership",
+          "isFree": false,
+          "id": 10
+        },
+        {
+          "image": "assets/singer.jpeg",
+          "title": "Music",
+          "isFree": false,
+          "id": 11
+        },
+        {"title": "Microsoft Bundle", "isFree": false, "id": 15},
+        {"title": "Time Management", "isFree": false, "id": 22},
+        {"title": "Communication", "isFree": false, "id": 23},
       ],
     },
   ];
-
-
-
-
-
 
   List<Map<String, dynamic>> _searchCourses(String query) {
     exactMatches = [];
@@ -427,10 +454,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     for (var section in courseSections) {
       if (section.containsKey("courses")) {
-        _processCoursesForSearch(section["courses"] as List<dynamic>, query, processedTitles);
+        _processCoursesForSearch(
+            section["courses"] as List<dynamic>, query, processedTitles);
       } else if (section.containsKey("categories")) {
         for (var category in section["categories"] as List<dynamic>) {
-          _processCoursesForSearch(category["courses"] as List<dynamic>, query, processedTitles);
+          _processCoursesForSearch(
+              category["courses"] as List<dynamic>, query, processedTitles);
         }
       }
     }
@@ -445,8 +474,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       return _getSuggestedCourses();
     }
   }
-
-
 
   void _processCoursesForSearch(
       List<dynamic> courses, String query, Set<String> processedTitles) {
@@ -480,7 +507,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     List<List<int>> matrix = List.generate(
       s1.length + 1,
-          (i) => List.generate(s2.length + 1, (j) => 0),
+      (i) => List.generate(s2.length + 1, (j) => 0),
     );
 
     for (int i = 0; i <= s1.length; i++) {
@@ -503,6 +530,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return matrix[s1.length][s2.length];
   }
+
 // Returns a predefined list of suggested courses when no match is found
   List<Map<String, dynamic>> _getSuggestedCourses() {
     // This can be replaced with dynamic suggestions from your dataset
@@ -512,8 +540,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       {"title": "Machine Learning Basics", "id": 3},
     ];
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -527,7 +553,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             labelStyle: const TextStyle(
               color: Colors.green, // Green label text
             ),
-            prefixIcon: const Icon(Icons.search, color: Colors.green), // Green prefix icon
+            prefixIcon: const Icon(Icons.search,
+                color: Colors.green), // Green prefix icon
 
             hintStyle: TextStyle(color: Colors.white54),
             border: InputBorder.none,
@@ -539,11 +566,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             });
           },
           cursorColor: Colors.green, // Set cursor color to green
-
         ),
-        actions: [
-
-        ],
+        actions: [],
       ),
       drawer: _buildSettingsDrawer(context),
       body: Column(
@@ -562,8 +586,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     text: "Suggested for You", // The text that will scroll
                     style: TextStyle(color: Colors.green), // Text style
                     velocity: 15, // Speed of the scrolling
-                    pauseAfterRound: Duration(seconds: 2), // Pause after each cycle
-
+                    pauseAfterRound:
+                        Duration(seconds: 2), // Pause after each cycle
                   ),
                 ),
                 Tab(
@@ -588,7 +612,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
                 Tab(
                   child: Marquee(
-
                     text: "About",
                     blankSpace: 72,
                     style: TextStyle(color: Colors.green),
@@ -598,7 +621,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ],
-
             ),
           ),
           Expanded(
@@ -622,7 +644,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
-
 
   Widget _buildSearchResults(List<Map<String, dynamic>> results) {
     if (results.isEmpty) {
@@ -671,7 +692,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-
   List<Widget> _buildCourseList(List<Map<String, dynamic>> courses) {
     return courses.map((course) {
       return Padding(
@@ -703,7 +723,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       bottomLeft: Radius.circular(8),
                     ),
                     image: DecorationImage(
-                      image: course["id"] != null && courseImages.containsKey(course["id"])
+                      image: course["id"] != null &&
+                              courseImages.containsKey(course["id"])
                           ? NetworkImage(courseImages[course["id"]]!)
                           : AssetImage(course["image"]) as ImageProvider,
                       fit: BoxFit.cover,
@@ -744,34 +765,38 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }).toList();
   }
 
-
-
-
-
   Widget _buildCourseSections() {
     return SingleChildScrollView(
       child: Column(
         children: [
           for (var section in courseSections) ...[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   section["title"],
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ),
             ),
             if (section.containsKey("categories")) ...[
               for (var category in section["categories"]) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       category["category"],
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ),
                 ),
@@ -788,18 +813,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DynamicScreen(courseId: course["id"]!),
+                                builder: (context) =>
+                                    DynamicScreen(courseId: course["id"]!),
                               ),
                             );
                           }
                         },
                         child: CourseCard(
-                          image: course["id"] != null && courseImages.containsKey(course["id"])
+                          image: course["id"] != null &&
+                                  courseImages.containsKey(course["id"])
                               ? courseImages[course["id"]]!
                               : course["image"],
                           title: course["title"],
                           isFree: course["isFree"],
-                          useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
+                          useNetworkImage: course["id"] != null &&
+                              courseImages.containsKey(course["id"]),
                           course: course,
                           //Change started, Kawser.
                           onSaveAndWatchLater: () {
@@ -826,18 +854,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DynamicScreen(courseId: course["id"]!),
+                              builder: (context) =>
+                                  DynamicScreen(courseId: course["id"]!),
                             ),
                           );
                         }
                       },
                       child: CourseCard(
-                        image: course["id"] != null && courseImages.containsKey(course["id"])
+                        image: course["id"] != null &&
+                                courseImages.containsKey(course["id"])
                             ? courseImages[course["id"]]!
                             : course["image"],
                         title: course["title"],
                         isFree: course["isFree"],
-                        useNetworkImage: course["id"] != null && courseImages.containsKey(course["id"]),
+                        useNetworkImage: course["id"] != null &&
+                            courseImages.containsKey(course["id"]),
                         //Change started, Kawser.
                         course: course,
                         onSaveAndWatchLater: () {
@@ -856,8 +887,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-
-
   Widget _buildSettingsDrawer(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.6, // Adjust width as needed
@@ -870,7 +899,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               SizedBox(
                 height: 120, // Set the desired height for the header
                 child: DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.green.withOpacity(0.5)),
+                  decoration:
+                      BoxDecoration(color: Colors.green.withOpacity(0.5)),
                   child: const Text(
                     'Settings',
                     style: TextStyle(color: Colors.white, fontSize: 24),
@@ -879,7 +909,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               ListTile(
                 leading: Icon(Icons.developer_board, color: Colors.white),
-                title: Text('Progress Tracker', style: TextStyle(color: Colors.white)),
+                title: Text('Progress Tracker',
+                    style: TextStyle(color: Colors.white)),
                 onTap: () {
                   // Navigate to ProgressTracker screen
                   Navigator.push(
@@ -890,13 +921,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   );
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.lock, color: Colors.white),
-                title: Text('Change Password', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  // Navigator.pushNamed(context, '/change-password');
-                },
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.lock, color: Colors.white),
+              //   title: Text('Change Password', style: TextStyle(color: Colors.white)),
+              //   onTap: () {
+              //     // Navigator.pushNamed(context, '/change-password');
+              //   },
+              // ),
               ListTile(
                 leading: Icon(Icons.help_outline, color: Colors.white),
                 title: Text('FAQ', style: TextStyle(color: Colors.white)),
@@ -909,7 +940,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               ListTile(
                 leading: Icon(Icons.feedback, color: Colors.white),
-                title: Text('Send Feedback', style: TextStyle(color: Colors.white)),
+                title: Text('Send Feedback',
+                    style: TextStyle(color: Colors.white)),
                 onTap: () {
                   // Redirect to feedback form
                   FeedbackFormDialog.showFeedbackForm(context);
@@ -918,7 +950,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               //Change started, Kawser.
               ListTile(
                 leading: const Icon(Icons.bookmark, color: Colors.white),
-                title: const Text('Saved Courses', style: TextStyle(color: Colors.white)),
+                title: const Text('Saved Courses',
+                    style: TextStyle(color: Colors.white)),
                 onTap: () {
                   // Navigate to the saved courses page
                   //Navigator.pushNamed(context, '/saved-courses');
@@ -926,7 +959,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     context: context,
                     backgroundColor: Colors.black,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(16)),
                     ),
                     builder: (context) => _buildSavedCourses(),
                   );
@@ -947,7 +981,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   } catch (e) {
                     print('Logout exception: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to log out. Please try again.')),
+                      SnackBar(
+                          content:
+                              Text('Failed to log out. Please try again.')),
                     );
                   }
                 },
@@ -958,10 +994,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
-
 }
-
-
 
 class CourseCard extends StatelessWidget {
   final String image;
@@ -1114,32 +1147,7 @@ class CourseCard extends StatelessWidget {
 // Change ended, Kawser.
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // gpt code
-
 
 // import 'package:flutter/material.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';

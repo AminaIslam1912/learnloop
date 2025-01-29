@@ -122,7 +122,7 @@ class DsaQuiz extends StatelessWidget {
               child: Center(
                 child: Text(
                   categories[index],
-                  style: const TextStyle(fontSize: 20, color: Colors.white),
+                  style: const TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -208,13 +208,14 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                       _selectedAnswer = value!;
                     });
                   },
+                  activeColor: Colors.green, // Set the selected radio button color to green
                 );
               }).toList(),
             ),
             SizedBox(height: 8),
             ElevatedButton(
               onPressed: _checkAnswer,
-              child: Text('Check Answer'),
+              child: Text('Check Answer', style: const TextStyle(color: Colors.white)),
             ),
             SizedBox(height: 8),
             Text(_feedback, style: TextStyle(fontSize: 14, color: _feedback.startsWith('Correct') ? Colors.green : Colors.red)),

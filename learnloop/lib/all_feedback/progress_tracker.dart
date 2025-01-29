@@ -102,10 +102,30 @@ class _ProgressTrackerState extends State<ProgressTracker> {
         child: _isLoading
             ? const CircularProgressIndicator()
             : _errorMessage != null
-            ? Text(
-          _errorMessage!,
-          style: const TextStyle(color: Colors.red),
-        )
+            ?
+        // Text(
+        //   _errorMessage!,
+        //   style: const TextStyle(color: Colors.red),
+        // )
+        (() {
+          // Log the error message to the terminal
+          print('Error: $_errorMessage');
+
+          // Show a Snackbar with a white background
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Something went wrong'),
+                backgroundColor: Colors.white,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            );
+          });
+          return Container(); // Don't show the error message on screen
+        })()
             : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -135,6 +155,10 @@ class _ProgressTrackerState extends State<ProgressTracker> {
               legendOptions: const LegendOptions(
                 showLegends: true,
               ),
+              colorList: [
+                Colors.green, // Color for "Guided Others"
+                Colors.white, // Color for "Received Guidance"
+              ],
             ),
           ],
         ),

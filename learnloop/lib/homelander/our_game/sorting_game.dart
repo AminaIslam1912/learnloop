@@ -143,7 +143,7 @@ class _PuzzleScreenState extends State<SortingGame> {
                       child: Center(
                         child: Text(
                           grid[row][col] == 0 ? '' : grid[row][col].toString(),
-                          style: const TextStyle(fontSize: 24, color: Colors.white),
+                          style: const TextStyle(fontSize: 24, color: Colors.black,fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -152,11 +152,32 @@ class _PuzzleScreenState extends State<SortingGame> {
               ),
             ),
             const Spacer(flex: 1),
-            ElevatedButton(
+            // ElevatedButton(
+            //
+            //   onPressed: _shuffleGrid,
+            //
+            //   child: const Text("Shuffle",style: TextStyle(backgroundColor: Colors.black),),
+            //
+            // ),
+            //
+            OutlinedButton(
               onPressed: _shuffleGrid,
-              child: const Text("Shuffle",style: TextStyle(backgroundColor: Colors.blue),),
+              style: OutlinedButton.styleFrom(
+                //padding: const EdgeInsets.all(20), // Square shape with equal padding
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Rectangular shape with more width
+                //  side: const BorderSide(color: Colors.green, width: 2), // Green border
+                backgroundColor: Colors.green,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)), // Slightly rounded corners
+                ),
+              ),
 
+              child: const Text(
+                'Shuffle',
+                style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.bold), // Green text
+              ),
             ),
+
             const Spacer(flex: 2),
           ],
         ),

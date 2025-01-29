@@ -18,7 +18,7 @@ class QuranQuiz extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quran Quiz Game'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.black,
       ),
       body: GridView.builder(
         padding: const EdgeInsets.only(top: 16.0),
@@ -51,8 +51,9 @@ class QuranQuiz extends StatelessWidget {
                     categories[index],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.black
                     ),
                   ),
                 ),
@@ -336,11 +337,29 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
                 minHeight: 8,
               ),
               const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Score: $_score',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (_selectedAnswer != null)
+                    Icon(
+                      _isAnswerCorrect ? Icons.check_circle : Icons.error,
+                      color: _isAnswerCorrect ? Colors.green : Colors.green,
+                      size: 30,
+                    ),
+                ],
+              ),
 
               // Question Header
               Text(
                 'Question ${_currentQuestionIndex + 1}/${questionPool.length}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
               ),
               const SizedBox(height: 10),
 
@@ -348,6 +367,7 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+
                 ),
                 elevation: 4,
                 child: Padding(
@@ -358,6 +378,7 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
+                      //color: Colors.green,
                     ),
                   ),
                 ),
@@ -386,7 +407,8 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
                         ),
                         child: Text(
                           option,
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16,color: Colors.white
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -397,24 +419,24 @@ class _QuranQuizScreenState extends State<QuranQuizScreen> {
               const SizedBox(height: 20),
 
               // Current Score
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Score: $_score',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (_selectedAnswer != null)
-                    Icon(
-                      _isAnswerCorrect ? Icons.check_circle : Icons.error,
-                      color: _isAnswerCorrect ? Colors.green : Colors.green,
-                      size: 30,
-                    ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     Text(
+              //       'Score: $_score',
+              //       style: const TextStyle(
+              //         fontSize: 18,
+              //         fontWeight: FontWeight.bold,
+              //       ),
+              //     ),
+              //     if (_selectedAnswer != null)
+              //       Icon(
+              //         _isAnswerCorrect ? Icons.check_circle : Icons.error,
+              //         color: _isAnswerCorrect ? Colors.green : Colors.green,
+              //         size: 30,
+              //       ),
+              //   ],
+              // ),
 
               // Feedback Section
               if (_selectedAnswer != null && !_isAnswerCorrect)

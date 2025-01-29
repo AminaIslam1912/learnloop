@@ -136,10 +136,10 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Math Puzzle'),
-        backgroundColor: isHardMode ? Colors.green : Colors.teal,
+        backgroundColor: isHardMode ? Colors.black : Colors.black,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh,color: Colors.green),
             onPressed: resetGame,
           ),
           // IconButton(
@@ -151,12 +151,38 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Vertically centered
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton(
+                  onPressed: toggleDifficulty,
+                  style: OutlinedButton.styleFrom(
+                   // padding: const EdgeInsets.all(20), // Square shape with equal padding
+                   // side: const BorderSide(color: Colors.green, width: 2), // Green border
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)), // Slightly rounded corners
+                    ),
+                  ),
+                  child: Text(
+                    isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
+                    style: const TextStyle(fontSize: 18, color: Colors.green), // Green text
+                  ),
+                ),
+
+
+              ],
+            ),
+            const SizedBox(height: 30),
             // Scoreboard and Timer
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
+
                 Text(
                   'Score: $score',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -178,24 +204,60 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
             TextField(
               controller: answerController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter your answer',
+              cursorColor: Colors.green, // Set cursor color to green
+
+              decoration: InputDecoration(
+                labelText: "Enter your answer",
+                labelStyle: const TextStyle(
+                  color: Colors.green, // Green label text
+                ),
+
+
+                border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                  borderSide: const BorderSide(
+                    color: Colors.green, // Green border on focus
+                    width: 2.0, // Thickness of the border
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 30),
             // Submit Button
-            ElevatedButton(
+            // ElevatedButton(
+            //   onPressed: checkAnswer,
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Colors.green,
+            //     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            //   ),
+            //   child: const Text(
+            //     'Submit',
+            //     style: TextStyle(fontSize: 18, color: Colors.white),
+            //   ),
+            // ),
+            // Submit Button (Square, Green Text, Green Border)
+            OutlinedButton(
               onPressed: checkAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+              style: OutlinedButton.styleFrom(
+                //padding: const EdgeInsets.all(20), // Square shape with equal padding
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Rectangular shape with more width
+              //  side: const BorderSide(color: Colors.green, width: 2), // Green border
+                backgroundColor: Colors.green,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)), // Slightly rounded corners
+                ),
               ),
+
               child: const Text(
                 'Submit',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.bold), // Green text
               ),
             ),
+
+
             const SizedBox(height: 20),
             // Feedback Message
             Text(
@@ -210,15 +272,31 @@ class _MathPuzzleGameState extends State<MathPuzzleGame> {
             ),
             const SizedBox(height: 20),
             // Toggle Difficulty
-            ElevatedButton(
-              onPressed: toggleDifficulty,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isHardMode ? Colors.red : Colors.green,
-              ),
-              child: Text(
-                isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
-              ),
-            ),
+            // ElevatedButton(
+            //   onPressed: toggleDifficulty,
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: isHardMode ? Colors.black : Colors.black,
+            //   ),
+            //   child: Text(
+            //     isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
+            //   ),
+            // ),
+            // Toggle Difficulty (Square, Green Text, Green Border)
+            // OutlinedButton(
+            //   onPressed: toggleDifficulty,
+            //   style: OutlinedButton.styleFrom(
+            //     padding: const EdgeInsets.all(20), // Square shape with equal padding
+            //     side: const BorderSide(color: Colors.green, width: 2), // Green border
+            //     shape: const RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.all(Radius.circular(8)), // Slightly rounded corners
+            //     ),
+            //   ),
+            //   child: Text(
+            //     isHardMode ? 'Switch to Easy Mode' : 'Switch to Hard Mode',
+            //     style: const TextStyle(fontSize: 18, color: Colors.green), // Green text
+            //   ),
+            // ),
+
             const SizedBox(height: 20),
             // Leaderboard
             // const Text(

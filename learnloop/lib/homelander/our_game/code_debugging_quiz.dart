@@ -51,8 +51,9 @@ class CodeDebuggingQuiz extends StatelessWidget {
                         child: Text(
                           categories[index],
                           style: const TextStyle(
-                            fontSize: 24.0,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black
                           ),
                         ),
                       ),
@@ -299,7 +300,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 }
               });
             },
-            child: Text('Next'),
+            child: Text('Next',style: TextStyle(color: Colors.green),),
           ),
         ],
       ),
@@ -386,6 +387,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           style: const TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500,
+                            color: Colors.white
                           ),
                           textAlign: TextAlign.center,
                         ),
