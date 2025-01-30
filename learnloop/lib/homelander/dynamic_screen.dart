@@ -179,7 +179,7 @@ class _DynamicScreenState extends State<DynamicScreen>
                             vertical: 16,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           elevation: 8,
                         ),
@@ -228,11 +228,12 @@ class _DynamicScreenState extends State<DynamicScreen>
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           "Resources",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -251,7 +252,7 @@ class _DynamicScreenState extends State<DynamicScreen>
             fontWeight: FontWeight.bold,
           ),
           labelColor: Colors.green,
-          unselectedLabelColor: Colors.grey,
+          unselectedLabelColor: Colors.white,
         ),
       ),
       body: isLoading
