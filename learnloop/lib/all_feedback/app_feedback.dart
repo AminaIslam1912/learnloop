@@ -72,7 +72,7 @@ class FeedbackFormDialog {
                               icon: Icon(
                                 index < _rating ? Icons.star : Icons.star_border,
                                 color: Colors.amber,
-                                size: 30,
+                                size: 25,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -97,6 +97,9 @@ class FeedbackFormDialog {
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15), // Set border radius to 15
+    ),
                           ),
                           onPressed: () async {
                             await fetchAverageRating();
