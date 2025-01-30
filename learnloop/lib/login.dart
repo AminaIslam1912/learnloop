@@ -172,11 +172,23 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                 ElevatedButton(
+                  style:  ElevatedButton.styleFrom(
+      backgroundColor: Colors.red, // Red background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), // Rectangle with rounded corners
+      ),
+    ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green, // Green background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), // Rectangle with rounded corners
+      ),
+    ),
                   onPressed: () async {
                     final email = emailController.text;
                     if (email.isEmpty || !email.contains('@')) {
@@ -197,7 +209,10 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     }
                   },
-                  child: const Text('Send OTP'),
+                  child: const Text(
+      'Send OTP to mail',
+      style: TextStyle(color: Colors.white), // White text
+    ),
                 ),
               ],
             );
@@ -231,11 +246,23 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                ElevatedButton(
+                  style:  ElevatedButton.styleFrom(
+      backgroundColor: Colors.red, // Red background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), // Rectangle with rounded corners
+      ),
+    ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green, // Green background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), // Rectangle with rounded corners
+      ),
+    ),
                   onPressed: () {
                     final enteredOtp = int.tryParse(otpController.text);
                     if (enteredOtp == null || enteredOtp != sentOtp) {
@@ -247,7 +274,10 @@ class _LoginPageState extends State<LoginPage> {
                       _fetchCurrentPassword(email);
                     }
                   },
-                  child: const Text('Done'),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             );
@@ -337,15 +367,20 @@ class _LoginPageState extends State<LoginPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Password copied to clipboard!'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.white,
                     duration: Duration(seconds: 2),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF009252),
-              ),
-              child: const Text('Copy'),
+      backgroundColor: Colors.green, // Green background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), // Rectangle with rounded corners
+      ),
+    ),
+              child: const Text('Copy to clipboard',
+              style: TextStyle(color: Colors.white),                 
+                               ),
             ),
           ],
         );
