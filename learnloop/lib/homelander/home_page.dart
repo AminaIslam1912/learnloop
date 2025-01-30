@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage>
         final response = await Supabase.instance.client
             .from('users')
             .select('saved_courses')
-            .eq('id', user.id)
+            .eq('sup_id', user.id)
             .single();
 
         if (response != null && response['saved_courses'] != null) {
@@ -247,7 +247,7 @@ class _HomePageState extends State<HomePage>
         final response = await Supabase.instance.client
             .from('users')
             .select('saved_courses')
-            .eq('id', user.id)
+            .eq('sup_id', user.id)
             .single();
 
         List<int> currentSavedCourses = [];
@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage>
           await Supabase.instance.client
               .from('users')
               .update({'saved_courses': currentSavedCourses})
-              .eq('id', user.id);
+              .eq('sup_id', user.id);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('$courseTitle saved successfully!')),
@@ -281,6 +281,8 @@ class _HomePageState extends State<HomePage>
       }
     }
   }
+
+
    Future<void> _fetchCourseImages() async {
 
     try {
@@ -977,7 +979,7 @@ class _HomePageState extends State<HomePage>
                   try {
                     await Supabase.instance.client.auth.signOut();
                     print('Logged out successfully');
-                     Navigator.pushReplacementNamed(context, '/login');
+                     Navigator.pushReplacementNamed(context, '/sign_up');
                   } catch (e) {
                     print('Logout exception: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
