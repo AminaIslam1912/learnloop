@@ -36,10 +36,6 @@ LearnLoop was developed to democratize education by providing a space where user
 - **Amina Islam (36)**  
 - **Rubaiya Tarannum Mrittika (49)**
 
-## 📸 UI Screenshots  
-
-[Include key screenshots from the app here]  
-
 ## 🔧 Setup Instructions  
 
 1. **Clone the Repository:**  
