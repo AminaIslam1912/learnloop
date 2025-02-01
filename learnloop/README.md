@@ -1,6 +1,6 @@
 # LearnLoop  
 
-![LearnLoop Logo](learnloop/assets/applogo.jpg)  
+![LearnLoop Logo](assets/applogo.jpg)  
 
 ## 📌 Introduction  
 
