@@ -65,4 +65,8 @@ LearnLoop was developed to democratize education by providing a space where user
 - 🏆 Leaderboards & badges for top learners.  
 - 🔗 LinkedIn integration for CV sharing.  
 - 📱 iOS version for wider accessibility.  
-- 📈 Advanced progress tracking and analytics.  
+- 📈 Advanced progress tracking and analytics.
+
+## 📥 Download the APK  
+[Download LearnLoop APK](https://drive.google.com/file/d/1-rF2AO6cjI5KczAx1HgYwsU5l5z8XgTz/view?usp=sharing)
+
